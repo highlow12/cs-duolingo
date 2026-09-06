@@ -4,12 +4,13 @@ const shellCache = `cs-duolingo-shell-${version}`;
 const contentCache = `cs-duolingo-content-${version}`;
 const migrationCache = "cs-duolingo-migrations";
 const pagesBasePathMigration = new URL(
-  "migration-pages-base-path-v1",
+  "migration-pages-base-path-v2",
   self.registration.scope,
 );
 const contentAssets = files.filter((asset) => asset.includes("/generated/"));
 const shellAssets = files.filter((asset) => !asset.includes("/generated/"));
 const appAssets = [...build, ...shellAssets];
+let reloadForPagesMigration = false;
 
 function isSameOrigin(request: Request) {
   return new URL(request.url).origin === self.location.origin;
@@ -69,6 +70,7 @@ self.addEventListener("install", (event) => {
             pagesBasePathMigration,
             new Response("complete"),
           );
+          reloadForPagesMigration = true;
           await self.skipWaiting();
         }
       }
@@ -78,7 +80,8 @@ self.addEventListener("install", (event) => {
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then(async (keys) => {
+    (async () => {
+      const keys = await caches.keys();
       await Promise.all(
         keys
           .filter(
@@ -91,7 +94,14 @@ self.addEventListener("activate", (event) => {
           .map((key) => caches.delete(key)),
       );
       await self.clients.claim();
-    }),
+
+      if (reloadForPagesMigration) {
+        const clients = await self.clients.matchAll({ type: "window" });
+        await Promise.all(
+          clients.map((client) => (client as WindowClient).navigate(client.url)),
+        );
+      }
+    })(),
   );
 });
 
