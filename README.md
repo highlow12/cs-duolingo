@@ -1,62 +1,65 @@
 # CS 듀오링고
 
-컴퓨터과학을 짧은 학습 세션과 반복 문제로 공부할 수 있도록 돕는 학습 앱입니다.
+컴퓨터과학을 짧은 학습 세션과 반복 문제로 공부할 수 있도록 돕는 Offline First 학습 앱입니다.
 
-## 목표
+## 현재 목표
 
-- 컴퓨터과학 개념을 작은 학습 단위로 나누어 꾸준히 학습하기
-- 단순 암기보다 개념 이해와 구현 능력을 함께 확인하기
-- 학습자의 진행 상황에 따라 다음에 배울 내용을 자연스럽게 제시하기
-- 재사용 가능한 문제 템플릿으로 다양한 주제의 문제를 빠르게 구성하기
+- SvelteKit 기반 웹 앱과 PWA 구축
+- YAML/Markdown 콘텐츠를 검증된 정적 JSON으로 변환
+- Curriculum DAG와 Lesson Flow 실행
+- 재사용 가능한 Question Plugin과 독립 Evaluator 구성
+- IndexedDB 기반 학습 진행도와 FSRS 복습 시스템 확장
+- 동일한 앱을 Capacitor로 Android/iOS에 배포
+
+현재는 시스템 명세의 Phase 1 Skeleton과 Phase 2 Content Pipeline을 구현하는 단계입니다.
+
+## 시작하기
+
+```bash
+npm install
+npm run dev
+```
+
+브라우저에서 `http://localhost:5173`을 엽니다.
+
+주요 명령:
+
+```bash
+npm run content:validate  # 콘텐츠 스키마와 참조 검증
+npm run content:build     # YAML/Markdown → generated JSON
+npm run check             # 타입·Svelte·콘텐츠 검사
+npm run test              # 단위 테스트
+npm run build             # 정적 웹 빌드
+```
+
+## 구조
+
+```text
+content/       작성 원본 YAML/Markdown
+generated/     콘텐츠 빌드 산출물
+scripts/       콘텐츠 검증·빌드 스크립트
+src/           SvelteKit 앱과 도메인 코드
+static/        PWA 정적 자산
+tests/         단위 테스트
+```
+
+콘텐츠의 상세 규칙과 전체 아키텍처는 [SYSTEM_SPEC.md](./SYSTEM_SPEC.md)에 정의되어 있습니다.
 
 ## 학습 경로
 
-초기 학습 경로는 다음과 같은 트랙으로 구성하는 것을 목표로 합니다.
+초기 학습 경로는 Python 기초, 자료구조·알고리즘, 컴퓨터 구조를 중심으로 구성하며, 자료구조에서 배열·트리·그래프로 분기해 정렬·탐색·DFS·BFS·다익스트라·A* 등으로 연결합니다.
 
-### 기초 프로그래밍
+## 초기 문제 형식
 
-- Python 문법과 실행 흐름
-- 함수, 자료형, 예외 처리
-- 모듈화와 간단한 테스트
+- `single-choice`
+- `multi-select`
+- `fill-blank`
+- `ordering`
+- `matching`
+- `code-output`
+- `code-completion`
 
-### 자료구조와 알고리즘
-
-- 배열과 문자열
-- 연결 리스트, 스택, 큐
-- 트리와 힙
-- 그래프
-- 정렬과 탐색
-- BFS, DFS, A*, 다익스트라 등 자료구조와 연결된 알고리즘
-
-### 컴퓨터 시스템
-
-- 컴퓨터 구조
-- 운영체제와 실행 환경
-- 네트워크
-- 컴퓨터 그래픽스
-
-학습 경로는 모든 내용을 한 줄로 진행하기보다, 선행 개념을 배운 뒤 관련 자료구조와 알고리즘으로 가지를 뻗는 형태를 지향합니다.
-
-## 문제 형식
-
-문제는 주제별로 새로 구현하기보다 재사용 가능한 템플릿을 조합하는 방식으로 구성합니다.
-
-예정된 문제 형식은 다음과 같습니다.
-
-- 빈칸 채우기
-- 객관식 및 복수 선택
-- 순서 배열
-- 짝짓기
-- 코드 실행 결과 예측
-- 코드 오류 찾기
-- 짧은 코드 작성
-- 자료구조 상태 변화 추적
-- 알고리즘 실행 과정 추적
-- 개념 비교 및 설명
-
-## 개발 상태
-
-현재는 학습 구조와 문제 시스템을 설계하는 초기 단계입니다.
+첫 번째 수직 슬라이스에서는 `single-choice`와 `fill-blank`를 우선 구현합니다.
 
 ## 라이선스
 

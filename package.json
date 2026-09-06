@@ -1,0 +1,41 @@
+{
+  "name": "cs-duolingo",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite dev",
+    "predev": "npm run content:build",
+    "build": "npm run content:build && vite build",
+    "preview": "vite preview",
+    "content:validate": "node --import tsx/esm scripts/content/validate.ts",
+    "content:build": "node --import tsx/esm scripts/content/build.ts",
+    "test:unit": "vitest run",
+    "test": "npm run test:unit",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "prepare": "svelte-kit sync || echo ''",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json && npm run content:validate",
+    "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.5.1",
+    "@sveltejs/adapter-static": "^3.0.10",
+    "@sveltejs/kit": "^2.63.0",
+    "@sveltejs/vite-plugin-svelte": "^7.1.2",
+    "@types/node": "^26.4.1",
+    "prettier": "^3.9.6",
+    "prettier-plugin-svelte": "^4.1.1",
+    "svelte": "^5.56.1",
+    "svelte-check": "^4.6.0",
+    "tsx": "^4.23.13",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.16",
+    "vitest": "^5.0.0"
+  },
+  "dependencies": {
+    "@capacitor/core": "^8.5.1",
+    "dexie": "^4.4.5",
+    "yaml": "^2.9.0"
+  }
+}
