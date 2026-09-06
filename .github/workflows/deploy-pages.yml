@@ -26,11 +26,8 @@ jobs:
       - run: npm ci
       - run: npm run verify
         env:
-          BASE_PATH: /cs-duolingo
+          BASE_PATH: /${{ github.event.repository.name }}
       - uses: actions/configure-pages@v5
-        with:
-          enablement: true
-          token: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: build
