@@ -1,3 +1,4 @@
+import { compileMarkdown } from "./markdown";
 import { cp, mkdir, rm, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import {
@@ -63,6 +64,7 @@ function transformBlocks(
       return {
         ...block,
         markdown: transformMarkdown(block.markdown, source, assets),
+        html: compileMarkdown(transformMarkdown(block.markdown, source, assets)),
       };
     return block;
   });
@@ -131,6 +133,7 @@ export function compileContent(bundle: SourceContentBundle) {
           blocks: [
             {
               type: "markdown",
+              html: compileMarkdown(transformMarkdown(file.markdown, file.relativePath, assets)),
               markdown: transformMarkdown(
                 file.markdown,
                 file.relativePath,

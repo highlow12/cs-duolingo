@@ -166,7 +166,7 @@ function validateBlocks(value: unknown, path: string): string[] {
       if (!isNonEmptyString(block.text))
         errors.push(`${at}.text: 비어 있을 수 없습니다.`);
     } else if (block.type === "markdown") {
-      errors.push(...unknownFields(block, ["type", "markdown"], at));
+      errors.push(...unknownFields(block, ["type", "markdown", "html"], at));
       if (!isNonEmptyString(block.markdown))
         errors.push(`${at}.markdown: 비어 있을 수 없습니다.`);
     } else if (block.type === "code") {

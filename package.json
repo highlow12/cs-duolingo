@@ -1,7 +1,7 @@
 {
   "name": "cs-duolingo",
   "private": true,
-  "version": "0.0.1",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite dev",
@@ -16,7 +16,11 @@
     "format:check": "prettier --check .",
     "prepare": "svelte-kit sync || echo ''",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json && npm run content:validate",
-    "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
+    "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+    "mobile:sync": "npm run build && cap sync",
+    "mobile:android": "cap open android",
+    "mobile:ios": "cap open ios",
+    "verify": "npm run content:build && npm run check && npm test && npm run build"
   },
   "devDependencies": {
     "@capacitor/cli": "^8.5.1",
@@ -24,8 +28,12 @@
     "@sveltejs/kit": "^2.63.0",
     "@sveltejs/vite-plugin-svelte": "^7.1.2",
     "@types/node": "^26.4.1",
+    "@types/sanitize-html": "^2.16.1",
+    "fake-indexeddb": "^6.2.5",
+    "marked": "^18.0.11",
     "prettier": "^3.9.6",
     "prettier-plugin-svelte": "^4.1.1",
+    "sanitize-html": "^2.17.7",
     "svelte": "^5.56.1",
     "svelte-check": "^4.6.0",
     "tsx": "^4.23.13",
@@ -34,8 +42,11 @@
     "vitest": "^5.0.0"
   },
   "dependencies": {
+    "@capacitor/android": "^8.5.1",
     "@capacitor/core": "^8.5.1",
+    "@capacitor/ios": "^8.5.1",
     "dexie": "^4.4.5",
+    "ts-fsrs": "^5.4.2",
     "yaml": "^2.9.0"
   }
 }

@@ -1,6 +1,6 @@
 export type ContentBlock =
   | { type: "text"; text: string }
-  | { type: "markdown"; markdown: string }
+  | { type: "markdown"; markdown: string; html?: string }
   | { type: "code"; language: string; code: string }
   | { type: "image"; src: string; alt: string }
   | { type: "diagram"; diagramType: string; data: unknown; alt: string };
