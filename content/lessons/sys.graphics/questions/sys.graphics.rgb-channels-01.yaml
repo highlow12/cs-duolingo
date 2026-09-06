@@ -1,0 +1,29 @@
+schemaVersion: 1
+id: sys.graphics.rgb-channels-01
+revision: 1
+type: single-choice
+prompt:
+  - type: text
+    text: RGB 값 (10, 20, 30)의 각 채널에 10을 더하면 어떤 값이 되나요?
+options:
+  - id: option-0
+    content:
+      - type: text
+        text: (20, 30, 40)
+  - id: option-1
+    content:
+      - type: text
+        text: (10, 20, 30)
+  - id: option-2
+    content:
+      - type: text
+        text: (20, 30, 40, 50)
+correctOptionId: option-0
+shuffleOptions: true
+explanation:
+  - type: text
+    text: 세 채널을 각각 계산하면 빨강 20, 초록 30, 파랑 40입니다. 채널의 개수는 바뀌지 않습니다.
+tags:
+  - graphics
+  - rgb
+difficulty: 2

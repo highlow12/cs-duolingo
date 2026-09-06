@@ -1,0 +1,38 @@
+schemaVersion: 1
+id: arch.cpu.cycle-01
+revision: 1
+type: ordering
+prompt:
+- type: text
+  text: CPU의 기본 명령 실행 사이클을 순서대로 배열하세요.
+items:
+- id: fetch
+  content:
+  - type: text
+    text: 메모리에서 명령을 가져온다
+- id: decode
+  content:
+  - type: text
+    text: 명령의 종류와 피연산자를 해석한다
+- id: execute
+  content:
+  - type: text
+    text: ALU나 다른 장치로 명령을 수행한다
+- id: store
+  content:
+  - type: text
+    text: 계산 결과를 레지스터나 메모리에 기록한다
+correctOrder:
+- fetch
+- decode
+- execute
+- store
+explanation:
+- type: text
+  text: CPU는 명령을 가져와 해석하고 실행한 뒤 결과를 기록합니다.
+- type: text
+  text: 구현에 따라 세부 단계가 더 나뉘어도 이 네 동작의 의존 순서는 유지됩니다.
+tags:
+- cpu
+- instruction-cycle
+difficulty: 2

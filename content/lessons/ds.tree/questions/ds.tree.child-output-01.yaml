@@ -1,0 +1,31 @@
+schemaVersion: 1
+id: ds.tree.child-output-01
+revision: 1
+type: code-output
+prompt:
+- type: text
+  text: 다음 트리 표현 코드의 출력 결과를 고르세요.
+language: python
+code: |-
+  tree = {
+      "value": "A",
+      "left": {"value": "B"},
+      "right": {"value": "C"}
+  }
+  print(tree["left"]["value"])
+choices:
+- B
+- A
+- C
+acceptedOutputs:
+- B
+explanation:
+- type: text
+  text: left 키가 가리키는 노드의 value가 B이므로 B가 출력됩니다.
+- type: text
+  text: 딕셔너리 중첩 표현에서도 키를 따라가면 부모와 자식 관계를 읽을 수 있습니다.
+tags:
+- tree
+- representation
+- code-output
+difficulty: 2

@@ -1,0 +1,31 @@
+schemaVersion: 1
+id: sys.network.tcp-choice-01
+revision: 1
+type: single-choice
+prompt:
+- type: text
+  text: TCP의 특징으로 가장 알맞은 것은 무엇인가요?
+options:
+- id: reliable
+  content:
+  - type: text
+    text: 데이터 순서와 재전송을 관리해 신뢰성 있는 전달을 돕는다
+- id: image
+  content:
+  - type: text
+    text: 각 패킷을 화면의 픽셀로 바로 바꾼다
+- id: random
+  content:
+  - type: text
+    text: 전송 순서를 항상 무작위로 섞는다
+correctOptionId: reliable
+shuffleOptions: false
+explanation:
+- type: text
+  text: TCP는 확인과 재전송 등을 통해 순서가 있는 신뢰성 있는 전달을 지원합니다.
+- type: text
+  text: 신뢰성·순서 관리가 필요한 전송과 낮은 지연을 우선하는 전송은 선택이 다를 수 있습니다.
+tags:
+- networking
+- tcp
+difficulty: 1

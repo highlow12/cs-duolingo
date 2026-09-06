@@ -1,0 +1,17 @@
+schemaVersion: 1
+id: ds.array
+revision: 1
+track: data-structures
+title: 배열
+description: 연속된 위치에 값을 저장하고 인덱스로 빠르게 접근하는 배열을 이해한다.
+flow:
+- type: content
+  ref: content/intro.md
+- type: question
+  ref: ds.array.layout-01
+- type: content
+  ref: content/practice.md
+- type: question
+  ref: ds.array.index-output-01
+- type: question
+  ref: ds.array.access-steps-01

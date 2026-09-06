@@ -1,0 +1,39 @@
+schemaVersion: 1
+id: algo.search.linear-steps-01
+revision: 1
+type: ordering
+prompt:
+- type: text
+  text: 선형 탐색으로 target을 찾는 과정을 순서대로 배열하세요.
+items:
+- id: inspect
+  content:
+  - type: text
+    text: 현재 위치의 원소를 확인한다
+- id: compare
+  content:
+  - type: text
+    text: 원소가 target과 같은지 비교한다
+- id: advance
+  content:
+  - type: text
+    text: 다르면 다음 위치로 이동한다
+- id: report
+  content:
+  - type: text
+    text: 같으면 위치를 기록하고 탐색을 끝낸다
+correctOrder:
+- inspect
+- compare
+- advance
+- report
+explanation:
+- type: text
+  text: 선형 탐색은 확인, 비교를 반복하다가 일치하면 결과를 보고 끝냅니다.
+- type: text
+  text: 마지막 위치까지 불일치하면 찾지 못했다는 결과도 별도로 처리해야 합니다.
+tags:
+- search
+- linear-search
+- execution-order
+difficulty: 2

@@ -1,0 +1,39 @@
+schemaVersion: 1
+id: ds.queue.service-order-01
+revision: 1
+type: ordering
+prompt:
+- type: text
+  text: 큐에 A와 B를 넣고 하나씩 처리할 때의 순서를 배열하세요.
+items:
+- id: enqueue-a
+  content:
+  - type: text
+    text: A를 뒤에 넣는다
+- id: enqueue-b
+  content:
+  - type: text
+    text: B를 뒤에 넣는다
+- id: dequeue-a
+  content:
+  - type: text
+    text: 앞에서 A를 꺼낸다
+- id: dequeue-b
+  content:
+  - type: text
+    text: 앞에서 B를 꺼낸다
+correctOrder:
+- enqueue-a
+- enqueue-b
+- dequeue-a
+- dequeue-b
+explanation:
+- type: text
+  text: A가 먼저 들어갔으므로 첫 dequeue에서 A가 나오고 그 다음 B가 나옵니다.
+- type: text
+  text: enqueue와 dequeue의 방향을 분리해서 보면 FIFO 순서를 추적할 수 있습니다.
+tags:
+- queue
+- fifo
+- execution-order
+difficulty: 2

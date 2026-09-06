@@ -1,0 +1,55 @@
+schemaVersion: 1
+id: py.lists.operations-01
+revision: 1
+type: matching
+prompt:
+- type: text
+  text: 리스트 연산과 그 동작을 알맞게 연결하세요.
+leftItems:
+- id: append
+  content:
+  - type: code
+    language: python
+    code: |-
+      items.append(value)
+- id: index
+  content:
+  - type: code
+    language: python
+    code: |-
+      items[0]
+- id: pop
+  content:
+  - type: code
+    language: python
+    code: |-
+      items.pop()
+rightItems:
+- id: add-end
+  content:
+  - type: text
+    text: 마지막에 원소를 추가한다
+- id: read-position
+  content:
+  - type: text
+    text: 인덱스 위치의 원소를 읽는다
+- id: remove-end
+  content:
+  - type: text
+    text: 마지막 원소를 제거하고 돌려준다
+correctPairs:
+- leftId: append
+  rightId: add-end
+- leftId: index
+  rightId: read-position
+- leftId: pop
+  rightId: remove-end
+explanation:
+- type: text
+  text: append는 끝에 추가하고 pop은 끝 원소를 제거합니다. 대괄호 인덱싱은 원소를 읽습니다.
+- type: text
+  text: 리스트의 연산은 위치와 끝 중 어느 곳을 다루는지 함께 기억하면 구분하기 쉽습니다.
+tags:
+- lists
+- operations
+difficulty: 2

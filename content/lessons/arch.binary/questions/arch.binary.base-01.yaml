@@ -1,0 +1,31 @@
+schemaVersion: 1
+id: arch.binary.base-01
+revision: 1
+type: single-choice
+prompt:
+- type: text
+  text: 이진수 101을 십진수로 읽은 값은 무엇인가요?
+options:
+- id: five
+  content:
+  - type: text
+    text: '5'
+- id: three
+  content:
+  - type: text
+    text: '3'
+- id: four
+  content:
+  - type: text
+    text: '4'
+correctOptionId: five
+shuffleOptions: false
+explanation:
+- type: text
+  text: 101은 1×4 + 0×2 + 1×1이므로 5입니다.
+- type: text
+  text: 각 비트 자리의 가중치는 오른쪽부터 2의 0제곱, 2의 1제곱으로 커집니다.
+tags:
+- binary
+- bits
+difficulty: 1

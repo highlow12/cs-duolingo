@@ -1,0 +1,38 @@
+schemaVersion: 1
+id: ds.queue.deque-output-01
+revision: 1
+type: code-output
+prompt:
+- type: text
+  text: 다음 deque 코드의 두 줄 출력 결과를 고르세요.
+language: python
+code: |-
+  from collections import deque
+  queue = deque(["A", "B"])
+  queue.append("C")
+  print(queue.popleft())
+  print(queue[0])
+choices:
+- 'A
+
+  B'
+- 'B
+
+  C'
+- 'A
+
+  C'
+acceptedOutputs:
+- 'A
+
+  B'
+explanation:
+- type: text
+  text: 앞에서 A를 꺼낸 뒤 queue의 앞에는 B가 남습니다.
+- type: text
+  text: append는 뒤에 넣고 popleft는 앞에서 꺼내므로 FIFO가 유지됩니다.
+tags:
+- queue
+- deque
+- code-output
+difficulty: 2

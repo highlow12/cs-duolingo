@@ -1,0 +1,40 @@
+schemaVersion: 1
+id: py.functions.definition-call-01
+revision: 1
+type: ordering
+prompt:
+- type: text
+  text: 함수를 정의하고 호출한 뒤 결과를 출력하는 코드의 순서를 배열하세요.
+items:
+- id: define
+  content:
+  - type: code
+    language: python
+    code: |-
+      def add(left, right):
+          return left + right
+- id: call
+  content:
+  - type: code
+    language: python
+    code: |-
+      result = add(2, 3)
+- id: print
+  content:
+  - type: code
+    language: python
+    code: |-
+      print(result)
+correctOrder:
+- define
+- call
+- print
+explanation:
+- type: text
+  text: 먼저 함수가 어떤 동작을 하는지 정의하고, 호출 결과를 변수에 담은 뒤 출력합니다.
+- type: text
+  text: 정의는 호출보다 먼저 실행되어야 하며 반환값은 호출한 곳에서 사용할 수 있습니다.
+tags:
+- functions
+- execution-order
+difficulty: 2

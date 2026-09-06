@@ -1,0 +1,17 @@
+schemaVersion: 1
+id: py.lists
+revision: 1
+track: python
+title: 리스트
+description: 순서가 있는 여러 값을 인덱스로 읽고 변경하는 방법을 익힌다.
+flow:
+- type: content
+  ref: content/intro.md
+- type: question
+  ref: py.lists.operations-01
+- type: content
+  ref: content/practice.md
+- type: question
+  ref: py.lists.mutation-output-01
+- type: question
+  ref: py.lists.properties-01

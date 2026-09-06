@@ -1,0 +1,17 @@
+schemaVersion: 1
+id: ds.queue
+revision: 1
+track: data-structures
+title: 큐
+description: 먼저 들어온 값이 먼저 나오는 FIFO 구조와 양 끝 연산을 이해한다.
+flow:
+- type: content
+  ref: content/intro.md
+- type: question
+  ref: ds.queue.fifo-01
+- type: content
+  ref: content/practice.md
+- type: question
+  ref: ds.queue.service-order-01
+- type: question
+  ref: ds.queue.deque-output-01

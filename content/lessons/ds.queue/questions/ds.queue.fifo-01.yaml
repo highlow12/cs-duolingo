@@ -1,0 +1,31 @@
+schemaVersion: 1
+id: ds.queue.fifo-01
+revision: 1
+type: single-choice
+prompt:
+- type: text
+  text: 큐의 FIFO 규칙을 올바르게 설명한 것은 무엇인가요?
+options:
+- id: first
+  content:
+  - type: text
+    text: 먼저 들어온 원소가 먼저 나온다
+- id: last
+  content:
+  - type: text
+    text: 마지막에 들어온 원소가 먼저 나온다
+- id: random
+  content:
+  - type: text
+    text: 원소가 무작위 순서로 나온다
+correctOptionId: first
+shuffleOptions: false
+explanation:
+- type: text
+  text: FIFO는 First In, First Out의 약자로 먼저 들어온 값이 먼저 나옵니다.
+- type: text
+  text: 큐는 도착 순서를 보존해야 하는 대기 작업에 잘 맞습니다.
+tags:
+- queue
+- fifo
+difficulty: 1

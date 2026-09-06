@@ -1,0 +1,29 @@
+schemaVersion: 1
+id: py.loops.sum-output-01
+revision: 1
+type: code-output
+prompt:
+- type: text
+  text: 다음 Python 코드의 출력 결과를 고르세요.
+language: python
+code: |-
+  total = 0
+  for number in [1, 2, 3]:
+      total += number
+  print(total)
+choices:
+- '6'
+- '5'
+- '123'
+acceptedOutputs:
+- '6'
+explanation:
+- type: text
+  text: 1, 2, 3을 차례로 더하므로 total은 6이 됩니다.
+- type: text
+  text: 누적 변수는 반복 전 0에서 시작해 각 회차마다 갱신됩니다.
+tags:
+- loops
+- accumulator
+- code-output
+difficulty: 2

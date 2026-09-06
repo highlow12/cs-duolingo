@@ -1,0 +1,33 @@
+schemaVersion: 1
+id: ds.array.access-steps-01
+revision: 1
+type: ordering
+prompt:
+- type: text
+  text: 배열에서 인덱스로 원소를 읽는 개념적 단계를 순서대로 배열하세요.
+items:
+- id: choose-index
+  content:
+  - type: text
+    text: 읽고 싶은 인덱스를 정한다
+- id: calculate-offset
+  content:
+  - type: text
+    text: 시작 위치에서의 오프셋을 계산한다
+- id: read-cell
+  content:
+  - type: text
+    text: 해당 칸의 값을 읽는다
+correctOrder:
+- choose-index
+- calculate-offset
+- read-cell
+explanation:
+- type: text
+  text: 먼저 인덱스를 선택하고 위치를 계산한 뒤 그 칸을 읽습니다.
+- type: text
+  text: 연속 배치가 오프셋 계산을 가능하게 하므로 임의 접근이 빠릅니다.
+tags:
+- array
+- memory-model
+difficulty: 2

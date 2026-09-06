@@ -1,0 +1,36 @@
+schemaVersion: 1
+id: arch.logic.true-expressions-01
+revision: 1
+type: multi-select
+prompt:
+  - type: text
+    text: 다음 중 출력이 1인 논리식을 모두 고르세요.
+options:
+  - id: and-true
+    content:
+      - type: text
+        text: 1 AND 1
+  - id: and-false
+    content:
+      - type: text
+        text: 1 AND 0
+  - id: or-true
+    content:
+      - type: text
+        text: 0 OR 1
+  - id: not-false
+    content:
+      - type: text
+        text: NOT 0
+correctOptionIds:
+  - and-true
+  - or-true
+  - not-false
+shuffleOptions: false
+explanation:
+  - type: text
+    text: AND는 두 입력이 모두 1일 때, OR는 하나 이상이 1일 때 1입니다. NOT 0의 출력은 1입니다.
+tags:
+  - logic
+  - boolean
+difficulty: 2

@@ -1,0 +1,49 @@
+schemaVersion: 1
+id: sys.graphics.pipeline-terms-01
+revision: 1
+type: matching
+prompt:
+- type: text
+  text: 그래픽스 용어와 역할을 알맞게 연결하세요.
+leftItems:
+- id: pixel
+  content:
+  - type: text
+    text: 픽셀
+- id: vertex
+  content:
+  - type: text
+    text: 정점
+- id: framebuffer
+  content:
+  - type: text
+    text: 프레임버퍼
+rightItems:
+- id: color-cell
+  content:
+  - type: text
+    text: 화면 격자의 한 위치와 그 색
+- id: shape-point
+  content:
+  - type: text
+    text: 도형을 정의하는 좌표 점
+- id: image-store
+  content:
+  - type: text
+    text: 화면에 표시할 최종 색을 모아 두는 영역
+correctPairs:
+- leftId: pixel
+  rightId: color-cell
+- leftId: vertex
+  rightId: shape-point
+- leftId: framebuffer
+  rightId: image-store
+explanation:
+- type: text
+  text: 픽셀은 색이 기록되는 한 칸, 정점은 도형의 점, 프레임버퍼는 최종 색을 담는 영역입니다.
+- type: text
+  text: 렌더링 흐름에서 정점이 변환되어 픽셀 색이 되고 프레임버퍼에 쌓인다고 연결해 보세요.
+tags:
+- graphics
+- rendering
+difficulty: 2

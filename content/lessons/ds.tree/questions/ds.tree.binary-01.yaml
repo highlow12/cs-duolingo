@@ -1,0 +1,31 @@
+schemaVersion: 1
+id: ds.tree.binary-01
+revision: 1
+type: single-choice
+prompt:
+- type: text
+  text: 이진 트리의 조건으로 가장 알맞은 것은 무엇인가요?
+options:
+- id: two
+  content:
+  - type: text
+    text: 각 노드의 자식 수가 최대 두 개이다
+- id: sorted
+  content:
+  - type: text
+    text: 모든 노드가 항상 오름차순으로 저장된다
+- id: cycle
+  content:
+  - type: text
+    text: 모든 노드가 서로 원형으로 연결된다
+correctOptionId: two
+shuffleOptions: false
+explanation:
+- type: text
+  text: 이진 트리는 각 노드가 가질 수 있는 자식의 최대 수가 둘인 트리입니다.
+- type: text
+  text: 자식 수 제한은 이진 트리의 정의이고, 정렬 여부는 별도의 이진 탐색 트리 조건입니다.
+tags:
+- tree
+- binary-tree
+difficulty: 1

@@ -1,0 +1,27 @@
+schemaVersion: 1
+id: ds.array.index-output-01
+revision: 1
+type: code-output
+prompt:
+- type: text
+  text: 다음 코드의 출력 결과를 고르세요.
+language: python
+code: |-
+  values = [10, 20, 30]
+  print(values[2])
+choices:
+- '30'
+- '20'
+- '2'
+acceptedOutputs:
+- '30'
+explanation:
+- type: text
+  text: 인덱스는 0부터 시작하므로 values[2]는 세 번째 값 30입니다.
+- type: text
+  text: 인덱스와 원소 값은 서로 다른 개념이므로 위치를 먼저 세어 보세요.
+tags:
+- array
+- indexing
+- code-output
+difficulty: 1

@@ -1,0 +1,31 @@
+schemaVersion: 1
+id: ds.array.layout-01
+revision: 1
+type: single-choice
+prompt:
+- type: text
+  text: 배열의 인덱스 접근이 빠른 주된 이유는 무엇인가요?
+options:
+- id: offset
+  content:
+  - type: text
+    text: 시작 위치와 인덱스로 원소 위치를 바로 계산할 수 있기 때문이다
+- id: sort
+  content:
+  - type: text
+    text: 배열은 항상 자동으로 정렬되기 때문이다
+- id: duplicate
+  content:
+  - type: text
+    text: 배열은 같은 값을 저장할 수 없기 때문이다
+correctOptionId: offset
+shuffleOptions: false
+explanation:
+- type: text
+  text: 연속된 칸에서는 시작 위치와 인덱스로 목표 칸의 위치를 계산할 수 있습니다.
+- type: text
+  text: 빠른 임의 접근과 중간 삽입 때의 이동 비용은 배열을 설명하는 핵심 대비입니다.
+tags:
+- array
+- random-access
+difficulty: 1

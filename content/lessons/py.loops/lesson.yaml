@@ -1,0 +1,17 @@
+schemaVersion: 1
+id: py.loops
+revision: 1
+track: python
+title: 반복문
+description: for와 while로 반복 작업을 표현하고 누적값을 계산한다.
+flow:
+- type: content
+  ref: content/intro.md
+- type: question
+  ref: py.loops.purpose-01
+- type: content
+  ref: content/practice.md
+- type: question
+  ref: py.loops.sum-output-01
+- type: question
+  ref: py.loops.sequence-01

@@ -1,0 +1,49 @@
+schemaVersion: 1
+id: algo.sort.ideas-01
+revision: 1
+type: matching
+prompt:
+- type: text
+  text: 정렬 알고리즘의 아이디어와 설명을 알맞게 연결하세요.
+leftItems:
+- id: bubble
+  content:
+  - type: text
+    text: 버블 정렬
+- id: selection
+  content:
+  - type: text
+    text: 선택 정렬
+- id: merge
+  content:
+  - type: text
+    text: 병합 정렬
+rightItems:
+- id: neighbors
+  content:
+  - type: text
+    text: 이웃 원소를 비교하고 필요하면 교환한다
+- id: minimum
+  content:
+  - type: text
+    text: 남은 범위의 최소값을 골라 앞으로 보낸다
+- id: combine
+  content:
+  - type: text
+    text: 정렬된 작은 범위를 나누고 합친다
+correctPairs:
+- leftId: bubble
+  rightId: neighbors
+- leftId: selection
+  rightId: minimum
+- leftId: merge
+  rightId: combine
+explanation:
+- type: text
+  text: 버블은 이웃 비교, 선택은 최소값 선택, 병합은 분할된 범위의 결합을 핵심으로 합니다.
+- type: text
+  text: 알고리즘 이름을 외우기보다 한 pass에서 어떤 선택과 이동이 일어나는지 설명해 보세요.
+tags:
+- sorting
+- algorithm-ideas
+difficulty: 2

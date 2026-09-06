@@ -1,0 +1,31 @@
+schemaVersion: 1
+id: ds.stack.use-01
+revision: 1
+type: single-choice
+prompt:
+- type: text
+  text: 다음 중 스택이 특히 잘 맞는 작업은 무엇인가요?
+options:
+- id: undo
+  content:
+  - type: text
+    text: 가장 최근 편집부터 실행 취소하기
+- id: fifo
+  content:
+  - type: text
+    text: 먼저 도착한 고객부터 차례로 처리하기
+- id: random
+  content:
+  - type: text
+    text: 임의 위치의 값을 항상 같은 비용으로 읽기
+correctOptionId: undo
+shuffleOptions: false
+explanation:
+- type: text
+  text: 실행 취소는 가장 최근 상태를 먼저 되돌리므로 LIFO 스택과 잘 맞습니다.
+- type: text
+  text: 먼저 온 작업을 먼저 처리하는 문제는 FIFO 큐가 더 적합합니다.
+tags:
+- stack
+- application
+difficulty: 1

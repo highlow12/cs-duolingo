@@ -1,0 +1,17 @@
+schemaVersion: 1
+id: ds.tree
+revision: 1
+track: data-structures
+title: 트리
+description: 부모와 자식 관계로 계층 데이터를 표현하는 트리를 살펴본다.
+flow:
+- type: content
+  ref: content/intro.md
+- type: question
+  ref: ds.tree.terms-01
+- type: content
+  ref: content/practice.md
+- type: question
+  ref: ds.tree.binary-01
+- type: question
+  ref: ds.tree.child-output-01

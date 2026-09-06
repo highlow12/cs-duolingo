@@ -1,0 +1,17 @@
+schemaVersion: 1
+id: algo.sort
+revision: 1
+track: algorithms
+title: 정렬
+description: 정렬의 목적과 기본 알고리즘의 비교·교환 과정을 익힌다.
+flow:
+- type: content
+  ref: content/intro.md
+- type: question
+  ref: algo.sort.ideas-01
+- type: content
+  ref: content/practice.md
+- type: question
+  ref: algo.sort.bubble-output-01
+- type: question
+  ref: algo.sort.pass-steps-01

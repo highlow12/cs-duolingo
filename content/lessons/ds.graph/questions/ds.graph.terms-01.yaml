@@ -1,0 +1,49 @@
+schemaVersion: 1
+id: ds.graph.terms-01
+revision: 1
+type: matching
+prompt:
+- type: text
+  text: 그래프의 용어와 의미를 알맞게 연결하세요.
+leftItems:
+- id: vertex
+  content:
+  - type: text
+    text: vertex
+- id: edge
+  content:
+  - type: text
+    text: edge
+- id: path
+  content:
+  - type: text
+    text: path
+rightItems:
+- id: node
+  content:
+  - type: text
+    text: 정점 하나를 나타내는 단위
+- id: link
+  content:
+  - type: text
+    text: 두 정점을 잇는 연결
+- id: route
+  content:
+  - type: text
+    text: 간선을 따라 이동하는 정점의 순서
+correctPairs:
+- leftId: vertex
+  rightId: node
+- leftId: edge
+  rightId: link
+- leftId: path
+  rightId: route
+explanation:
+- type: text
+  text: vertex는 정점, edge는 연결, path는 연결을 따라가는 경로입니다.
+- type: text
+  text: 그래프 문제는 정점과 간선의 관계를 먼저 정확히 읽는 것에서 시작합니다.
+tags:
+- graph
+- terminology
+difficulty: 1

@@ -12,8 +12,20 @@ tracks:
     description: 데이터를 저장하고 다루는 기본 구조
     order: 20
 
+  - id: algorithms
+    revision: 1
+    title: 알고리즘
+    description: 탐색, 정렬, 순회와 최단 경로의 기본
+    order: 25
+
   - id: computer-architecture
     revision: 1
     title: 컴퓨터 구조
     description: 컴퓨터가 프로그램을 실행하는 방식을 이해한다.
     order: 30
+
+  - id: computer-systems
+    revision: 1
+    title: 컴퓨터 시스템 응용
+    description: 네트워크와 그래픽스의 기초 개념을 익힌다.
+    order: 40

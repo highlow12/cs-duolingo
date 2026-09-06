@@ -1,0 +1,38 @@
+schemaVersion: 1
+id: py.lists.properties-01
+revision: 1
+type: multi-select
+prompt:
+- type: text
+  text: Python 리스트에 대한 올바른 설명을 모두 고르세요.
+options:
+- id: ordered
+  content:
+  - type: text
+    text: 원소가 순서를 가지며 인덱스로 접근할 수 있다
+- id: append-end
+  content:
+  - type: text
+    text: append는 기본적으로 마지막에 원소를 추가한다
+- id: pop-last
+  content:
+  - type: text
+    text: 인덱스 없이 pop()을 호출하면 마지막 원소를 제거한다
+- id: fixed-size
+  content:
+  - type: text
+    text: 한 번 만들면 크기를 바꿀 수 없다
+correctOptionIds:
+- ordered
+- append-end
+- pop-last
+shuffleOptions: false
+explanation:
+- type: text
+  text: 리스트는 순서를 유지하고 append와 pop으로 크기와 원소를 바꿀 수 있습니다.
+- type: text
+  text: 인덱스는 0부터 시작하며, 빈 리스트에서는 pop을 호출할 수 없다는 경계도 기억하세요.
+tags:
+- lists
+- mutable
+difficulty: 2

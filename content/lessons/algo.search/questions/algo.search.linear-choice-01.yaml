@@ -1,0 +1,31 @@
+schemaVersion: 1
+id: algo.search.linear-choice-01
+revision: 1
+type: single-choice
+prompt:
+- type: text
+  text: 정렬되지 않은 배열에서 특정 값 하나를 찾을 때 바로 적용할 수 있는 방법은 무엇인가요?
+options:
+- id: linear
+  content:
+  - type: text
+    text: 앞에서부터 차례로 비교하는 선형 탐색
+- id: binary
+  content:
+  - type: text
+    text: 정렬을 전제로 가운데를 반복해서 고르는 이진 탐색
+- id: sort-only
+  content:
+  - type: text
+    text: 값을 찾지 않고 배열을 정렬만 하는 방법
+correctOptionId: linear
+shuffleOptions: false
+explanation:
+- type: text
+  text: 선형 탐색은 정렬되지 않은 배열에서도 각 원소를 차례로 비교할 수 있습니다.
+- type: text
+  text: 이진 탐색은 비교로 절반을 버릴 수 있도록 정렬된 순서가 필요합니다.
+tags:
+- search
+- linear-search
+difficulty: 1

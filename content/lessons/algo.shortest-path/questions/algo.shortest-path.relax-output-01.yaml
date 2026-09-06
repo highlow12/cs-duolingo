@@ -1,0 +1,32 @@
+schemaVersion: 1
+id: algo.shortest-path.relax-output-01
+revision: 1
+type: code-output
+prompt:
+- type: text
+  text: 다음 완화 코드의 출력 결과를 고르세요.
+language: python
+code: |-
+  current = 3
+  edge_weight = 5
+  best = 10
+  candidate = current + edge_weight
+  if candidate < best:
+      best = candidate
+  print(best)
+choices:
+- '8'
+- '10'
+- '5'
+acceptedOutputs:
+- '8'
+explanation:
+- type: text
+  text: 현재 거리 3에 간선 가중치 5를 더한 후보 8이 기존 10보다 작으므로 best가 8로 바뀝니다.
+- type: text
+  text: 완화는 더 좋은 후보가 있을 때만 저장된 거리를 교체합니다.
+tags:
+- shortest-path
+- relaxation
+- code-output
+difficulty: 2

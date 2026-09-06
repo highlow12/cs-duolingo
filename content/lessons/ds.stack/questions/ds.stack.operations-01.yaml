@@ -1,0 +1,49 @@
+schemaVersion: 1
+id: ds.stack.operations-01
+revision: 1
+type: matching
+prompt:
+- type: text
+  text: 스택 연산과 동작을 알맞게 연결하세요.
+leftItems:
+- id: push
+  content:
+  - type: text
+    text: push
+- id: pop
+  content:
+  - type: text
+    text: pop
+- id: peek
+  content:
+  - type: text
+    text: peek
+rightItems:
+- id: add-top
+  content:
+  - type: text
+    text: top에 값을 추가한다
+- id: remove-top
+  content:
+  - type: text
+    text: top의 값을 제거하고 반환한다
+- id: look-top
+  content:
+  - type: text
+    text: top을 살펴보지만 제거하지 않는다
+correctPairs:
+- leftId: push
+  rightId: add-top
+- leftId: pop
+  rightId: remove-top
+- leftId: peek
+  rightId: look-top
+explanation:
+- type: text
+  text: push와 pop은 top을 변경하고, peek은 top을 읽기만 합니다.
+- type: text
+  text: LIFO 순서와 top에서만 일어나는 세 연산을 함께 묶어 기억하세요.
+tags:
+- stack
+- lifo
+difficulty: 2

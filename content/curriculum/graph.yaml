@@ -2,7 +2,61 @@ schemaVersion: 1
 nodes:
   - lesson: py.variables
     requires: []
-
   - lesson: py.conditionals
     requires:
       - py.variables
+  - lesson: py.loops
+    requires:
+      - py.conditionals
+  - lesson: py.functions
+    requires:
+      - py.loops
+  - lesson: py.lists
+    requires:
+      - py.loops
+  - lesson: ds.array
+    requires:
+      - py.lists
+  - lesson: ds.stack
+    requires:
+      - ds.array
+  - lesson: ds.queue
+    requires:
+      - ds.array
+  - lesson: ds.tree
+    requires:
+      - ds.array
+  - lesson: ds.graph
+    requires:
+      - ds.array
+  - lesson: algo.search
+    requires:
+      - ds.array
+  - lesson: algo.sort
+    requires:
+      - ds.array
+  - lesson: algo.traversal
+    requires:
+      - ds.tree
+      - ds.graph
+      - py.functions
+      - ds.stack
+      - ds.queue
+  - lesson: algo.shortest-path
+    requires:
+      - ds.graph
+      - ds.queue
+  - lesson: arch.binary
+    requires: []
+  - lesson: arch.logic
+    requires:
+      - arch.binary
+  - lesson: arch.cpu
+    requires:
+      - arch.logic
+  - lesson: sys.network
+    requires:
+      - arch.cpu
+  - lesson: sys.graphics
+    requires:
+      - arch.cpu

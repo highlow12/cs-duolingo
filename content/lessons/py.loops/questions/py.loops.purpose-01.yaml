@@ -1,0 +1,31 @@
+schemaVersion: 1
+id: py.loops.purpose-01
+revision: 1
+type: single-choice
+prompt:
+- type: text
+  text: 반복문을 사용하는 가장 알맞은 이유는 무엇인가요?
+options:
+- id: repeat
+  content:
+  - type: text
+    text: 같은 규칙의 작업을 여러 값에 적용하기 위해서
+- id: branch
+  content:
+  - type: text
+    text: 조건을 한 번만 비교하고 프로그램을 끝내기 위해서
+- id: rename
+  content:
+  - type: text
+    text: 변수 이름을 자동으로 바꾸기 위해서
+correctOptionId: repeat
+shuffleOptions: false
+explanation:
+- type: text
+  text: 반복문은 같은 규칙을 여러 회차에 적용할 때 사용합니다.
+- type: text
+  text: for는 순서가 있는 값에서 원소를 하나씩 처리할 수 있습니다.
+tags:
+- loops
+- iteration
+difficulty: 1

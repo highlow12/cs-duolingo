@@ -1,0 +1,29 @@
+schemaVersion: 1
+id: algo.search.binary-update-01
+revision: 1
+type: code-completion
+prompt:
+- type: text
+  text: mid의 값이 target보다 작을 때 오른쪽 범위로 이동하도록 빈칸을 고르세요.
+language: python
+template: |-
+  if values[mid] < target:
+      low = {{blank:update}}
+blanks:
+- id: update
+  choices:
+  - mid + 1
+  - mid - 1
+  - mid
+  acceptedAnswers:
+  - mid + 1
+explanation:
+- type: text
+  text: mid의 값이 더 작으면 mid 자체는 답이 아니므로 low를 mid + 1로 옮깁니다.
+- type: text
+  text: 이진 탐색은 검사한 가운데를 후보에서 제외하고 남은 정렬 범위만 계속 봅니다.
+tags:
+- search
+- binary-search
+- code-completion
+difficulty: 2

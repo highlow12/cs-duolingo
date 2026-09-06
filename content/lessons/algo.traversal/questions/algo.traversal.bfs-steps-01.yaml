@@ -1,0 +1,39 @@
+schemaVersion: 1
+id: algo.traversal.bfs-steps-01
+revision: 1
+type: ordering
+prompt:
+- type: text
+  text: BFS 한 회차의 기본 단계를 순서대로 배열하세요.
+items:
+- id: dequeue
+  content:
+  - type: text
+    text: 큐의 앞에서 노드를 꺼낸다
+- id: visit
+  content:
+  - type: text
+    text: 꺼낸 노드를 방문 처리한다
+- id: enqueue
+  content:
+  - type: text
+    text: 방문하지 않은 이웃을 큐 뒤에 넣는다
+- id: repeat
+  content:
+  - type: text
+    text: 큐가 빌 때까지 반복한다
+correctOrder:
+- dequeue
+- visit
+- enqueue
+- repeat
+explanation:
+- type: text
+  text: BFS는 큐에서 꺼내 방문하고 이웃을 뒤에 넣는 과정을 큐가 빌 때까지 반복합니다.
+- type: text
+  text: 이웃을 넣을 때 visited를 확인하면 사이클에서 같은 노드를 계속 처리하지 않습니다.
+tags:
+- traversal
+- bfs
+- queue
+difficulty: 2

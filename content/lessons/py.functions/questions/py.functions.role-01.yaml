@@ -1,0 +1,31 @@
+schemaVersion: 1
+id: py.functions.role-01
+revision: 1
+type: single-choice
+prompt:
+- type: text
+  text: 함수에 대한 설명으로 가장 알맞은 것은 무엇인가요?
+options:
+- id: reuse
+  content:
+  - type: text
+    text: 이름을 붙인 동작을 필요할 때 다시 호출하는 단위
+- id: constant
+  content:
+  - type: text
+    text: 한 번 만든 뒤 절대 바뀌지 않는 숫자
+- id: comment
+  content:
+  - type: text
+    text: 실행되지 않는 설명 문장만 모아 둔 영역
+correctOptionId: reuse
+shuffleOptions: false
+explanation:
+- type: text
+  text: 함수는 동작을 묶어 이름을 붙이고 필요할 때 호출하게 합니다.
+- type: text
+  text: 매개변수와 반환값을 이용하면 같은 함수가 다양한 입력을 처리할 수 있습니다.
+tags:
+- functions
+- abstraction
+difficulty: 1

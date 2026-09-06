@@ -1,0 +1,50 @@
+schemaVersion: 1
+id: algo.shortest-path.ideas-01
+revision: 1
+type: matching
+prompt:
+- type: text
+  text: 최단 경로 개념과 설명을 알맞게 연결하세요.
+leftItems:
+- id: dijkstra
+  content:
+  - type: text
+    text: Dijkstra
+- id: astar
+  content:
+  - type: text
+    text: A*
+- id: relax
+  content:
+  - type: text
+    text: 완화
+rightItems:
+- id: nonnegative
+  content:
+  - type: text
+    text: 음수 가중치가 없을 때 가장 짧은 후보를 우선 확정한다
+- id: heuristic
+  content:
+  - type: text
+    text: 현재 비용과 목표까지의 추정 비용을 함께 사용한다
+- id: update
+  content:
+  - type: text
+    text: 더 짧은 후보 경로가 있으면 거리를 갱신한다
+correctPairs:
+- leftId: dijkstra
+  rightId: nonnegative
+- leftId: astar
+  rightId: heuristic
+- leftId: relax
+  rightId: update
+explanation:
+- type: text
+  text: Dijkstra는 음수 간선이 없는 조건에서 거리 후보를 확정하고, A*는 휴리스틱을 더합니다. 완화는 거리 갱신 규칙입니다.
+- type: text
+  text: 알고리즘의 이름과 전제, 우선순위 계산을 분리해서 설명하면 혼동이 줄어듭니다.
+tags:
+- shortest-path
+- dijkstra
+- astar
+difficulty: 3

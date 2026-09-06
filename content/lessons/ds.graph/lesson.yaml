@@ -1,0 +1,17 @@
+schemaVersion: 1
+id: ds.graph
+revision: 1
+track: data-structures
+title: 그래프
+description: 정점과 간선으로 관계와 연결을 표현하는 그래프를 이해한다.
+flow:
+- type: content
+  ref: content/intro.md
+- type: question
+  ref: ds.graph.terms-01
+- type: content
+  ref: content/practice.md
+- type: question
+  ref: ds.graph.directed-01
+- type: question
+  ref: ds.graph.neighbor-output-01

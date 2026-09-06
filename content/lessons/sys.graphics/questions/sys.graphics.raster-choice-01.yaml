@@ -1,0 +1,31 @@
+schemaVersion: 1
+id: sys.graphics.raster-choice-01
+revision: 1
+type: single-choice
+prompt:
+- type: text
+  text: 래스터 이미지의 설명으로 가장 알맞은 것은 무엇인가요?
+options:
+- id: pixels
+  content:
+  - type: text
+    text: 픽셀 격자에 각 위치의 색을 저장한다
+- id: formula
+  content:
+  - type: text
+    text: 도형의 수식만 저장하고 픽셀은 절대 만들지 않는다
+- id: network
+  content:
+  - type: text
+    text: 패킷의 순서만 저장하는 자료구조다
+correctOptionId: pixels
+shuffleOptions: false
+explanation:
+- type: text
+  text: 래스터 이미지는 픽셀마다 색을 저장하는 격자 표현입니다.
+- type: text
+  text: 벡터는 도형 정보, 래스터는 픽셀 정보라는 구분부터 기억하면 됩니다.
+tags:
+- graphics
+- raster
+difficulty: 1

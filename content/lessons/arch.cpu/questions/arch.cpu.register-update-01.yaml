@@ -1,0 +1,29 @@
+schemaVersion: 1
+id: arch.cpu.register-update-01
+revision: 1
+type: single-choice
+prompt:
+  - type: text
+    text: 레지스터에 4가 있습니다. ALU에서 이 값에 3을 더하고 결과를 같은 레지스터에 저장하면 새 값은 무엇인가요?
+options:
+  - id: option-0
+    content:
+      - type: text
+        text: "7"
+  - id: option-1
+    content:
+      - type: text
+        text: "4"
+  - id: option-2
+    content:
+      - type: text
+        text: "3"
+correctOptionId: option-0
+shuffleOptions: true
+explanation:
+  - type: text
+    text: ALU가 4 + 3을 계산하고, 연산 결과 7을 레지스터에 기록합니다.
+tags:
+  - cpu
+  - register
+difficulty: 1

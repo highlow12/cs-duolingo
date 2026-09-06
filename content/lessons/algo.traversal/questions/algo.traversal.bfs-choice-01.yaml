@@ -1,0 +1,31 @@
+schemaVersion: 1
+id: algo.traversal.bfs-choice-01
+revision: 1
+type: single-choice
+prompt:
+- type: text
+  text: BFS의 방문 방식으로 가장 알맞은 것은 무엇인가요?
+options:
+- id: level
+  content:
+  - type: text
+    text: 시작점에서 가까운 레벨부터 큐로 방문한다
+- id: depth
+  content:
+  - type: text
+    text: 한 경로를 끝까지 내려간 뒤에만 다른 경로를 본다
+- id: random
+  content:
+  - type: text
+    text: 방문 순서를 무작위로 고른다
+correctOptionId: level
+shuffleOptions: false
+explanation:
+- type: text
+  text: BFS는 큐를 이용해 거리나 레벨이 가까운 노드를 먼저 방문합니다.
+- type: text
+  text: 한 경로를 깊게 따라가는 방식은 DFS의 특징입니다.
+tags:
+- traversal
+- bfs
+difficulty: 1

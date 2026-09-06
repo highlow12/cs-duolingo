@@ -1,0 +1,28 @@
+schemaVersion: 1
+id: algo.shortest-path.astar-priority-01
+revision: 1
+type: code-completion
+prompt:
+- type: text
+  text: A*가 사용할 우선순위를 완성하세요.
+language: python
+template: |-
+  priority = {{blank:score}}
+blanks:
+- id: score
+  choices:
+  - g + h
+  - g - h
+  - h - g
+  acceptedAnswers:
+  - g + h
+explanation:
+- type: text
+  text: A*의 기본 우선순위는 지금까지의 비용 g와 예상 비용 h의 합입니다.
+- type: text
+  text: g는 실제로 온 비용, h는 목표까지의 추정 비용을 뜻합니다.
+tags:
+- shortest-path
+- astar
+- code-completion
+difficulty: 2

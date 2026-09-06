@@ -1,0 +1,49 @@
+schemaVersion: 1
+id: ds.tree.terms-01
+revision: 1
+type: matching
+prompt:
+- type: text
+  text: 트리의 용어와 의미를 알맞게 연결하세요.
+leftItems:
+- id: root
+  content:
+  - type: text
+    text: root
+- id: leaf
+  content:
+  - type: text
+    text: leaf
+- id: edge
+  content:
+  - type: text
+    text: edge
+rightItems:
+- id: top-node
+  content:
+  - type: text
+    text: 트리의 시작 노드
+- id: end-node
+  content:
+  - type: text
+    text: 자식이 더 없는 노드
+- id: connection
+  content:
+  - type: text
+    text: 두 노드를 잇는 연결
+correctPairs:
+- leftId: root
+  rightId: top-node
+- leftId: leaf
+  rightId: end-node
+- leftId: edge
+  rightId: connection
+explanation:
+- type: text
+  text: root는 시작 노드이고 leaf는 자식이 없습니다. edge는 노드 사이의 연결입니다.
+- type: text
+  text: 계층 구조를 읽을 때 노드와 연결을 구분하면 깊이와 경로를 설명하기 쉬워집니다.
+tags:
+- tree
+- terminology
+difficulty: 2

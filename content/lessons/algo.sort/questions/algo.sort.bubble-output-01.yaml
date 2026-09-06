@@ -1,0 +1,31 @@
+schemaVersion: 1
+id: algo.sort.bubble-output-01
+revision: 1
+type: code-output
+prompt:
+- type: text
+  text: 다음 버블 정렬 코드의 출력 결과를 고르세요.
+language: python
+code: |-
+  values = [3, 1, 2]
+  for i in range(len(values)):
+      for j in range(len(values) - 1 - i):
+          if values[j] > values[j + 1]:
+              values[j], values[j + 1] = values[j + 1], values[j]
+  print(values)
+choices:
+- '[1, 2, 3]'
+- '[3, 2, 1]'
+- '[1, 3, 2]'
+acceptedOutputs:
+- '[1, 2, 3]'
+explanation:
+- type: text
+  text: 첫 pass에서 3이 오른쪽으로 이동하고 다음 비교에서 2와 순서가 맞춰져 [1, 2, 3]이 됩니다.
+- type: text
+  text: 조건이 참일 때 인접한 두 값을 동시에 교환하는 패턴이 버블 정렬의 핵심입니다.
+tags:
+- sorting
+- bubble-sort
+- code-output
+difficulty: 3

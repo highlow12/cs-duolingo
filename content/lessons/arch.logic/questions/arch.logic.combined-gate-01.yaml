@@ -1,0 +1,29 @@
+schemaVersion: 1
+id: arch.logic.combined-gate-01
+revision: 1
+type: single-choice
+prompt:
+  - type: text
+    text: A = 1, B = 0일 때 A AND (NOT B)의 출력은 무엇인가요?
+options:
+  - id: option-0
+    content:
+      - type: text
+        text: "1"
+  - id: option-1
+    content:
+      - type: text
+        text: "0"
+  - id: option-2
+    content:
+      - type: text
+        text: 입력만으로 알 수 없음
+correctOptionId: option-0
+shuffleOptions: true
+explanation:
+  - type: text
+    text: NOT B는 1입니다. 두 입력이 모두 1이므로 AND의 출력도 1입니다.
+tags:
+  - logic
+  - boolean
+difficulty: 2

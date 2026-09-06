@@ -1,0 +1,38 @@
+schemaVersion: 1
+id: py.lists.mutation-output-01
+revision: 1
+type: code-output
+prompt:
+- type: text
+  text: 다음 Python 코드의 두 줄 출력 결과를 고르세요.
+language: python
+code: |-
+  numbers = [2, 4]
+  numbers.append(6)
+  numbers[0] = 3
+  print(numbers[1])
+  print(len(numbers))
+choices:
+- '4
+
+  3'
+- '3
+
+  3'
+- '4
+
+  2'
+acceptedOutputs:
+- '4
+
+  3'
+explanation:
+- type: text
+  text: 두 번째 원소는 그대로 4이고, append 뒤 리스트 길이는 3입니다.
+- type: text
+  text: 인덱스 0의 변경은 인덱스 1의 값이나 원소 개수에 영향을 주지 않습니다.
+tags:
+- lists
+- mutation
+- code-output
+difficulty: 2

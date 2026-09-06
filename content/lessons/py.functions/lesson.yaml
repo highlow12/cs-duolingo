@@ -1,0 +1,17 @@
+schemaVersion: 1
+id: py.functions
+revision: 1
+track: python
+title: 함수
+description: 함수로 동작을 이름 붙이고 매개변수와 반환값을 사용한다.
+flow:
+- type: content
+  ref: content/intro.md
+- type: question
+  ref: py.functions.role-01
+- type: content
+  ref: content/practice.md
+- type: question
+  ref: py.functions.definition-call-01
+- type: question
+  ref: py.functions.double-01

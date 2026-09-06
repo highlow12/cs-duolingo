@@ -1,0 +1,39 @@
+schemaVersion: 1
+id: algo.sort.pass-steps-01
+revision: 1
+type: ordering
+prompt:
+- type: text
+  text: 버블 정렬의 한 pass에서 일어나는 단계를 순서대로 배열하세요.
+items:
+- id: compare
+  content:
+  - type: text
+    text: 이웃한 두 원소를 비교한다
+- id: swap
+  content:
+  - type: text
+    text: 순서가 틀리면 두 원소를 교환한다
+- id: next
+  content:
+  - type: text
+    text: 다음 이웃 쌍으로 이동한다
+- id: repeat
+  content:
+  - type: text
+    text: 남은 범위에서 pass를 반복한다
+correctOrder:
+- compare
+- swap
+- next
+- repeat
+explanation:
+- type: text
+  text: 한 쌍을 비교하고 필요하면 교환한 뒤 다음 쌍으로 이동하며 pass를 반복합니다.
+- type: text
+  text: 한 번의 pass가 끝나도 전체가 정렬되었다고 단정하지 않고 남은 범위를 다시 확인합니다.
+tags:
+- sorting
+- bubble-sort
+- execution-order
+difficulty: 2

@@ -1,0 +1,31 @@
+schemaVersion: 1
+id: ds.graph.directed-01
+revision: 1
+type: single-choice
+prompt:
+- type: text
+  text: A에서 B로 향하는 간선만 있을 때 올바른 설명은 무엇인가요?
+options:
+- id: one-way
+  content:
+  - type: text
+    text: A에서 B로 이동할 수 있음을 나타내며 B에서 A는 자동으로 보장되지 않는다
+- id: two-way
+  content:
+  - type: text
+    text: 항상 B에서 A로도 같은 간선으로 이동할 수 있다
+- id: none
+  content:
+  - type: text
+    text: 정점이 없으므로 그래프가 될 수 없다
+correctOptionId: one-way
+shuffleOptions: false
+explanation:
+- type: text
+  text: 방향 그래프의 간선은 출발 정점에서 도착 정점으로의 이동만 나타냅니다.
+- type: text
+  text: 반대 방향 이동이 필요하면 별도의 간선이 있거나 그래프가 무방향이어야 합니다.
+tags:
+- graph
+- directed
+difficulty: 2

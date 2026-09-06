@@ -1,0 +1,49 @@
+schemaVersion: 1
+id: arch.logic.gates-01
+revision: 1
+type: matching
+prompt:
+- type: text
+  text: 논리 게이트와 진리표의 핵심 동작을 알맞게 연결하세요.
+leftItems:
+- id: and
+  content:
+  - type: text
+    text: AND
+- id: or
+  content:
+  - type: text
+    text: OR
+- id: not
+  content:
+  - type: text
+    text: NOT
+rightItems:
+- id: both
+  content:
+  - type: text
+    text: 모든 입력이 1일 때만 1
+- id: either
+  content:
+  - type: text
+    text: 하나 이상의 입력이 1이면 1
+- id: invert
+  content:
+  - type: text
+    text: 입력 0과 1을 뒤집는다
+correctPairs:
+- leftId: and
+  rightId: both
+- leftId: or
+  rightId: either
+- leftId: not
+  rightId: invert
+explanation:
+- type: text
+  text: AND는 모두 참일 때, OR는 하나라도 참일 때 참이며 NOT은 값을 반전합니다.
+- type: text
+  text: 진리표를 만들 때 입력 조합과 출력 규칙을 분리해 적어 보세요.
+tags:
+- logic
+- gates
+difficulty: 1

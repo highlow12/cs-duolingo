@@ -1,0 +1,50 @@
+schemaVersion: 1
+id: sys.network.terms-01
+revision: 1
+type: matching
+prompt:
+- type: text
+  text: 네트워크 용어와 역할을 알맞게 연결하세요.
+leftItems:
+- id: ip
+  content:
+  - type: text
+    text: IP 주소
+- id: dns
+  content:
+  - type: text
+    text: DNS
+- id: port
+  content:
+  - type: text
+    text: 포트
+rightItems:
+- id: location
+  content:
+  - type: text
+    text: 네트워크에서 장치의 위치를 식별한다
+- id: name-lookup
+  content:
+  - type: text
+    text: 도메인 이름을 IP 주소로 찾는다
+- id: process
+  content:
+  - type: text
+    text: 장치 안의 통신 프로그램을 구분한다
+correctPairs:
+- leftId: ip
+  rightId: location
+- leftId: dns
+  rightId: name-lookup
+- leftId: port
+  rightId: process
+explanation:
+- type: text
+  text: IP는 장치 주소, DNS는 이름 조회, 포트는 장치 안의 통신 대상을 구분합니다.
+- type: text
+  text: 주소의 범위가 장치인지 프로그램인지 나누어 보면 세 용어를 헷갈리지 않습니다.
+tags:
+- networking
+- ip
+- dns
+difficulty: 2

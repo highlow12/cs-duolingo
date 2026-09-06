@@ -1,0 +1,29 @@
+schemaVersion: 1
+id: sys.network.web-protocol-01
+revision: 1
+type: single-choice
+prompt:
+  - type: text
+    text: 브라우저와 웹 서버 사이에서 웹 요청과 응답의 형식을 정하는 프로토콜은 무엇인가요?
+options:
+  - id: option-0
+    content:
+      - type: text
+        text: HTTP
+  - id: option-1
+    content:
+      - type: text
+        text: DNS
+  - id: option-2
+    content:
+      - type: text
+        text: IP
+correctOptionId: option-0
+shuffleOptions: true
+explanation:
+  - type: text
+    text: HTTP는 웹 요청과 응답의 의미와 형식을 정합니다. DNS는 이름 조회, IP는 주소와 패킷 전달에 관여합니다.
+tags:
+  - networking
+  - ip
+difficulty: 1

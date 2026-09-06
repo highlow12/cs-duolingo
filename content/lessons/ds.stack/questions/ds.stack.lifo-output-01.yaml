@@ -1,0 +1,38 @@
+schemaVersion: 1
+id: ds.stack.lifo-output-01
+revision: 1
+type: code-output
+prompt:
+- type: text
+  text: 다음 스택 코드의 두 줄 출력 결과를 고르세요.
+language: python
+code: |-
+  stack = []
+  stack.append("A")
+  stack.append("B")
+  print(stack.pop())
+  print(stack[-1])
+choices:
+- 'B
+
+  A'
+- 'A
+
+  B'
+- 'B
+
+  B'
+acceptedOutputs:
+- 'B
+
+  A'
+explanation:
+- type: text
+  text: B가 마지막에 들어갔으므로 먼저 pop되고, 남은 top은 A입니다.
+- type: text
+  text: 마지막 입력이 먼저 나오는 것이 스택의 LIFO 규칙입니다.
+tags:
+- stack
+- lifo
+- code-output
+difficulty: 2
