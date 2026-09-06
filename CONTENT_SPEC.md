@@ -982,3 +982,7 @@ v1은 임의 확장 영역을 제공하지 않는다. 새 필드는 schema와 va
 6. Content Builder 및 production build 검증
 
 새로운 optional 필드처럼 기존 source를 그대로 해석할 수 있는 변경은 같은 `schemaVersion`에서 허용할 수 있다. 기존 필드의 의미 변경, 필수 필드 추가, discriminator 변경처럼 기존 source를 다르게 해석하는 변경은 `schemaVersion`을 증가시킨다.
+
+## 구현 보충: Markdown 표시
+
+현재 Builder는 source `markdown`을 보존하면서 generated MarkdownBlock에 선택적 `html: string`을 추가한다. 이 HTML은 빌드 시 Markdown parser와 허용 목록 기반 sanitizer를 거친 결과다. 작성 원본 YAML에는 `html`을 직접 쓸 수 없다. 런타임은 생성된 HTML을 표시하고 Markdown parser를 포함하지 않는다. 기존 generated block에 HTML이 없으면 안전한 일반 텍스트로 표시한다.

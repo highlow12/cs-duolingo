@@ -1,43 +1,59 @@
 <script lang="ts">
   import ContentBlockRenderer from "$lib/components/ContentBlockRenderer.svelte";
-  import { evaluateQuestion } from "$lib/questions/registry";
-  import type {
-    EvaluationResult,
-    MultiSelectQuestion,
-  } from "$lib/questions/types";
+  import { contentLabel } from "$lib/questions/presentation";
+  import type { QuestionRendererProps } from "$lib/questions/renderer-contract";
+  import { shuffleDistinct } from "$lib/questions/shuffle";
 
+  type Props = QuestionRendererProps<"multi-select">;
   let {
     question,
-    onEvaluated = () => {},
-  }: {
-    question: MultiSelectQuestion;
-    onEvaluated?: (result: EvaluationResult) => void;
-  } = $props();
+    disabled,
+    attemptKey,
+    reveal,
+    submittedAnswer = null,
+    random = Math.random,
+    onAnswerChange,
+  }: Props = $props();
 
   let selectedIds = $state<string[]>([]);
-  let result = $state<EvaluationResult | null>(null);
-  let error = $state<string | null>(null);
+  let displayedOptions = $state<typeof question.options>([]);
+  let renderedKey = $state("");
+  let renderedIdentity = $state("");
+  let previousOrder = $state<typeof question.options | null>(null);
+
+  $effect(() => {
+    const key = `${question.id}:${question.revision}:${attemptKey}`;
+    if (renderedKey === key) return;
+    const identity = `${question.id}:${question.revision}`;
+    if (renderedIdentity !== identity) previousOrder = null;
+    renderedIdentity = identity;
+    renderedKey = key;
+    displayedOptions = question.shuffleOptions
+      ? shuffleDistinct(question.options, random, previousOrder)
+      : [...question.options];
+    previousOrder = [...displayedOptions];
+    selectedIds = [];
+    onAnswerChange(null);
+  });
 
   function toggleOption(optionId: string) {
-    if (result) return;
+    if (disabled) return;
     selectedIds = selectedIds.includes(optionId)
       ? selectedIds.filter((id) => id !== optionId)
       : [...selectedIds, optionId];
-    error = null;
+    onAnswerChange(
+      selectedIds.length === 0
+        ? null
+        : { type: "multi-select", optionIds: [...selectedIds] },
+    );
   }
 
-  function submit() {
-    if (selectedIds.length === 0 || result) return;
-    const outcome = evaluateQuestion(question, {
-      type: "multi-select",
-      optionIds: [...selectedIds],
-    });
-    if (outcome.status === "error") {
-      error = outcome.error.message;
-      return;
-    }
-    result = outcome.result;
-    onEvaluated(result);
+  function isSubmitted(optionId: string): boolean {
+    return submittedAnswer?.type === "multi-select" && submittedAnswer.optionIds.includes(optionId);
+  }
+
+  function isCanonical(optionId: string): boolean {
+    return reveal?.type === "multi-select" && reveal.optionIds.includes(optionId);
   }
 </script>
 
@@ -47,55 +63,41 @@
   {/each}
 
   <div class="options" role="group" aria-label="정답을 모두 선택하세요.">
-    {#each question.options as option}
+    {#each displayedOptions as option}
+      {@const selected = selectedIds.includes(option.id)}
+      {@const submitted = isSubmitted(option.id)}
+      {@const canonical = isCanonical(option.id)}
       <button
         type="button"
-        class:selected={selectedIds.includes(option.id)}
+        class:selected
+        class:submitted
+        class:canonical
         class="option"
-        aria-pressed={selectedIds.includes(option.id)}
-        disabled={result !== null}
+        aria-pressed={selected}
+        aria-label={`${contentLabel(option.content)}${selected ? ", 선택됨" : ""}${submitted ? ", 내 답" : ""}${canonical ? ", 정답" : ""}`}
+        disabled={disabled}
         onclick={() => toggleOption(option.id)}
       >
-        {#each option.content as block}
-          <ContentBlockRenderer {block} />
-        {/each}
+        <span class="option-content">
+          {#each option.content as block}
+            <ContentBlockRenderer {block} />
+          {/each}
+        </span>
+        {#if submitted}<span class="answer-marker">내 답</span>{/if}
+        {#if canonical}<span class="answer-marker">정답</span>{/if}
       </button>
     {/each}
   </div>
-
-  <button
-    class="button"
-    type="button"
-    disabled={selectedIds.length === 0 || result !== null}
-    onclick={submit}>정답 확인</button
-  >
-
-  {#if error}
-    <p class="feedback incorrect" role="alert">{error}</p>
-  {:else if result}
-    <p
-      class:correct={result.correct}
-      class:incorrect={!result.correct}
-      class="feedback"
-      role="status"
-    >
-      {result.correct ? "정답입니다." : "선택한 항목을 다시 확인해 보세요."}
-    </p>
-  {/if}
 </div>
 
 <style>
-  .question-body {
-    display: grid;
-    gap: 1rem;
-  }
-
-  .options {
-    display: grid;
-    gap: 0.75rem;
-  }
-
+  .question-body { display: grid; gap: 1rem; }
+  .options { display: grid; gap: 0.75rem; }
   .option {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    width: 100%;
     border: 1px solid #dce3ef;
     border-radius: 0.75rem;
     background: white;
@@ -103,36 +105,21 @@
     text-align: left;
     cursor: pointer;
   }
-
-  .option.selected {
-    border-color: #2563eb;
-    box-shadow: 0 0 0 2px rgb(37 99 235 / 15%);
-  }
-
-  .option :global(p),
-  .option :global(pre) {
-    margin: 0;
-  }
-
-  .option:disabled {
-    cursor: default;
-  }
-
-  .option:focus-visible {
-    outline: 3px solid rgb(37 99 235 / 35%);
-    outline-offset: 2px;
-  }
-
-  .feedback {
-    margin: 0;
+  .option.selected { border-color: #2563eb; box-shadow: 0 0 0 2px rgb(37 99 235 / 15%); }
+  .option.submitted { border-color: #b45309; }
+  .option.canonical { border-color: #15803d; }
+  .option-content { flex: 1; min-width: 0; }
+  .option-content :global(p), .option-content :global(pre) { margin: 0; }
+  .answer-marker {
+    flex: 0 0 auto;
+    border-radius: 999px;
+    background: #eef2ff;
+    padding: 0.2rem 0.45rem;
+    color: #3730a3;
+    font-size: 0.78rem;
     font-weight: 700;
+    white-space: nowrap;
   }
-
-  .correct {
-    color: #15803d;
-  }
-
-  .incorrect {
-    color: #b91c1c;
-  }
+  .option:disabled { cursor: default; }
+  .option:focus-visible { outline: 3px solid rgb(37 99 235 / 35%); outline-offset: 2px; }
 </style>

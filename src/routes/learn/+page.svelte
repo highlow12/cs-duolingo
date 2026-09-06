@@ -1,130 +1,48 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import type { Curriculum, Lesson } from '$lib/content/types';
-	import { contentRepository } from '$lib/content/repository/static-content-repository';
-
-	let curriculum = $state<Curriculum | null>(null);
-	let lessons = $state<Lesson[]>([]);
-	let loading = $state(true);
-	let error = $state<string | null>(null);
-
-	onMount(() => {
-		void loadCurriculum();
-	});
-
-	async function loadCurriculum() {
-		try {
-			curriculum = await contentRepository.getCurriculum();
-			lessons = await Promise.all(
-				curriculum.nodes.map((node) => contentRepository.getLesson(node.lesson))
-			);
-		} catch (caught) {
-			error = caught instanceof Error ? caught.message : '커리큘럼을 불러오지 못했습니다.';
-		} finally {
-			loading = false;
-		}
-	}
+  import { onMount } from 'svelte';
+  import { loadDashboard, errorMessage, type Dashboard } from '$lib/application/dashboard';
+  import { lessonStatus, missingPrerequisites, statusLabels } from '$lib/curriculum/progress';
+  let data = $state<Dashboard | null>(null);
+  let error = $state('');
+  let selected = $state('all');
+  async function load() { error = ''; try { data = await loadDashboard(); } catch(e) { error = errorMessage(e); } }
+  onMount(() => { void load(); });
 </script>
-
-<svelte:head><title>학습 | CS 듀오링고</title></svelte:head>
-
+<svelte:head><title>학습 경로 | CS 듀오링고</title></svelte:head>
 <div class="stack">
-	<div>
-		<p class="eyebrow">Curriculum</p>
-		<h1>학습 경로</h1>
-		<p class="muted">선행 개념을 따라 다음 레슨을 열어 보세요.</p>
-	</div>
-
-	{#if loading}
-		<div class="card">커리큘럼을 불러오는 중입니다…</div>
-	{:else if error}
-		<div class="card error" role="alert">{error}<br />먼저 <code>npm run content:build</code>를 실행했는지 확인하세요.</div>
-	{:else if curriculum}
-		{#each curriculum.tracks as track}
-			<section class="track stack">
-				<div>
-					<h2>{track.title}</h2>
-					<p class="muted">{track.description}</p>
-				</div>
-				<div class="grid">
-					{#each lessons.filter((lesson) => lesson.track === track.id) as lesson}
-						<a class="lesson-card card" href={`/learn/${lesson.id}`}>
-							<span class="status">시작 가능</span>
-							<h3>{lesson.title}</h3>
-							<p class="muted">{lesson.description}</p>
-							<span class="open">레슨 열기 →</span>
-						</a>
-					{/each}
-				</div>
-			</section>
-		{/each}
-	{/if}
+  <div class="page-heading"><p class="eyebrow">개념을 연결하는 길</p><h1>학습 경로</h1><p class="muted">Python에서 자료구조로, 컴퓨터 구조에서 네트워크와 그래픽스로.</p></div>
+  {#if error}<div class="card error" role="alert">{error}<button class="button secondary" onclick={load}>다시 시도</button></div>
+  {:else if !data}<p class="card" role="status">학습 경로를 불러오는 중입니다…</p>
+  {:else}
+    <label class="filter">트랙 <select bind:value={selected}><option value="all">전체 트랙</option>{#each [...data.curriculum.tracks].sort((a,b) => a.order-b.order) as track}<option value={track.id}>{track.title}</option>{/each}</select></label>
+    {#each [...data.curriculum.tracks].sort((a,b) => a.order-b.order).filter((t) => selected === 'all' || t.id === selected) as track}
+      {@const lessons = data.lessons.filter((l) => l.track === track.id)}
+      {#if lessons.length}
+      <section class="stack track"><div><div class="row"><h2>{track.title}</h2><span class="muted">{lessons.filter((l) => lessonStatus(l,data!.curriculum,data!.snapshot.lessonStates) === 'completed').length} / {lessons.length} 완료</span></div><p class="muted">{track.description}</p></div>
+        <div class="lesson-list">
+          {#each lessons as lesson, index}
+            {@const status = lessonStatus(lesson, data.curriculum, data.snapshot.lessonStates)}
+            <article class="card lesson-card" class:locked={status === 'locked'}>
+              <span class="lesson-number" class:done={status === 'completed'} aria-hidden="true">{status === 'completed' ? '✓' : String(index+1).padStart(2,'0')}</span>
+              <div class="lesson-info"><span class="badge" class:success={status === 'completed'}>{statusLabels[status]}</span><h3>{lesson.title}</h3><p class="muted">{lesson.description}</p>
+              {#if status === 'locked'}<p class="prerequisites">먼저 배워요: {missingPrerequisites(lesson.id,data.curriculum,data.snapshot.lessonStates).map((id) => data!.lessons.find((l) => l.id === id)?.title ?? id).join(', ')}</p>{/if}</div>
+              {#if status !== 'locked'}<a class="button secondary" href={`/learn/${lesson.id}`} aria-label={`${lesson.title} ${status === 'completed' ? '다시 읽기' : '학습하기'}`}>{status === 'completed' ? '다시 읽기' : status === 'in-progress' ? '이어하기' : '시작'}</a>{/if}
+            </article>
+          {/each}
+        </div>
+      </section>
+      {/if}
+    {/each}
+  {/if}
 </div>
-
 <style>
-	.eyebrow {
-		margin: 0 0 0.5rem;
-		color: var(--primary);
-		font-weight: 800;
-		letter-spacing: 0.1em;
-		text-transform: uppercase;
-	}
-
-	h1,
-	h2,
-	h3 {
-		letter-spacing: -0.04em;
-	}
-
-	h1 {
-		margin: 0;
-	}
-
-	h2 {
-		margin: 0;
-	}
-
-	.track {
-		margin-top: 1rem;
-	}
-
-	.track h2 + p {
-		margin-top: 0.35rem;
-	}
-
-	.lesson-card {
-		display: block;
-		text-decoration: none;
-		transition: transform 120ms ease, box-shadow 120ms ease;
-	}
-
-	.lesson-card:hover,
-	.lesson-card:focus-visible {
-		transform: translateY(-2px);
-		box-shadow: 0 12px 28px rgb(35 55 90 / 10%);
-	}
-
-	.lesson-card h3 {
-		margin: 0.8rem 0 0.35rem;
-	}
-
-	.lesson-card p {
-		margin: 0 0 1rem;
-		line-height: 1.5;
-	}
-
-	.status {
-		color: var(--success);
-		font-size: 0.8rem;
-		font-weight: 800;
-	}
-
-	.open {
-		color: var(--primary);
-		font-weight: 700;
-	}
-
-	.error {
-		color: var(--danger);
-	}
+  .filter { display:flex; align-items:center; gap:1rem; }
+  .track h2,.track .row { margin:0; } .track p { margin:.5rem 0 0; }
+  .lesson-list { display:grid; gap:.75rem; }
+  .lesson-card { display:flex; align-items:center; gap:1.25rem; }
+  .lesson-info { flex:1; min-width:0; } .lesson-info h3 { margin:.5rem 0; }
+  .lesson-number { display:grid;place-items:center;width:3rem;height:3rem;flex-shrink:0;border-radius:1rem;background:var(--primary-soft);color:var(--primary);font-weight:800; }
+  .lesson-number.done { background:#dcfce7;color:var(--success); }
+  .locked { background:#f0f3f8; } .prerequisites { font-size:.9rem; }
+  @media(max-width:540px) { .lesson-card { flex-wrap:wrap;gap:.75rem; } .lesson-card .button { margin-left:3.75rem; } }
 </style>

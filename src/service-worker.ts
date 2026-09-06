@@ -28,20 +28,11 @@ async function cacheFirst(request: Request, cacheName: string) {
 
 async function navigationResponse(request: Request) {
   const cache = await caches.open(shellCache);
-
-  try {
-    const response = await fetch(request);
-    if (response.ok && response.type !== "opaque") {
-      await cache.put(request, response.clone());
-    }
-    return response;
-  } catch {
-    const cached = await cache.match(request);
-    if (cached) return cached;
-
-    const shellUrl = new URL(".", self.registration.scope);
-    return (await cache.match(shellUrl)) ?? Response.error();
-  }
+  // Keep the app shell and content on the same installed release until activation.
+  const shellUrl = new URL(".", self.registration.scope);
+  const shell = await cache.match(shellUrl);
+  if (shell) return shell;
+  try { return await fetch(request); } catch { return Response.error(); }
 }
 
 self.addEventListener("install", (event) => {
@@ -54,7 +45,7 @@ self.addEventListener("install", (event) => {
       await shell.addAll(appAssets);
       await shell.add(shellUrl);
       await content.addAll(contentAssets);
-      await self.skipWaiting();
+      // Updates wait until the learner finishes the current question.
     })(),
   );
 });
@@ -89,4 +80,8 @@ self.addEventListener("fetch", (event) => {
     ? contentCache
     : shellCache;
   event.respondWith(cacheFirst(event.request, cacheName));
+});
+
+self.addEventListener("message", (event) => {
+  if (event.data?.type === "ACTIVATE_UPDATE") event.waitUntil(self.skipWaiting());
 });

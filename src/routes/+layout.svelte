@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import '../app.css';
+	import OfflineStatus from '$lib/components/OfflineStatus.svelte';
 
 	let { children } = $props();
 	let currentPath = $derived(page.url.pathname);
@@ -44,6 +45,6 @@
 <footer class="site-footer">
 	<div class="shell footer-inner">
 		<span>CS 듀오링고</span>
-		<span class="offline-label"><span aria-hidden="true">●</span> 기기에서 바로 학습</span>
+		<OfflineStatus />
 	</div>
 </footer>

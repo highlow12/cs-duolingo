@@ -1,158 +1,126 @@
 <script lang="ts">
-  import { onMount } from "svelte";
   import ContentBlockRenderer from "$lib/components/ContentBlockRenderer.svelte";
-  import { evaluateQuestion } from "$lib/questions/registry";
-  import type { ContentBlock } from "$lib/content/types";
-  import type {
-    EvaluationResult,
-    MatchingQuestion,
-  } from "$lib/questions/types";
+  import { contentLabel } from "$lib/questions/presentation";
+  import type { QuestionRendererProps } from "$lib/questions/renderer-contract";
+  import { shuffleDistinct } from "$lib/questions/shuffle";
 
-  type MatchingCard = {
-    cardId: string;
-    pairId: string;
-    side: "left" | "right";
-    content: ContentBlock[];
-  };
-
+  type Props = QuestionRendererProps<"matching">;
   let {
     question,
-    onEvaluated = () => {},
-  }: {
-    question: MatchingQuestion;
-    onEvaluated?: (result: EvaluationResult) => void;
-  } = $props();
+    disabled,
+    attemptKey,
+    reveal,
+    submittedAnswer = null,
+    random = Math.random,
+    onAnswerChange,
+  }: Props = $props();
 
-  let leftCards = $derived(createCards("left"));
-  let rightCards = $state<MatchingCard[]>(createCards("right"));
+  let rightItems = $state<typeof question.rightItems>([]);
   let selectedLeftId = $state<string | null>(null);
   let selectedRightId = $state<string | null>(null);
-  let matchedPairIds = $state<string[]>([]);
-  let result = $state<EvaluationResult | null>(null);
-  let error = $state<string | null>(null);
+  let matchedLeftIds = $state<string[]>([]);
+  let matchedRightIds = $state<string[]>([]);
+  let renderedKey = $state("");
+  let renderedIdentity = $state("");
+  let previousRightOrder = $state<typeof question.rightItems | null>(null);
   let announcement = $state("A와 B에서 카드 한 장씩 골라 짝을 맞추세요.");
 
-  function shuffle<T>(items: T[]): T[] {
-    const shuffled = [...items];
-    for (let index = shuffled.length - 1; index > 0; index -= 1) {
-      const target = Math.floor(Math.random() * (index + 1));
-      [shuffled[index], shuffled[target]] = [shuffled[target], shuffled[index]];
-    }
-    return shuffled;
-  }
-
-  function createCards(side: "left" | "right"): MatchingCard[] {
-    if (side === "left") {
-      return question.leftItems.map((item) => ({
-        cardId: `left:${item.id}`,
-        pairId: item.id,
-        side,
-        content: item.content,
-      }));
-    }
-
-    const pairByRightId = new Map(
-      question.correctPairs.map((pair) => [pair.rightId, pair.leftId]),
-    );
-    return question.rightItems.map((item) => ({
-      cardId: `right:${item.id}`,
-      pairId: pairByRightId.get(item.id) ?? item.id,
-      side,
-      content: item.content,
-    }));
-  }
-
-  onMount(() => {
-    rightCards = shuffle(createCards("right"));
+  $effect(() => {
+    const identity = `${question.id}:${question.revision}`;
+    const key = `${identity}:${attemptKey}`;
+    if (renderedKey === key) return;
+    if (renderedIdentity !== identity) previousRightOrder = null;
+    renderedIdentity = identity;
+    renderedKey = key;
+    rightItems = shuffleDistinct(question.rightItems, random, previousRightOrder);
+    previousRightOrder = [...rightItems];
+    selectedLeftId = null;
+    selectedRightId = null;
+    matchedLeftIds = [];
+    matchedRightIds = [];
+    announcement = "A와 B에서 카드 한 장씩 골라 짝을 맞추세요.";
+    onAnswerChange(null);
   });
 
-  function isSelected(card: MatchingCard): boolean {
-    return card.side === "left"
-      ? selectedLeftId === card.cardId
-      : selectedRightId === card.cardId;
+  function isMatched(side: "left" | "right", id: string): boolean {
+    return side === "left" ? matchedLeftIds.includes(id) : matchedRightIds.includes(id);
   }
 
-  function isMatched(card: MatchingCard): boolean {
-    return matchedPairIds.includes(card.pairId);
+  function isSelected(side: "left" | "right", id: string): boolean {
+    return side === "left" ? selectedLeftId === id : selectedRightId === id;
   }
 
-  function cardAccessibleLabel(card: MatchingCard, index: number): string {
-    const content = card.content
-      .map((block) => {
-        if (block.type === "text") return block.text;
-        if (block.type === "markdown") return block.markdown;
-        if (block.type === "code") return block.code;
-        return block.alt;
-      })
-      .join(" ")
-      .trim();
-    const state = isMatched(card)
-      ? ", 짝을 맞춤"
-      : isSelected(card)
-        ? ", 선택됨"
-        : "";
-    return `${card.side === "left" ? "A 왼쪽" : "B 오른쪽"} 카드 ${index + 1}: ${content || "내용"}${state}`;
+  function pairForRight(rightId: string): string | null {
+    return question.correctPairs.find((pair) => pair.rightId === rightId)?.leftId ?? null;
   }
 
-  function answerPairs() {
-    return question.correctPairs.map((pair) => ({ ...pair }));
-  }
-
-  function finishIfComplete() {
-    if (matchedPairIds.length !== question.correctPairs.length) return;
-    const outcome = evaluateQuestion(question, {
+  function emitAnswerIfComplete() {
+    if (matchedLeftIds.length !== question.leftItems.length) {
+      onAnswerChange(null);
+      return;
+    }
+    onAnswerChange({
       type: "matching",
-      pairs: answerPairs(),
+      pairs: question.leftItems.map((item) => ({
+        leftId: item.id,
+        rightId: question.correctPairs.find((pair) => pair.leftId === item.id)?.rightId ?? "",
+      })),
     });
-    if (outcome.status === "error") {
-      error = outcome.error.message;
-      return;
-    }
-    result = outcome.result;
-    announcement = "모든 짝을 맞췄습니다.";
-    onEvaluated(outcome.result);
   }
 
-  function selectCard(card: MatchingCard) {
-    if (result || isMatched(card)) return;
+  function selectCard(side: "left" | "right", id: string) {
+    if (disabled || isMatched(side, id)) return;
+    if (side === "left") selectedLeftId = id;
+    else selectedRightId = id;
 
-    error = null;
-    if (card.side === "left") {
-      selectedLeftId = card.cardId;
-    } else {
-      selectedRightId = card.cardId;
-    }
-
-    const nextLeftId = card.side === "left" ? card.cardId : selectedLeftId;
-    const nextRightId = card.side === "right" ? card.cardId : selectedRightId;
-    if (!nextLeftId || !nextRightId) {
-      announcement =
-        card.side === "left"
-          ? "B 오른쪽 카드에서 한 장을 더 고르세요."
-          : "A 왼쪽 카드에서 한 장을 더 고르세요.";
+    const leftId = side === "left" ? id : selectedLeftId;
+    const rightId = side === "right" ? id : selectedRightId;
+    if (!leftId || !rightId) {
+      announcement = side === "left" ? "B 오른쪽 카드에서 한 장을 더 고르세요." : "A 왼쪽 카드에서 한 장을 더 고르세요.";
+      onAnswerChange(null);
       return;
     }
 
-    const leftCard = leftCards.find(
-      (candidate) => candidate.cardId === nextLeftId,
-    );
-    const rightCard = rightCards.find(
-      (candidate) => candidate.cardId === nextRightId,
-    );
-    if (!leftCard || !rightCard) return;
-
-    if (leftCard.pairId === rightCard.pairId) {
-      matchedPairIds = [...matchedPairIds, leftCard.pairId];
+    if (pairForRight(rightId) === leftId) {
+      matchedLeftIds = [...matchedLeftIds, leftId];
+      matchedRightIds = [...matchedRightIds, rightId];
       selectedLeftId = null;
       selectedRightId = null;
       announcement = "짝을 맞췄습니다.";
-      finishIfComplete();
+      emitAnswerIfComplete();
       return;
     }
 
     selectedLeftId = null;
     selectedRightId = null;
     announcement = "짝이 아닙니다. A와 B에서 다시 골라 보세요.";
+    onAnswerChange(null);
+  }
+
+  function isSubmitted(side: "left" | "right", id: string): boolean {
+    if (submittedAnswer?.type !== "matching") return false;
+    if (side === "left") return submittedAnswer.pairs.some((pair) => pair.leftId === id);
+    return submittedAnswer.pairs.some((pair) => pair.rightId === id);
+  }
+
+  function isCanonical(side: "left" | "right", id: string): boolean {
+    if (!reveal || reveal.type !== "matching") return false;
+    return side === "left"
+      ? reveal.pairs.some((pair) => pair.leftId === id)
+      : reveal.pairs.some((pair) => pair.rightId === id);
+  }
+
+  function cardLabel(side: "left" | "right", id: string): string {
+    const items = side === "left" ? question.leftItems : question.rightItems;
+    const item = items.find((candidate) => candidate.id === id);
+    return item ? contentLabel(item.content) : "내용 없음";
+  }
+
+  function accessibleLabel(side: "left" | "right", id: string): string {
+    const state = isMatched(side, id) ? ", 짝을 맞춤" : isSelected(side, id) ? ", 선택됨" : "";
+    const submitted = isSubmitted(side, id) ? ", 내 답" : "";
+    const canonical = isCanonical(side, id) ? ", 정답" : "";
+    return `${side === "left" ? "A 왼쪽" : "B 오른쪽"} 카드: ${cardLabel(side, id)}${state}${submitted}${canonical}`;
   }
 </script>
 
@@ -162,49 +130,53 @@
   {/each}
 
   <div class="matching-board" role="group" aria-label="A와 B의 짝 맞추기">
-    <section class="matching-column" aria-labelledby="matching-left-heading">
-      <h3 id="matching-left-heading">A · 왼쪽 항목</h3>
+    <section class="matching-column" aria-labelledby={`matching-left-${question.id}`}>
+      <h3 id={`matching-left-${question.id}`}>A · 왼쪽 항목</h3>
       <div class="card-list">
-        {#each leftCards as card, index}
+        {#each question.leftItems as item}
+          {@const selected = isSelected("left", item.id)}
+          {@const matched = isMatched("left", item.id)}
           <button
             type="button"
+            class:selected
+            class:matched
             class="memory-card"
-            class:selected={isSelected(card)}
-            class:matched={isMatched(card)}
-            aria-pressed={isSelected(card) || isMatched(card)}
-            aria-label={cardAccessibleLabel(card, index)}
-            disabled={result !== null || isMatched(card)}
-            onclick={() => selectCard(card)}
+            aria-pressed={selected || matched}
+            aria-label={accessibleLabel("left", item.id)}
+            disabled={disabled || matched}
+            onclick={() => selectCard("left", item.id)}
           >
-            <div class="card-content">
-              {#each card.content as block}
-                <ContentBlockRenderer {block} />
-              {/each}
-            </div>
+            <span class="card-content">
+              {#each item.content as block}<ContentBlockRenderer {block} />{/each}
+            </span>
+            {#if isSubmitted("left", item.id)}<span class="answer-marker">내 답</span>{/if}
+            {#if isCanonical("left", item.id)}<span class="answer-marker">정답</span>{/if}
           </button>
         {/each}
       </div>
     </section>
 
-    <section class="matching-column" aria-labelledby="matching-right-heading">
-      <h3 id="matching-right-heading">B · 오른쪽 항목</h3>
+    <section class="matching-column" aria-labelledby={`matching-right-${question.id}`}>
+      <h3 id={`matching-right-${question.id}`}>B · 오른쪽 항목</h3>
       <div class="card-list">
-        {#each rightCards as card, index}
+        {#each rightItems as item}
+          {@const selected = isSelected("right", item.id)}
+          {@const matched = isMatched("right", item.id)}
           <button
             type="button"
+            class:selected
+            class:matched
             class="memory-card"
-            class:selected={isSelected(card)}
-            class:matched={isMatched(card)}
-            aria-pressed={isSelected(card) || isMatched(card)}
-            aria-label={cardAccessibleLabel(card, index)}
-            disabled={result !== null || isMatched(card)}
-            onclick={() => selectCard(card)}
+            aria-pressed={selected || matched}
+            aria-label={accessibleLabel("right", item.id)}
+            disabled={disabled || matched}
+            onclick={() => selectCard("right", item.id)}
           >
-            <div class="card-content">
-              {#each card.content as block}
-                <ContentBlockRenderer {block} />
-              {/each}
-            </div>
+            <span class="card-content">
+              {#each item.content as block}<ContentBlockRenderer {block} />{/each}
+            </span>
+            {#if isSubmitted("right", item.id)}<span class="answer-marker">내 답</span>{/if}
+            {#if isCanonical("right", item.id)}<span class="answer-marker">정답</span>{/if}
           </button>
         {/each}
       </div>
@@ -212,118 +184,22 @@
   </div>
 
   <p class="announcement" aria-live="polite">{announcement}</p>
-
-  {#if error}
-    <p class="feedback incorrect" role="alert">{error}</p>
-  {:else if result}
-    <p
-      class:correct={result.correct}
-      class:incorrect={!result.correct}
-      class="feedback"
-      role="status"
-    >
-      {result.correct ? "정답입니다." : "연결 관계를 다시 확인해 보세요."}
-    </p>
-  {/if}
 </div>
 
 <style>
-  .question-body {
-    display: grid;
-    gap: 1rem;
-  }
-
-  .matching-board {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: 0.75rem;
-  }
-
-  .matching-column {
-    display: grid;
-    min-width: 0;
-    align-content: start;
-    gap: 0.6rem;
-  }
-
-  .matching-column h3 {
-    margin: 0;
-    color: #334155;
-    font-size: 0.9rem;
-  }
-
-  .card-list {
-    display: grid;
-    gap: 0.75rem;
-  }
-
-  .memory-card {
-    display: grid;
-    width: 100%;
-    min-height: 7rem;
-    place-items: center;
-    border: 1px solid #cbd5e1;
-    border-radius: 0.75rem;
-    background: white;
-    padding: 0.75rem;
-    color: #1e3a8a;
-    text-align: center;
-    cursor: pointer;
-  }
-
-  .memory-card.selected {
-    border-color: #2563eb;
-    background: #eff6ff;
-    box-shadow: 0 0 0 2px rgb(37 99 235 / 15%);
-  }
-
-  .memory-card.matched {
-    border-color: #16a34a;
-    background: #f0fdf4;
-  }
-
-  .memory-card:disabled {
-    cursor: default;
-  }
-
-  .memory-card:focus-visible {
-    outline: 3px solid rgb(37 99 235 / 35%);
-    outline-offset: 2px;
-  }
-
-  .card-content :global(p),
-  .card-content :global(pre) {
-    margin: 0;
-  }
-
-  .announcement {
-    min-height: 1.5rem;
-    margin: 0;
-    color: #60708a;
-  }
-
-  .feedback {
-    margin: 0;
-    font-weight: 700;
-  }
-
-  .correct {
-    color: #15803d;
-  }
-
-  .incorrect {
-    color: #b91c1c;
-  }
-
-  @media (max-width: 36rem) {
-    .matching-board,
-    .card-list {
-      gap: 0.5rem;
-    }
-
-    .memory-card {
-      min-height: 5.5rem;
-      padding: 0.6rem 0.45rem;
-    }
-  }
+  .question-body { display: grid; gap: 1rem; }
+  .matching-board { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0.75rem; }
+  .matching-column { display: grid; min-width: 0; align-content: start; gap: 0.6rem; }
+  .matching-column h3 { margin: 0; color: #334155; font-size: 0.9rem; }
+  .card-list { display: grid; gap: 0.75rem; }
+  .memory-card { display: flex; align-items: center; gap: 0.5rem; width: 100%; min-height: 5rem; border: 1px solid #cbd5e1; border-radius: 0.75rem; background: white; padding: 0.75rem; color: #1e3a8a; text-align: center; cursor: pointer; }
+  .memory-card.selected { border-color: #2563eb; background: #eff6ff; box-shadow: 0 0 0 2px rgb(37 99 235 / 15%); }
+  .memory-card.matched { border-color: #16a34a; background: #f0fdf4; }
+  .card-content { flex: 1; min-width: 0; }
+  .card-content :global(p), .card-content :global(pre) { margin: 0; }
+  .answer-marker { flex: 0 0 auto; border-radius: 999px; background: #eef2ff; padding: 0.2rem 0.45rem; color: #3730a3; font-size: 0.78rem; font-weight: 700; white-space: nowrap; }
+  .memory-card:disabled { cursor: default; }
+  .memory-card:focus-visible { outline: 3px solid rgb(37 99 235 / 35%); outline-offset: 2px; }
+  .announcement { min-height: 1.5rem; margin: 0; color: #60708a; }
+  @media (max-width: 640px) { .matching-board { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
 </style>

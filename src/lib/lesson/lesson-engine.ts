@@ -8,6 +8,7 @@ export interface SessionAnswer {
 
 export interface LessonSession {
   lessonId: string;
+  contentRevision?: number;
   currentIndex: number;
   status: "active" | "completed";
   answers: SessionAnswer[];
@@ -16,6 +17,7 @@ export interface LessonSession {
 export function createLessonSession(lesson: Lesson): LessonSession {
   return {
     lessonId: lesson.id,
+    contentRevision: lesson.revision,
     currentIndex: 0,
     status: lesson.flow.length === 0 ? "completed" : "active",
     answers: [],

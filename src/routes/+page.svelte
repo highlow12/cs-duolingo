@@ -1,128 +1,46 @@
-<svelte:head>
-	<title>CS 듀오링고</title>
-	<meta
-		name="description"
-		content="짧은 설명과 반복 문제로 컴퓨터과학을 학습하는 Offline First 앱"
-	/>
-</svelte:head>
-
-<section class="hero">
-	<div>
-		<p class="eyebrow">Computer Science Learning</p>
-		<h1>컴퓨터과학을<br />조금씩, 확실하게.</h1>
-		<p class="lead">
-			짧은 설명을 읽고 바로 문제를 풀며, 시간이 지나면 다시 복습하는 학습 앱입니다.
-		</p>
-		<div class="actions">
-			<a class="button" href="/learn">학습 시작</a>
-			<a class="button secondary" href="/review">오늘의 복습</a>
-		</div>
-	</div>
-	<div class="hero-card card">
-		<span class="hero-icon">λ</span>
-		<strong>첫 번째 수직 슬라이스</strong>
-		<p>Python 변수 레슨에서 설명 → 문제 → 즉시 피드백 흐름을 확인해 보세요.</p>
-		<a href="/learn/py.variables">Python 변수 레슨 열기 →</a>
-	</div>
-</section>
-
-<section class="stack">
-	<h2>핵심 학습 루프</h2>
-	<div class="grid">
-		<div class="card"><strong>1. 개념</strong><p class="muted">짧은 설명으로 핵심 개념을 확인합니다.</p></div>
-		<div class="card"><strong>2. 문제</strong><p class="muted">다양한 문제 형식으로 바로 이해를 확인합니다.</p></div>
-		<div class="card"><strong>3. 복습</strong><p class="muted">학습 기록을 바탕으로 다시 풀 문제를 정합니다.</p></div>
-	</div>
-</section>
-
+<script lang="ts">
+  import { onMount } from 'svelte';
+  import { loadDashboard, errorMessage, type Dashboard } from '$lib/application/dashboard';
+  let data = $state<Dashboard | null>(null);
+  let error = $state('');
+  async function load() { error = ''; try { data = await loadDashboard(); } catch (e) { error = errorMessage(e); } }
+  onMount(() => { void load(); });
+</script>
+<svelte:head><title>오늘의 학습 | CS 듀오링고</title></svelte:head>
+<div class="stack">
+  <div class="page-heading"><p class="eyebrow">매일 쌓이는 컴퓨터과학</p><h1>오늘도 한 개념씩.</h1><p class="muted">이어서 배우고, 잊기 전에 한 번 더 풀어보세요.</p></div>
+  {#if error}<div class="card error" role="alert">{error}<button class="button secondary" onclick={load}>다시 시도</button></div>
+  {:else if !data}<p class="card" role="status">학습 기록을 불러오는 중입니다…</p>
+  {:else}
+    <div class="stats-grid" aria-label="나의 학습 요약">
+      <div class="stat"><span>연속 학습</span><strong>{data.snapshot.game.streak}<small>일</small></strong></div>
+      <div class="stat"><span>누적 경험치</span><strong>{data.snapshot.game.xp}<small>XP</small></strong></div>
+      <div class="stat"><span>완료한 레슨</span><strong>{data.snapshot.lessonStates.filter((s) => s.status === 'completed').length}<small> / {data.lessons.length}</small></strong></div>
+    </div>
+    <div class="home-actions">
+      <section class="card next-lesson">
+        <p class="eyebrow">{data.nextLesson ? '다음 학습' : '모든 레슨 완료'}</p>
+        <h2>{data.nextLesson?.title ?? '배운 내용을 오래 기억해요'}</h2>
+        <p>{data.nextLesson?.description ?? '복습을 이어가거나 학습 경로에서 다시 읽을 레슨을 골라보세요.'}</p>
+        <a class="button" href={data.nextLesson ? `/learn/${data.nextLesson.id}` : '/learn'}>{data.nextLesson ? '이어서 학습하기' : '학습 경로 보기'}</a>
+      </section>
+      <section class="card review-card">
+        <p class="eyebrow">오늘의 복습</p><h2>{data.queue.length}개 문제</h2>
+        <p class="muted">{data.queue.length ? '배운 개념을 다시 떠올릴 시간이에요.' : '지금 풀 복습이 없어요. 새로운 개념을 배워볼까요?'}</p>
+        <a class="button secondary" href="/review">복습 확인하기</a>
+      </section>
+    </div>
+    <section class="card daily-goal"><div class="row"><h2>오늘의 목표</h2><strong>{data.snapshot.game.todayXp} / {data.snapshot.settings.dailyGoal} XP</strong></div><progress max={data.snapshot.settings.dailyGoal} value={Math.min(data.snapshot.game.todayXp, data.snapshot.settings.dailyGoal)} aria-label="오늘의 XP 목표"></progress><p class="muted">{data.snapshot.game.todayXp >= data.snapshot.settings.dailyGoal ? '오늘 목표를 달성했어요. 내일도 이어가요!' : '짧은 문제 풀이가 하루하루 쌓여요.'}</p></section>
+    <div class="row"><a class="text-link" href="/learn">전체 학습 경로 보기 →</a><a class="text-link" href="/progress">나의 기록 보기 →</a></div>
+  {/if}
+</div>
 <style>
-	.hero {
-		display: grid;
-		grid-template-columns: minmax(0, 1.4fr) minmax(260px, 0.8fr);
-		align-items: center;
-		gap: 2rem;
-		min-height: 430px;
-	}
-
-	.eyebrow {
-		margin: 0 0 0.75rem;
-		color: var(--primary);
-		font-size: 0.85rem;
-		font-weight: 800;
-		letter-spacing: 0.12em;
-		text-transform: uppercase;
-	}
-
-	h1 {
-		margin: 0;
-		font-size: clamp(2.4rem, 7vw, 5rem);
-		letter-spacing: -0.07em;
-		line-height: 1.05;
-	}
-
-	.lead {
-		max-width: 34rem;
-		margin: 1.5rem 0;
-		color: var(--muted);
-		font-size: 1.1rem;
-		line-height: 1.7;
-	}
-
-	.actions {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.75rem;
-	}
-
-	.hero-card {
-		display: grid;
-		gap: 0.8rem;
-		transform: rotate(2deg);
-		padding: 1.5rem;
-	}
-
-	.hero-card p {
-		margin: 0;
-		color: var(--muted);
-		line-height: 1.6;
-	}
-
-	.hero-card a {
-		color: var(--primary);
-		font-weight: 700;
-		text-decoration: none;
-	}
-
-	.hero-icon {
-		display: grid;
-		place-items: center;
-		width: 3rem;
-		height: 3rem;
-		border-radius: 1rem;
-		background: #dbeafe;
-		color: var(--primary);
-		font-size: 1.5rem;
-		font-weight: 800;
-	}
-
-	h2 {
-		margin: 0;
-		font-size: 1.5rem;
-	}
-
-	.grid p {
-		margin-bottom: 0;
-	}
-
-	@media (max-width: 720px) {
-		.hero {
-			grid-template-columns: 1fr;
-			min-height: 0;
-			padding: 1rem 0 3rem;
-		}
-
-		.hero-card {
-			transform: none;
-		}
-	}
+  .home-actions { display:grid; grid-template-columns: 1.5fr 1fr; gap:1rem; }
+  .next-lesson { border-top:4px solid var(--primary); padding:2rem; }
+  .next-lesson h2 { font-size:1.8rem; }
+  .next-lesson p:not(.eyebrow) { max-width:36rem; color:var(--muted); line-height:1.7; }
+  .review-card { padding:2rem; background:var(--primary-soft); }
+  .daily-goal h2 { font-size:1.1rem; margin:0; }
+  .daily-goal p { margin:.75rem 0 0; }
+  @media(max-width:640px) { .home-actions { grid-template-columns:1fr; } }
 </style>

@@ -1,41 +1,40 @@
 <script lang="ts">
   import ContentBlockRenderer from "$lib/components/ContentBlockRenderer.svelte";
-  import { evaluateQuestion } from "$lib/questions/registry";
-  import type {
-    CodeOutputQuestion,
-    EvaluationResult,
-  } from "$lib/questions/types";
+  import type { QuestionRendererProps } from "$lib/questions/renderer-contract";
 
+  type Props = QuestionRendererProps<"code-output">;
   let {
     question,
-    onEvaluated = () => {},
-  }: {
-    question: CodeOutputQuestion;
-    onEvaluated?: (result: EvaluationResult) => void;
-  } = $props();
+    disabled,
+    attemptKey,
+    reveal,
+    submittedAnswer = null,
+    onAnswerChange,
+  }: Props = $props();
 
   let value = $state<string | null>(null);
-  let result = $state<EvaluationResult | null>(null);
-  let error = $state<string | null>(null);
+  let renderedKey = $state("");
+
+  $effect(() => {
+    const key = `${question.id}:${question.revision}:${attemptKey}`;
+    if (renderedKey === key) return;
+    renderedKey = key;
+    value = null;
+    onAnswerChange(null);
+  });
 
   function selectChoice(choice: string) {
-    if (result) return;
+    if (disabled) return;
     value = choice;
-    error = null;
+    onAnswerChange({ type: "code-output", value: choice });
   }
 
-  function submit() {
-    if (result || value === null) return;
-    const outcome = evaluateQuestion(question, {
-      type: "code-output",
-      value,
-    });
-    if (outcome.status === "error") {
-      error = outcome.error.message;
-      return;
-    }
-    result = outcome.result;
-    onEvaluated(result);
+  function isSubmitted(choice: string): boolean {
+    return submittedAnswer?.type === "code-output" && submittedAnswer.value === choice;
+  }
+
+  function isCanonical(choice: string): boolean {
+    return reveal?.type === "code-output" && reveal.value === choice;
   }
 </script>
 
@@ -44,132 +43,44 @@
     <ContentBlockRenderer {block} />
   {/each}
 
-  <pre class="code"><code>{question.code}</code></pre>
-  <div class="choices" role="group" aria-label="출력 결과를 고르세요">
+  <pre class="code" aria-label="실행할 Python 코드"><code>{question.code}</code></pre>
+  <div class="choices" role="radiogroup" aria-label="출력 결과를 고르세요">
     {#each question.choices as choice}
+      {@const selected = value === choice}
+      {@const submitted = isSubmitted(choice)}
+      {@const canonical = isCanonical(choice)}
       <button
         type="button"
-        class:selected={value === choice}
+        class:selected
+        class:submitted
+        class:canonical
         class="choice"
-        aria-pressed={value === choice}
-        disabled={result !== null}
+        role="radio"
+        aria-checked={selected}
+        aria-label={`${choice === "" ? "출력 없음" : choice}${submitted ? ", 내 답" : ""}${canonical ? ", 정답" : ""}`}
+        disabled={disabled}
         onclick={() => selectChoice(choice)}
       >
-        <span class="choice-output">{choice === "" ? "출력 없음" : choice}</span
-        >
+        <span class="choice-output">{choice === "" ? "출력 없음" : choice}</span>
+        {#if submitted}<span class="answer-marker">내 답</span>{/if}
+        {#if canonical}<span class="answer-marker">정답</span>{/if}
       </button>
     {/each}
   </div>
-
-  <button
-    class="button"
-    type="button"
-    disabled={value === null || result !== null}
-    onclick={submit}>정답 확인</button
-  >
-
-  {#if error}
-    <p class="feedback incorrect" role="alert">{error}</p>
-  {:else if result}
-    <p
-      class:correct={result.correct}
-      class:incorrect={!result.correct}
-      class="feedback"
-      role="status"
-    >
-      {result.correct ? "정답입니다." : "출력을 다시 확인해 보세요."}
-    </p>
-  {/if}
 </div>
 
 <style>
-  .question-body {
-    display: grid;
-    gap: 1rem;
-  }
-
-  .code {
-    margin: 0;
-    overflow-x: auto;
-    border: 1px solid #dce3ef;
-    border-radius: 0.7rem;
-    background: #f1f5fb;
-    padding: 1rem;
-    font-family: "SFMono-Regular", Consolas, monospace;
-    line-height: 1.6;
-    white-space: pre-wrap;
-  }
-
-  .code code {
-    display: block;
-    background: transparent;
-    padding: 0;
-    font-size: inherit;
-    white-space: inherit;
-  }
-
-  .choices {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
-    gap: 0.6rem;
-  }
-
-  .choice {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    min-height: 3.25rem;
-    border: 1px solid #cbd5e1;
-    border-radius: 0.6rem;
-    background: white;
-    padding: 0.7rem 0.85rem;
-    text-align: left;
-    cursor: pointer;
-  }
-
-  .choice.selected {
-    border-color: #2563eb;
-    background: #eff6ff;
-  }
-
-  .choice:disabled {
-    cursor: default;
-  }
-
-  .choice:focus-visible {
-    outline: 3px solid rgb(37 99 235 / 35%);
-    outline-offset: 2px;
-  }
-
-  .choice-output {
-    display: block;
-    width: 100%;
-    margin: 0;
-    padding: 0;
-    background: transparent;
-    font-family: "SFMono-Regular", Consolas, monospace;
-    font-size: 0.95rem;
-    line-height: 1.4;
-    white-space: pre-wrap;
-    overflow-wrap: anywhere;
-  }
-
-  .feedback {
-    margin: 0;
-    font-weight: 700;
-  }
-
-  .correct {
-    color: #15803d;
-  }
-
-  .incorrect {
-    color: #b91c1c;
-  }
-
-  @media (max-width: 640px) {
-    .choices {
-      grid-template-columns: 1fr;
-    }
-  }
+  .question-body { display: grid; gap: 1rem; }
+  .code { margin: 0; overflow-x: auto; border: 1px solid #dce3ef; border-radius: 0.7rem; background: #f1f5fb; padding: 1rem; font-family: "SFMono-Regular", Consolas, monospace; line-height: 1.6; white-space: pre-wrap; }
+  .code code { display: block; background: transparent; padding: 0; font-size: inherit; white-space: inherit; }
+  .choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: 0.6rem; }
+  .choice { display: flex; align-items: center; gap: 0.55rem; width: 100%; min-height: 3.25rem; border: 1px solid #cbd5e1; border-radius: 0.6rem; background: white; padding: 0.7rem 0.85rem; text-align: left; cursor: pointer; }
+  .choice.selected { border-color: #2563eb; background: #eff6ff; }
+  .choice.submitted { border-color: #b45309; }
+  .choice.canonical { border-color: #15803d; }
+  .choice-output { display: block; flex: 1; width: 100%; margin: 0; padding: 0; background: transparent; font-family: "SFMono-Regular", Consolas, monospace; font-size: 0.95rem; line-height: 1.4; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .answer-marker { flex: 0 0 auto; border-radius: 999px; background: #eef2ff; padding: 0.2rem 0.45rem; color: #3730a3; font-size: 0.78rem; font-weight: 700; white-space: nowrap; }
+  .choice:disabled { cursor: default; }
+  .choice:focus-visible { outline: 3px solid rgb(37 99 235 / 35%); outline-offset: 2px; }
+  @media (max-width: 640px) { .choices { grid-template-columns: 1fr; } }
 </style>
