@@ -1,10 +1,7 @@
 import CodeCompletionQuestion from "./plugins/CodeCompletionQuestion.svelte";
-import CodeOutputQuestion from "./plugins/CodeOutputQuestion.svelte";
-import FillBlankQuestion from "./plugins/FillBlankQuestion.svelte";
 import MatchingQuestion from "./plugins/MatchingQuestion.svelte";
-import MultiSelectQuestion from "./plugins/MultiSelectQuestion.svelte";
 import OrderingQuestion from "./plugins/OrderingQuestion.svelte";
-import SingleChoiceQuestion from "./plugins/SingleChoiceQuestion.svelte";
+import SelectionQuestion from "./plugins/SelectionQuestion.svelte";
 import { getQuestionPlugin } from "./registry";
 import type { QuestionType } from "./types";
 import type {
@@ -14,17 +11,22 @@ import type {
 import type { QuestionDefinition } from "./registry";
 
 /**
- * UI descriptors are kept in a browser/Svelte-facing module.  The pure
+ * UI descriptors are kept in a browser/Svelte-facing module. The pure
  * evaluator registry remains importable by content tooling without loading
  * Svelte components.
+ *
+ * single-choice, multi-select, fill-blank, and code-output intentionally share
+ * one renderer primitive because their interaction is the same: choose one or
+ * more presented alternatives. Their separate question types are retained as
+ * authoring/evaluation semantics, not as duplicated UI implementations.
  */
 export const questionRenderers = new Map<QuestionType, AnyQuestionRenderer>([
-  ["single-choice", SingleChoiceQuestion as AnyQuestionRenderer],
-  ["multi-select", MultiSelectQuestion as AnyQuestionRenderer],
-  ["fill-blank", FillBlankQuestion as AnyQuestionRenderer],
+  ["single-choice", SelectionQuestion as AnyQuestionRenderer],
+  ["multi-select", SelectionQuestion as AnyQuestionRenderer],
+  ["fill-blank", SelectionQuestion as AnyQuestionRenderer],
   ["ordering", OrderingQuestion as AnyQuestionRenderer],
   ["matching", MatchingQuestion as AnyQuestionRenderer],
-  ["code-output", CodeOutputQuestion as AnyQuestionRenderer],
+  ["code-output", SelectionQuestion as AnyQuestionRenderer],
   ["code-completion", CodeCompletionQuestion as AnyQuestionRenderer],
 ]);
 
