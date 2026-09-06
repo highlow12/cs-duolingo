@@ -1,0 +1,39 @@
+schemaVersion: 1
+id: py.conditionals.decision-order-01
+revision: 1
+type: ordering
+prompt:
+  - type: text
+    text: 다음 코드를 위에서 아래로 작성하는 순서대로 배열하세요.
+items:
+  - id: set-score
+    content:
+      - type: code
+        language: python
+        code: score = 75
+  - id: start-if
+    content:
+      - type: code
+        language: python
+        code: "if score >= 60:"
+  - id: print-pass
+    content:
+      - type: code
+        language: python
+        code: '    print("pass")'
+  - id: start-else
+    content:
+      - type: code
+        language: python
+        code: "else:"
+  - id: print-retry
+    content:
+      - type: code
+        language: python
+        code: '    print("retry")'
+correctOrder: [set-score, start-if, print-pass, start-else, print-retry]
+explanation:
+  - type: text
+    text: 먼저 score를 정의하고 if 블록을 작성한 뒤, else 블록을 이어서 작성합니다.
+tags: [conditionals, execution-order]
+difficulty: 2

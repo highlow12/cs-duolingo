@@ -1,0 +1,24 @@
+schemaVersion: 1
+id: py.conditionals.operator-01
+revision: 1
+type: fill-blank
+prompt:
+  - type: text
+    text: 온도가 0도보다 낮을 때 영하를 출력하도록 빈칸에 들어갈 비교 연산자를 고르세요.
+  - type: code
+    language: python
+    code: |-
+      temperature = -3
+      if temperature ___ 0:
+          print("freezing")
+choices:
+  - "<"
+  - ">"
+  - "=="
+acceptedAnswers:
+  - "<"
+explanation:
+  - type: text
+    text: 왼쪽 값이 오른쪽 값보다 작은지 비교할 때는 < 연산자를 사용합니다.
+tags: [conditionals, comparison]
+difficulty: 1

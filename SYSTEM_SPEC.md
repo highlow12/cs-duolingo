@@ -25,7 +25,7 @@ CS 듀오링고는 컴퓨터공학을 짧은 설명과 반복적인 문제 풀�
 
 ### 2.1 Content First
 
-대부분의 새 학습 콘텐츠는 프로그램 코드 변경 없이 추가할 수 있어야 한다. 기존 문제 형식의 새 문제는 `questions.yaml`만 수정해 추가하며, 새로운 상호작용 형식이 필요할 때만 Question Plugin을 구현한다.
+대부분의 새 학습 콘텐츠는 프로그램 코드 변경 없이 추가할 수 있어야 한다. 기존 문제 형식의 새 문제는 lesson의 `questions/`에 YAML 파일을 추가해 작성하며, 새로운 상호작용 형식이 필요할 때만 Question Plugin을 구현한다.
 
 ### 2.2 Offline First
 
@@ -143,7 +143,9 @@ content/
 ├─ lessons/
 │  ├─ py.variables/
 │  │  ├─ lesson.yaml
-│  │  ├─ questions.yaml
+│  │  ├─ questions/
+│  │  │  ├─ py.variables.definition-01.yaml
+│  │  │  └─ py.variables.assignment-01.yaml
 │  │  ├─ content/
 │  │  │  ├─ intro.md
 │  │  │  └─ assignment.md
@@ -256,40 +258,36 @@ flow:
 
 ```ts
 type ContentBlock =
-  | TextBlock
-  | MarkdownBlock
-  | CodeBlock
-  | ImageBlock
-  | DiagramBlock;
+  TextBlock | MarkdownBlock | CodeBlock | ImageBlock | DiagramBlock;
 ```
 
 기본 구조:
 
 ```ts
 interface TextBlock {
-  type: 'text';
+  type: "text";
   text: string;
 }
 
 interface MarkdownBlock {
-  type: 'markdown';
+  type: "markdown";
   markdown: string;
 }
 
 interface CodeBlock {
-  type: 'code';
+  type: "code";
   language: string;
   code: string;
 }
 
 interface ImageBlock {
-  type: 'image';
+  type: "image";
   src: string;
   alt: string;
 }
 
 interface DiagramBlock {
-  type: 'diagram';
+  type: "diagram";
   diagramType: string;
   data: unknown;
 }
@@ -353,17 +351,18 @@ Question ID는 절대로 재사용하지 않는다.
 
 문제 형식은 플러그인으로 등록한다.
 
+구체적인 런타임 답안, 평가, Renderer와 시도 lifecycle 계약은 `QUESTION_SPEC.md`를 기준으로 한다.
+
 ```ts
-interface QuestionPlugin<TQuestion, TAnswer> {
-  type: string;
-  render: QuestionRenderer;
-  evaluate(question: TQuestion, answer: TAnswer): EvaluationResult;
-  validate(question: unknown): ValidationResult;
+interface QuestionPlugin<T extends QuestionType> {
+  type: T;
+  definition: QuestionDefinition<T>;
+  renderer: QuestionRendererComponent<T>;
 }
 ```
 
 ```ts
-const questionPlugins = new Map<string, QuestionPlugin>();
+const questionPlugins: QuestionPluginRegistry;
 ```
 
 레슨 엔진은 개별 문제 타입을 알 필요 없이 `question.type`으로 Registry에서 Plugin을 찾는다.
@@ -377,22 +376,21 @@ Question → type → Plugin Registry → Renderer / Evaluator
 채점 로직은 UI와 완전히 분리한다.
 
 ```text
-Question Renderer
+Plugin Renderer
 → UserAnswer
+→ Question Host
 → Evaluator
-→ EvaluationResult
+→ EvaluationOutcome
 ```
 
 ```ts
 interface EvaluationResult {
   correct: boolean;
-  score: number;
-  feedback?: string;
-  hintsUsed?: number;
+  score: 0 | 1;
 }
 ```
 
-Evaluator가 정답 여부, 부분 점수, 정규화, 평가 기준을 담당한다. Svelte component 내부에 정답 비교 로직을 흩뿌리지 않는다.
+Evaluator가 정답 여부, 정규화, 평가 기준을 담당한다. 사용자 표시용 feedback과 explanation은 공통 UI 계층이 조합하며 Svelte component 내부에 정답 비교 로직을 두지 않는다. MVP에서는 첫 오답 뒤 정답을 공개하지 않고 한 번의 재시도를 필수로 제공한다.
 
 ## 13. Lesson Engine
 
@@ -402,7 +400,7 @@ Lesson Engine은 `lesson.flow`를 실행하는 작은 상태 머신이다.
 interface LessonSession {
   lessonId: string;
   currentIndex: number;
-  status: 'active' | 'completed';
+  status: "active" | "completed";
   answers: SessionAnswer[];
 }
 ```
@@ -451,7 +449,7 @@ StudyEvent가 학습 history의 canonical source다. 문제 풀이, 레슨 완�
 interface ReviewAttemptEvent {
   id: string;
   schemaVersion: number;
-  eventType: 'review-attempt';
+  eventType: "review-attempt";
   userId: string;
   deviceId: string;
   clientSeq: number;
@@ -459,8 +457,8 @@ interface ReviewAttemptEvent {
   lessonId: string;
   contentRevision: number;
   effectiveAt: number;
-  result: 'correct' | 'incorrect';
-  rating: 'again' | 'hard' | 'good' | 'easy';
+  result: "correct" | "incorrect";
+  rating: "again" | "hard" | "good" | "easy";
   durationMs: number;
   hintsUsed: number;
   schedulerProfileId: string;
@@ -476,7 +474,7 @@ interface QuestionState {
   questionId: string;
   lessonId: string;
   contentRevision: number;
-  status: 'new' | 'learning' | 'review' | 'relearning' | 'suspended';
+  status: "new" | "learning" | "review" | "relearning" | "suspended";
   lastReviewAt: number | null;
   nextReviewAt: number | null;
   correctCount: number;
@@ -497,7 +495,7 @@ interface LessonState {
   userId: string;
   lessonId: string;
   contentRevision: number;
-  status: 'not-started' | 'in-progress' | 'completed';
+  status: "not-started" | "in-progress" | "completed";
   startedAt: number | null;
   completedAt: number | null;
   lastStudiedAt: number | null;
@@ -528,7 +526,7 @@ interface Scheduler<TState> {
   apply(
     state: TState,
     rating: ReviewRating,
-    now: Date
+    now: Date,
   ): {
     state: TState;
     nextReviewAt: number;
@@ -958,7 +956,7 @@ IndexedDB 구현을 UI와 application logic에 직접 노출하지 않는다.
 interface ProgressRepository {
   getQuestionState(
     userId: string,
-    questionId: string
+    questionId: string,
   ): Promise<QuestionState | null>;
 
   saveAttempt(event: ReviewAttemptEvent): Promise<void>;
@@ -1193,6 +1191,10 @@ Gamification, Sync, Analytics, AI는 이 핵심 위에 올라가는 부가 계�
 
 다음은 상위 아키텍처를 유지한 채 별도 하위 명세에서 결정한다.
 
+콘텐츠 작성 원본과 generated JSON의 구체적인 계약은 `CONTENT_SPEC.md`를 기준으로 한다.
+
+Question Plugin, UserAnswer, Evaluator와 Renderer의 런타임 계약은 `QUESTION_SPEC.md`를 기준으로 한다.
+
 - 구체적인 UI 디자인
 - 홈 화면 배치
 - Curriculum Graph 시각 표현
@@ -1201,14 +1203,14 @@ Gamification, Sync, Analytics, AI는 이 핵심 위에 올라가는 부가 계�
 - daily goal
 - review session 길이
 - 정답/오답 애니메이션
-- DiagramBlock 문법
+- DiagramBlock 유형별 `data` 문법
 - 실제 코드 실행 환경
 - 계정/backend 제공자
 - cloud sync 구현
 - notification 정책
 - AI 기능
 
-향후 필요하면 `CONTENT_SPEC.md`, `QUESTION_SPEC.md`, `PROGRESS_SPEC.md` 등의 하위 명세로 분리한다.
+향후 필요하면 `PROGRESS_SPEC.md` 등의 하위 명세로 추가 분리한다.
 
 ## 47. 한 문장 아키텍처
 

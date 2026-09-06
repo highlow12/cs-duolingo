@@ -1,0 +1,25 @@
+schemaVersion: 1
+id: py.conditionals.output-01
+revision: 1
+type: code-output
+prompt:
+  - type: text
+    text: 다음 Python 코드의 출력 결과를 고르세요.
+language: python
+code: |-
+  score = 45
+  if score >= 60:
+      print("pass")
+  else:
+      print("retry")
+choices:
+  - retry
+  - pass
+  - "45"
+acceptedOutputs:
+  - retry
+explanation:
+  - type: text
+    text: 45는 60 이상이 아니므로 if 블록 대신 else 블록이 실행됩니다.
+tags: [conditionals, code-output]
+difficulty: 2

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" role="img" aria-labelledby="title">
+  <title>CS 듀오링고</title>
+  <rect width="192" height="192" rx="42" fill="#2563eb"/>
+  <path d="M48 54h96v18H48zM48 87h63v18H48zM48 120h42v18H48z" fill="#fff"/>
+  <circle cx="138" cy="114" r="24" fill="#fbbf24"/>
+  <path d="m129 114 6 6 12-15" fill="none" stroke="#172033" stroke-linecap="round" stroke-linejoin="round" stroke-width="7"/>
+</svg>

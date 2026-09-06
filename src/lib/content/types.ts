@@ -3,7 +3,7 @@ export type ContentBlock =
   | { type: "markdown"; markdown: string }
   | { type: "code"; language: string; code: string }
   | { type: "image"; src: string; alt: string }
-  | { type: "diagram"; diagramType: string; data: unknown };
+  | { type: "diagram"; diagramType: string; data: unknown; alt: string };
 
 export interface Track {
   id: string;
@@ -19,25 +19,27 @@ export interface CurriculumNode {
 }
 
 export interface Curriculum {
+  schemaVersion: 1;
   tracks: Track[];
   nodes: CurriculumNode[];
 }
 
 export type LessonFlowItem =
-  { type: "content"; ref: string } | { type: "question"; ref: string };
+  | { type: "content"; blocks: ContentBlock[] }
+  | { type: "question"; ref: string };
 
 export interface Lesson {
+  schemaVersion: 1;
   id: string;
   revision: number;
   track: string;
   title: string;
   description: string;
   flow: LessonFlowItem[];
-  content: Record<string, ContentBlock[]>;
 }
 
 export interface ContentManifest {
-  schemaVersion: number;
+  schemaVersion: 1;
   buildId: string;
   generatedAt: string;
   tracks: string[];

@@ -1,3 +1,8 @@
+schemaVersion: 1
 nodes:
   - lesson: py.variables
     requires: []
+
+  - lesson: py.conditionals
+    requires:
+      - py.variables

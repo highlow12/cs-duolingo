@@ -1,3 +1,4 @@
+schemaVersion: 1
 id: py.variables
 revision: 1
 track: python
@@ -6,10 +7,10 @@ description: 이름을 값에 연결하는 변수의 기본 개념을 학습한�
 
 flow:
   - type: content
-    ref: intro
+    ref: content/intro.md
   - type: question
     ref: py.variables.what-is-01
   - type: content
-    ref: assignment
+    ref: content/assignment.md
   - type: question
     ref: py.variables.assign-01

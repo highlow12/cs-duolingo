@@ -1,0 +1,16 @@
+schemaVersion: 1
+id: py.variables.assign-01
+revision: 1
+type: fill-blank
+prompt:
+  - type: code
+    language: python
+    code: answer = 42
+  - type: text
+    text: 위 코드에서 값 42를 가리키는 변수의 이름을 고르세요.
+choices:
+  - answer
+  - value
+  - result
+acceptedAnswers:
+  - answer

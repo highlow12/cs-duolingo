@@ -1,0 +1,38 @@
+schemaVersion: 1
+id: py.conditionals.true-comparisons-01
+revision: 1
+type: multi-select
+prompt:
+  - type: code
+    language: python
+    code: score = 80
+  - type: text
+    text: score가 80일 때 결과가 True인 비교식을 모두 고르세요.
+options:
+  - id: at-least-sixty
+    content:
+      - type: code
+        language: python
+        code: score >= 60
+  - id: exactly-eighty
+    content:
+      - type: code
+        language: python
+        code: score == 80
+  - id: below-sixty
+    content:
+      - type: code
+        language: python
+        code: score < 60
+  - id: not-eighty
+    content:
+      - type: code
+        language: python
+        code: score != 80
+correctOptionIds: [at-least-sixty, exactly-eighty]
+shuffleOptions: false
+explanation:
+  - type: text
+    text: 80은 60 이상이고 80과 같으므로 두 식의 결과가 True입니다.
+tags: [conditionals, comparison, boolean-logic]
+difficulty: 2

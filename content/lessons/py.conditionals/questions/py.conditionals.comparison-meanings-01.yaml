@@ -1,0 +1,48 @@
+schemaVersion: 1
+id: py.conditionals.comparison-meanings-01
+revision: 1
+type: matching
+prompt:
+  - type: text
+    text: 비교식과 그 의미를 알맞게 연결하세요.
+leftItems:
+  - id: score-at-least
+    content:
+      - type: code
+        language: python
+        code: score >= 60
+  - id: score-equals
+    content:
+      - type: code
+        language: python
+        code: score == 60
+  - id: score-below
+    content:
+      - type: code
+        language: python
+        code: score < 60
+rightItems:
+  - id: at-least
+    content:
+      - type: text
+        text: score가 60 이상이다.
+  - id: exactly
+    content:
+      - type: text
+        text: score가 60과 같다.
+  - id: below
+    content:
+      - type: text
+        text: score가 60보다 작다.
+correctPairs:
+  - leftId: score-at-least
+    rightId: at-least
+  - leftId: score-equals
+    rightId: exactly
+  - leftId: score-below
+    rightId: below
+explanation:
+  - type: text
+    text: ">=는 이상, ==는 같음, <는 미만을 나타냅니다."
+tags: [conditionals, comparison]
+difficulty: 2

@@ -9,6 +9,6 @@ if (errors.length > 0) {
   process.exitCode = 1;
 } else {
   console.log(
-    `콘텐츠 검증 통과: tracks=${bundle.tracks.length}, lessons=${bundle.lessons.length}, questions=${bundle.lessons.reduce((total, lesson) => total + lesson.questions.length, 0)}`,
+    `콘텐츠 검증 통과: tracks=${bundle.tracksFile.value.tracks.length}, lessons=${bundle.lessons.length}, questions=${bundle.lessons.reduce((total, lesson) => total + lesson.questions.length, 0)}`,
   );
 }

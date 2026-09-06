@@ -1,24 +1,49 @@
 <script lang="ts">
-	import favicon from '$lib/assets/favicon.svg';
+	import { page } from '$app/state';
 	import '../app.css';
 
 	let { children } = $props();
+	let currentPath = $derived(page.url.pathname);
+
+	const navItems = [
+		{ href: '/learn', label: '학습' },
+		{ href: '/review', label: '복습' },
+		{ href: '/progress', label: '진행도' },
+		{ href: '/settings', label: '설정' }
+	] as const;
+
+	function isActive(href: string) {
+		return currentPath === href || currentPath.startsWith(`${href}/`);
+	}
 </script>
 
-<svelte:head>
-	<link rel="icon" href={favicon} />
-</svelte:head>
+<a class="skip-link" href="#main-content">본문으로 건너뛰기</a>
 
 <header class="site-header">
 	<div class="shell header-inner">
-		<a class="brand" href="/">CS 듀오링고</a>
-		<nav aria-label="주요 메뉴">
-			<a href="/learn">학습</a>
-			<a href="/review">복습</a>
-			<a href="/progress">진행도</a>
-			<a href="/settings">설정</a>
+		<a class="brand" href="/" aria-label="CS 듀오링고 홈">
+			<span class="brand-mark" aria-hidden="true">λ</span>
+			<span>CS 듀오링고</span>
+		</a>
+		<nav class="primary-nav" aria-label="주요 메뉴">
+			{#each navItems as item}
+				<a
+					class:active={isActive(item.href)}
+					href={item.href}
+					aria-current={isActive(item.href) ? 'page' : undefined}
+				>
+					{item.label}
+				</a>
+			{/each}
 		</nav>
 	</div>
 </header>
 
-<main class="shell page-content">{@render children()}</main>
+<main id="main-content" class="shell page-content" tabindex="-1">{@render children()}</main>
+
+<footer class="site-footer">
+	<div class="shell footer-inner">
+		<span>CS 듀오링고</span>
+		<span class="offline-label"><span aria-hidden="true">●</span> 기기에서 바로 학습</span>
+	</div>
+</footer>

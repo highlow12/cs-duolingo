@@ -1,11 +1,61 @@
 import { build, files, version } from "$service-worker";
 
-const workerCache = `cs-duolingo-${version}`;
-const assets = [...build, ...files];
+const shellCache = `cs-duolingo-shell-${version}`;
+const contentCache = `cs-duolingo-content-${version}`;
+const contentAssets = files.filter((asset) => asset.includes("/generated/"));
+const shellAssets = files.filter((asset) => !asset.includes("/generated/"));
+const appAssets = [...build, ...shellAssets];
+
+function isSameOrigin(request: Request) {
+  return new URL(request.url).origin === self.location.origin;
+}
+
+async function cacheFirst(request: Request, cacheName: string) {
+  const cache = await caches.open(cacheName);
+  const cached = await cache.match(request);
+  if (cached) return cached;
+
+  try {
+    const response = await fetch(request);
+    if (response.ok && response.type !== "opaque") {
+      await cache.put(request, response.clone());
+    }
+    return response;
+  } catch {
+    return Response.error();
+  }
+}
+
+async function navigationResponse(request: Request) {
+  const cache = await caches.open(shellCache);
+
+  try {
+    const response = await fetch(request);
+    if (response.ok && response.type !== "opaque") {
+      await cache.put(request, response.clone());
+    }
+    return response;
+  } catch {
+    const cached = await cache.match(request);
+    if (cached) return cached;
+
+    const shellUrl = new URL(".", self.registration.scope);
+    return (await cache.match(shellUrl)) ?? Response.error();
+  }
+}
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(workerCache).then((cache) => cache.addAll(assets)),
+    (async () => {
+      const shell = await caches.open(shellCache);
+      const content = await caches.open(contentCache);
+      const shellUrl = new URL(".", self.registration.scope);
+
+      await shell.addAll(appAssets);
+      await shell.add(shellUrl);
+      await content.addAll(contentAssets);
+      await self.skipWaiting();
+    })(),
   );
 });
 
@@ -14,7 +64,12 @@ self.addEventListener("activate", (event) => {
     caches.keys().then(async (keys) => {
       await Promise.all(
         keys
-          .filter((key) => key !== workerCache)
+          .filter(
+            (key) =>
+              key.startsWith("cs-duolingo-") &&
+              key !== shellCache &&
+              key !== contentCache,
+          )
           .map((key) => caches.delete(key)),
       );
       await self.clients.claim();
@@ -23,20 +78,15 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
-  if (event.request.method !== "GET") return;
+  if (event.request.method !== "GET" || !isSameOrigin(event.request)) return;
 
-  event.respondWith(
-    caches.match(event.request).then((cached) => {
-      if (cached) return cached;
-      return fetch(event.request).then((response) => {
-        if (!response || response.status !== 200 || response.type === "opaque")
-          return response;
-        const copy = response.clone();
-        void caches
-          .open(workerCache)
-          .then((cache) => cache.put(event.request, copy));
-        return response;
-      });
-    }),
-  );
+  if (event.request.mode === "navigate") {
+    event.respondWith(navigationResponse(event.request));
+    return;
+  }
+
+  const cacheName = new URL(event.request.url).pathname.includes("/generated/")
+    ? contentCache
+    : shellCache;
+  event.respondWith(cacheFirst(event.request, cacheName));
 });

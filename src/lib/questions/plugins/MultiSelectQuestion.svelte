@@ -3,36 +3,41 @@
   import { evaluateQuestion } from "$lib/questions/registry";
   import type {
     EvaluationResult,
-    FillBlankQuestion,
+    MultiSelectQuestion,
   } from "$lib/questions/types";
 
   let {
     question,
     onEvaluated = () => {},
   }: {
-    question: FillBlankQuestion;
+    question: MultiSelectQuestion;
     onEvaluated?: (result: EvaluationResult) => void;
   } = $props();
 
-  let value = $state<string | null>(null);
+  let selectedIds = $state<string[]>([]);
   let result = $state<EvaluationResult | null>(null);
   let error = $state<string | null>(null);
 
-  function selectChoice(choice: string) {
+  function toggleOption(optionId: string) {
     if (result) return;
-    value = choice;
+    selectedIds = selectedIds.includes(optionId)
+      ? selectedIds.filter((id) => id !== optionId)
+      : [...selectedIds, optionId];
     error = null;
   }
 
   function submit() {
-    if (value === null || result) return;
-    const outcome = evaluateQuestion(question, { type: "fill-blank", value });
+    if (selectedIds.length === 0 || result) return;
+    const outcome = evaluateQuestion(question, {
+      type: "multi-select",
+      optionIds: [...selectedIds],
+    });
     if (outcome.status === "error") {
       error = outcome.error.message;
       return;
     }
     result = outcome.result;
-    onEvaluated(outcome.result);
+    onEvaluated(result);
   }
 </script>
 
@@ -41,24 +46,27 @@
     <ContentBlockRenderer {block} />
   {/each}
 
-  <div class="choices" role="group" aria-label="답을 고르세요">
-    {#each question.choices as choice}
+  <div class="options" role="group" aria-label="정답을 모두 선택하세요.">
+    {#each question.options as option}
       <button
         type="button"
-        class:selected={value === choice}
-        class="choice"
-        aria-pressed={value === choice}
+        class:selected={selectedIds.includes(option.id)}
+        class="option"
+        aria-pressed={selectedIds.includes(option.id)}
         disabled={result !== null}
-        onclick={() => selectChoice(choice)}
+        onclick={() => toggleOption(option.id)}
       >
-        {choice}
+        {#each option.content as block}
+          <ContentBlockRenderer {block} />
+        {/each}
       </button>
     {/each}
   </div>
 
   <button
     class="button"
-    disabled={value === null || result !== null}
+    type="button"
+    disabled={selectedIds.length === 0 || result !== null}
     onclick={submit}>정답 확인</button
   >
 
@@ -71,7 +79,7 @@
       class="feedback"
       role="status"
     >
-      {result.correct ? "정답입니다." : "표현을 다시 확인해 보세요."}
+      {result.correct ? "정답입니다." : "선택한 항목을 다시 확인해 보세요."}
     </p>
   {/if}
 </div>
@@ -82,39 +90,35 @@
     gap: 1rem;
   }
 
-  .choices {
+  .options {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
-    gap: 0.6rem;
+    gap: 0.75rem;
   }
 
-  .choice {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    min-height: 3rem;
-    border: 1px solid #cbd5e1;
-    border-radius: 0.6rem;
+  .option {
+    border: 1px solid #dce3ef;
+    border-radius: 0.75rem;
     background: white;
-    padding: 0.65rem 0.85rem;
-    color: #1e3a8a;
-    line-height: 1.35;
-    overflow-wrap: anywhere;
-    text-align: center;
+    padding: 0.8rem 1rem;
+    text-align: left;
     cursor: pointer;
   }
 
-  .choice.selected {
+  .option.selected {
     border-color: #2563eb;
-    background: #eff6ff;
+    box-shadow: 0 0 0 2px rgb(37 99 235 / 15%);
   }
 
-  .choice:disabled {
+  .option :global(p),
+  .option :global(pre) {
+    margin: 0;
+  }
+
+  .option:disabled {
     cursor: default;
   }
 
-  .choice:focus-visible {
+  .option:focus-visible {
     outline: 3px solid rgb(37 99 235 / 35%);
     outline-offset: 2px;
   }
@@ -130,11 +134,5 @@
 
   .incorrect {
     color: #b91c1c;
-  }
-
-  @media (max-width: 640px) {
-    .choices {
-      grid-template-columns: 1fr;
-    }
   }
 </style>

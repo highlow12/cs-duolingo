@@ -2,15 +2,15 @@
   import ContentBlockRenderer from "$lib/components/ContentBlockRenderer.svelte";
   import { evaluateQuestion } from "$lib/questions/registry";
   import type {
+    CodeOutputQuestion,
     EvaluationResult,
-    FillBlankQuestion,
   } from "$lib/questions/types";
 
   let {
     question,
     onEvaluated = () => {},
   }: {
-    question: FillBlankQuestion;
+    question: CodeOutputQuestion;
     onEvaluated?: (result: EvaluationResult) => void;
   } = $props();
 
@@ -25,14 +25,17 @@
   }
 
   function submit() {
-    if (value === null || result) return;
-    const outcome = evaluateQuestion(question, { type: "fill-blank", value });
+    if (result || value === null) return;
+    const outcome = evaluateQuestion(question, {
+      type: "code-output",
+      value,
+    });
     if (outcome.status === "error") {
       error = outcome.error.message;
       return;
     }
     result = outcome.result;
-    onEvaluated(outcome.result);
+    onEvaluated(result);
   }
 </script>
 
@@ -41,7 +44,8 @@
     <ContentBlockRenderer {block} />
   {/each}
 
-  <div class="choices" role="group" aria-label="답을 고르세요">
+  <pre class="code"><code>{question.code}</code></pre>
+  <div class="choices" role="group" aria-label="출력 결과를 고르세요">
     {#each question.choices as choice}
       <button
         type="button"
@@ -51,13 +55,15 @@
         disabled={result !== null}
         onclick={() => selectChoice(choice)}
       >
-        {choice}
+        <span class="choice-output">{choice === "" ? "출력 없음" : choice}</span
+        >
       </button>
     {/each}
   </div>
 
   <button
     class="button"
+    type="button"
     disabled={value === null || result !== null}
     onclick={submit}>정답 확인</button
   >
@@ -71,7 +77,7 @@
       class="feedback"
       role="status"
     >
-      {result.correct ? "정답입니다." : "표현을 다시 확인해 보세요."}
+      {result.correct ? "정답입니다." : "출력을 다시 확인해 보세요."}
     </p>
   {/if}
 </div>
@@ -82,26 +88,42 @@
     gap: 1rem;
   }
 
+  .code {
+    margin: 0;
+    overflow-x: auto;
+    border: 1px solid #dce3ef;
+    border-radius: 0.7rem;
+    background: #f1f5fb;
+    padding: 1rem;
+    font-family: "SFMono-Regular", Consolas, monospace;
+    line-height: 1.6;
+    white-space: pre-wrap;
+  }
+
+  .code code {
+    display: block;
+    background: transparent;
+    padding: 0;
+    font-size: inherit;
+    white-space: inherit;
+  }
+
   .choices {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
     gap: 0.6rem;
   }
 
   .choice {
     display: flex;
     align-items: center;
-    justify-content: center;
     width: 100%;
-    min-height: 3rem;
+    min-height: 3.25rem;
     border: 1px solid #cbd5e1;
     border-radius: 0.6rem;
     background: white;
-    padding: 0.65rem 0.85rem;
-    color: #1e3a8a;
-    line-height: 1.35;
-    overflow-wrap: anywhere;
-    text-align: center;
+    padding: 0.7rem 0.85rem;
+    text-align: left;
     cursor: pointer;
   }
 
@@ -117,6 +139,19 @@
   .choice:focus-visible {
     outline: 3px solid rgb(37 99 235 / 35%);
     outline-offset: 2px;
+  }
+
+  .choice-output {
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    font-family: "SFMono-Regular", Consolas, monospace;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
   }
 
   .feedback {

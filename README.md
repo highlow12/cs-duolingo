@@ -11,7 +11,7 @@
 - IndexedDB 기반 학습 진행도와 FSRS 복습 시스템 확장
 - 동일한 앱을 Capacitor로 Android/iOS에 배포
 
-현재는 시스템 명세의 Phase 1 Skeleton과 Phase 2 Content Pipeline을 구현하는 단계입니다.
+Phase 1 Skeleton과 Phase 2 Content Pipeline을 완료했으며, 다음 단계는 `QUESTION_SPEC.md`에 따른 Question Engine 확장입니다.
 
 ## 시작하기
 
@@ -43,7 +43,7 @@ static/        PWA 정적 자산
 tests/         단위 테스트
 ```
 
-콘텐츠의 상세 규칙과 전체 아키텍처는 [SYSTEM_SPEC.md](./SYSTEM_SPEC.md)에 정의되어 있습니다.
+전체 아키텍처는 [SYSTEM_SPEC.md](./SYSTEM_SPEC.md), 콘텐츠 작성 규칙은 [CONTENT_SPEC.md](./CONTENT_SPEC.md), Question Engine의 런타임 계약은 [QUESTION_SPEC.md](./QUESTION_SPEC.md)에 정의되어 있습니다.
 
 ## 학습 경로
 

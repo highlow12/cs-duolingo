@@ -1,0 +1,25 @@
+schemaVersion: 1
+id: py.conditionals.completion-01
+revision: 1
+type: code-completion
+prompt:
+  - type: text
+    text: 점수가 60 이상이면 pass를 출력하도록 비교 연산자의 선택지를 고르세요.
+language: python
+template: |-
+  score = 75
+  if score {{blank:operator}} 60:
+      print("pass")
+blanks:
+  - id: operator
+    choices:
+      - ">="
+      - ">"
+      - "=="
+    acceptedAnswers:
+      - ">="
+explanation:
+  - type: text
+    text: 60 이상을 표현하려면 크거나 같다는 뜻의 >= 연산자를 사용합니다.
+tags: [conditionals, code-completion]
+difficulty: 2

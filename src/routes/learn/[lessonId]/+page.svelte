@@ -98,7 +98,7 @@
 	<section class="lesson-card card">
 		{#if currentFlow.type === 'content'}
 			<div class="content-blocks">
-				{#each lesson.content[currentFlow.ref] ?? [] as block}
+				{#each currentFlow.blocks as block}
 					<ContentBlockRenderer {block} />
 				{/each}
 			</div>

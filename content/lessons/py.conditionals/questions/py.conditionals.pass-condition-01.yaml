@@ -1,0 +1,34 @@
+schemaVersion: 1
+id: py.conditionals.pass-condition-01
+revision: 1
+type: single-choice
+prompt:
+  - type: code
+    language: python
+    code: |-
+      score = 75
+      if score >= 60:
+          print("pass")
+
+  - type: text
+    text: 위 코드의 if 조건이 참이 되는 이유는 무엇인가요?
+options:
+  - id: enough-score
+    content:
+      - type: text
+        text: score가 60보다 크거나 같기 때문이다.
+  - id: exact-score
+    content:
+      - type: text
+        text: score가 정확히 60이기 때문이다.
+  - id: text-value
+    content:
+      - type: text
+        text: score가 문자열이기 때문이다.
+correctOptionId: enough-score
+shuffleOptions: false
+explanation:
+  - type: text
+    text: 75는 60보다 크므로 score >= 60의 결과는 True입니다.
+tags: [conditionals, comparison]
+difficulty: 1
