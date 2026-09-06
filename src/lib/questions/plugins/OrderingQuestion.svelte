@@ -21,6 +21,9 @@
   let previousOrder = $state<typeof question.items | null>(null);
   let announcement = $state("");
   let draggedIndex = $state<number | null>(null);
+  let dragTargetIndex = $state<number | null>(null);
+  let dragPointerId = $state<number | null>(null);
+  let listElement = $state<HTMLOListElement | null>(null);
 
   $effect(() => {
     const identity = `${question.id}:${question.revision}`;
@@ -31,7 +34,7 @@
     renderedKey = key;
     orderedItems = shuffleDistinct(question.items, random, previousOrder);
     previousOrder = [...orderedItems];
-    draggedIndex = null;
+    clearDragState();
     announcement = "순서를 정한 뒤 정답을 확인하세요.";
     onAnswerChange({
       type: "ordering",
@@ -43,31 +46,117 @@
     announcement = `${contentLabel(item.content)} 항목이 ${index + 1}번째 위치로 이동했습니다.`;
   }
 
+  function emitOrder(next: typeof orderedItems) {
+    orderedItems = next;
+    previousOrder = [...next];
+    onAnswerChange({
+      type: "ordering",
+      orderedItemIds: next.map((item) => item.id),
+    });
+  }
+
   function move(index: number, offset: -1 | 1) {
     if (disabled) return;
     const target = index + offset;
     if (target < 0 || target >= orderedItems.length) return;
     const next = [...orderedItems];
     [next[index], next[target]] = [next[target], next[index]];
-    orderedItems = next;
-    previousOrder = [...next];
+    emitOrder(next);
     announcePosition(next[target], target);
-    onAnswerChange({ type: "ordering", orderedItemIds: next.map((item) => item.id) });
+  }
+
+  function applyDrop(source: number, target: number) {
+    if (disabled || source === target) return;
+    if (source < 0 || target < 0 || source >= orderedItems.length || target >= orderedItems.length)
+      return;
+
+    const next = [...orderedItems];
+    const [item] = next.splice(source, 1);
+    next.splice(target, 0, item);
+    emitOrder(next);
+    announcePosition(item, target);
+  }
+
+  function clearDragState() {
+    draggedIndex = null;
+    dragTargetIndex = null;
+    dragPointerId = null;
   }
 
   function drop(target: number) {
-    if (disabled || draggedIndex === null || draggedIndex === target) {
-      draggedIndex = null;
-      return;
+    const source = draggedIndex;
+    clearDragState();
+    if (source === null) return;
+    applyDrop(source, target);
+  }
+
+  function targetIndexAt(clientY: number): number | null {
+    if (!listElement) return null;
+    const items = Array.from(
+      listElement.querySelectorAll<HTMLElement>("[data-order-index]"),
+    );
+    if (items.length === 0) return null;
+
+    for (const item of items) {
+      const rect = item.getBoundingClientRect();
+      const index = Number(item.dataset.orderIndex);
+      if (clientY < rect.top + rect.height / 2 && Number.isInteger(index))
+        return index;
     }
-    const next = [...orderedItems];
-    const [item] = next.splice(draggedIndex, 1);
-    next.splice(target, 0, item);
-    orderedItems = next;
-    previousOrder = [...next];
-    draggedIndex = null;
-    announcePosition(item, target);
-    onAnswerChange({ type: "ordering", orderedItemIds: next.map((candidate) => candidate.id) });
+
+    const lastIndex = Number(items.at(-1)?.dataset.orderIndex);
+    return Number.isInteger(lastIndex) ? lastIndex : null;
+  }
+
+  function startPointerDrag(event: PointerEvent, index: number) {
+    if (disabled) return;
+    event.preventDefault();
+    const handle = event.currentTarget as HTMLElement;
+    handle.setPointerCapture(event.pointerId);
+    draggedIndex = index;
+    dragTargetIndex = index;
+    dragPointerId = event.pointerId;
+    announcement = `${contentLabel(orderedItems[index].content)} 항목 드래그를 시작했습니다. 현재 ${index + 1}번째입니다.`;
+  }
+
+  function movePointerDrag(event: PointerEvent) {
+    if (
+      disabled ||
+      draggedIndex === null ||
+      dragPointerId !== event.pointerId
+    )
+      return;
+
+    event.preventDefault();
+    const target = targetIndexAt(event.clientY);
+    if (target !== null) dragTargetIndex = target;
+
+    const edge = 72;
+    const step = 12;
+    if (event.clientY < edge) window.scrollBy(0, -step);
+    else if (event.clientY > window.innerHeight - edge) window.scrollBy(0, step);
+  }
+
+  function finishPointerDrag(event: PointerEvent) {
+    if (dragPointerId !== event.pointerId) return;
+    event.preventDefault();
+    const handle = event.currentTarget as HTMLElement;
+    if (handle.hasPointerCapture(event.pointerId))
+      handle.releasePointerCapture(event.pointerId);
+
+    const source = draggedIndex;
+    const target = dragTargetIndex ?? source;
+    clearDragState();
+    if (source !== null && target !== null) applyDrop(source, target);
+  }
+
+  function cancelPointerDrag(event: PointerEvent) {
+    if (dragPointerId !== event.pointerId) return;
+    const handle = event.currentTarget as HTMLElement;
+    if (handle.hasPointerCapture(event.pointerId))
+      handle.releasePointerCapture(event.pointerId);
+    clearDragState();
+    announcement = "드래그가 취소되었습니다.";
   }
 
   function isCanonical(id: string): boolean {
@@ -84,18 +173,46 @@
     <ContentBlockRenderer {block} />
   {/each}
 
-  <ol class="items" aria-label="순서 항목">
+  <p class="drag-hint">손잡이를 드래그하거나 화살표 버튼으로 순서를 바꾸세요.</p>
+  <ol class="items" aria-label="순서 항목" bind:this={listElement}>
     {#each orderedItems as item, index}
       {@const submitted = isSubmittedAt(index, item.id)}
       {@const canonical = isCanonical(item.id)}
       <li
         class="item"
+        class:dragging={draggedIndex === index}
+        class:drop-target={draggedIndex !== null && dragTargetIndex === index && draggedIndex !== index}
+        data-order-index={index}
         draggable={!disabled}
-        ondragstart={() => { if (!disabled) draggedIndex = index; }}
-        ondragend={() => (draggedIndex = null)}
-        ondragover={(event) => { if (!disabled) event.preventDefault(); }}
+        ondragstart={() => {
+          if (!disabled) {
+            draggedIndex = index;
+            dragTargetIndex = index;
+          }
+        }}
+        ondragend={() => clearDragState()}
+        ondragover={(event) => {
+          if (!disabled) {
+            event.preventDefault();
+            dragTargetIndex = index;
+          }
+        }}
         ondrop={() => drop(index)}
       >
+        <button
+          class="drag-handle"
+          type="button"
+          draggable="false"
+          disabled={disabled}
+          aria-label={`${contentLabel(item.content)} 드래그해서 이동`}
+          title="드래그해서 순서 이동"
+          onpointerdown={(event) => startPointerDrag(event, index)}
+          onpointermove={movePointerDrag}
+          onpointerup={finishPointerDrag}
+          onpointercancel={cancelPointerDrag}
+        >
+          <span aria-hidden="true">⠿</span>
+        </button>
         <div class="item-content">
           <span class="item-number" aria-hidden="true">{index + 1}</span>
           <span class="item-label">
@@ -130,9 +247,16 @@
 
 <style>
   .question-body { display: grid; gap: 1rem; }
+  .drag-hint { margin: 0; color: #60708a; font-size: 0.9rem; }
   .items { display: grid; gap: 0.7rem; margin: 0; padding: 0; list-style: none; }
-  .item { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; border: 1px solid #dce3ef; border-radius: 0.75rem; background: white; padding: 0.8rem 1rem; }
+  .item { display: flex; align-items: center; justify-content: space-between; gap: 0.65rem; border: 1px solid #dce3ef; border-radius: 0.75rem; background: white; padding: 0.8rem 1rem; transition: border-color 120ms ease, box-shadow 120ms ease, opacity 120ms ease; }
   .item[draggable="true"] { cursor: grab; }
+  .item.dragging { opacity: 0.65; }
+  .item.drop-target { border-color: #2563eb; box-shadow: 0 0 0 2px rgb(37 99 235 / 15%); }
+  .drag-handle { display: inline-grid; flex: 0 0 auto; place-items: center; width: 2.25rem; height: 2.5rem; border: 0; border-radius: 0.5rem; background: transparent; color: #64748b; font-size: 1.45rem; line-height: 1; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
+  .drag-handle:active { cursor: grabbing; background: #f1f5f9; }
+  .drag-handle:disabled { cursor: default; opacity: 0.4; }
+  .drag-handle:focus-visible { outline: 3px solid rgb(37 99 235 / 35%); outline-offset: 2px; }
   .item-content { display: flex; align-items: flex-start; flex: 1; gap: 0.7rem; min-width: 0; }
   .item-label { flex: 1; min-width: 0; }
   .item-label :global(p), .item-label :global(pre) { margin: 0; }
@@ -143,4 +267,10 @@
   .icon-button:focus-visible { outline: 3px solid rgb(37 99 235 / 35%); outline-offset: 2px; }
   .answer-marker { flex: 0 0 auto; border-radius: 999px; background: #eef2ff; padding: 0.2rem 0.45rem; color: #3730a3; font-size: 0.78rem; font-weight: 700; white-space: nowrap; }
   .announcement { min-height: 1.5rem; margin: 0; color: #60708a; }
+
+  @media (max-width: 640px) {
+    .item { padding: 0.7rem 0.65rem; }
+    .drag-handle { width: 2.5rem; height: 2.75rem; }
+    .move-actions { flex-direction: column; }
+  }
 </style>
