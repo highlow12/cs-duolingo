@@ -1,0 +1,25 @@
+schemaVersion: 1
+id: py.io.print-output-01
+revision: 1
+type: code-output
+prompt:
+  - type: text
+    text: 다음 Python 코드의 출력 결과를 고르세요.
+language: python
+code: |-
+  score = 95
+  print("score:", score)
+choices:
+  - "score: 95"
+  - "score:95"
+  - "95 score:"
+acceptedOutputs:
+  - "score: 95"
+explanation:
+  - type: text
+    text: print()에 여러 값을 쉼표로 넣으면 기본적으로 값 사이에 공백이 들어갑니다. 따라서 score:와 95 사이에 공백이 있습니다.
+tags:
+  - io
+  - print
+  - code-output
+difficulty: 2

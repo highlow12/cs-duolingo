@@ -1,0 +1,52 @@
+schemaVersion: 1
+id: py.io.io-roles-01
+revision: 1
+type: matching
+prompt:
+  - type: text
+    text: 입출력에 사용하는 함수와 그 역할을 알맞게 연결하세요.
+leftItems:
+  - id: print-function
+    content:
+      - type: code
+        language: python
+        code: print(value)
+  - id: input-function
+    content:
+      - type: code
+        language: python
+        code: 'input("이름: ")'
+  - id: int-function
+    content:
+      - type: code
+        language: python
+        code: int("20")
+rightItems:
+  - id: show-output
+    content:
+      - type: text
+        text: 값을 화면에 출력한다
+  - id: read-string
+    content:
+      - type: text
+        text: 사용자 입력을 문자열로 받는다
+  - id: convert-integer
+    content:
+      - type: text
+        text: 숫자로 된 문자열을 정수로 바꾼다
+correctPairs:
+  - leftId: print-function
+    rightId: show-output
+  - leftId: input-function
+    rightId: read-string
+  - leftId: int-function
+    rightId: convert-integer
+explanation:
+  - type: text
+    text: print()는 출력, input()은 문자열 입력, int()는 정수 변환을 담당합니다.
+tags:
+  - io
+  - input
+  - print
+  - int
+difficulty: 2

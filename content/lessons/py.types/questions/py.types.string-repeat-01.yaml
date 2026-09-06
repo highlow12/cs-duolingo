@@ -1,0 +1,26 @@
+schemaVersion: 1
+id: py.types.string-repeat-01
+revision: 1
+type: code-completion
+prompt:
+  - type: text
+    text: 문자열 ha를 3번 반복하도록 빈칸에 들어갈 연산자를 고르세요.
+language: python
+template: |-
+  sound = "ha" {{blank:operator}} 3
+blanks:
+  - id: operator
+    choices:
+      - "*"
+      - "+"
+      - "**"
+    acceptedAnswers:
+      - "*"
+explanation:
+  - type: text
+    text: 문자열에 정수를 곱하면 그 문자열이 반복됩니다. "ha" * 3의 결과는 "hahaha"입니다.
+tags:
+  - str
+  - string-repetition
+  - code-completion
+difficulty: 1

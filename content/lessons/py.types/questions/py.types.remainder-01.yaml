@@ -1,0 +1,25 @@
+schemaVersion: 1
+id: py.types.remainder-01
+revision: 1
+type: fill-blank
+prompt:
+  - type: text
+    text: 10을 3으로 나눈 나머지를 구하도록 빈칸에 들어갈 연산자를 고르세요.
+  - type: code
+    language: python
+    code: |-
+      remainder = 10 ___ 3
+      print(remainder)
+choices:
+  - "%"
+  - "//"
+  - "/"
+acceptedAnswers:
+  - "%"
+explanation:
+  - type: text
+    text: "%는 나눗셈의 나머지를 구하는 연산자입니다. 10을 3으로 나누면 몫은 3이고 나머지는 1입니다."
+tags:
+  - arithmetic
+  - remainder
+difficulty: 2

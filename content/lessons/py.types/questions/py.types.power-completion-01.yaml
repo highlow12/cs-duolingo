@@ -1,0 +1,26 @@
+schemaVersion: 1
+id: py.types.power-completion-01
+revision: 1
+type: code-completion
+prompt:
+  - type: text
+    text: 2의 3제곱을 계산하도록 빈칸의 연산자를 고르세요.
+language: python
+template: |-
+  result = 2 {{blank:operator}} 3
+blanks:
+  - id: operator
+    choices:
+      - "**"
+      - "*"
+      - "+"
+    acceptedAnswers:
+      - "**"
+explanation:
+  - type: text
+    text: "**는 거듭제곱 연산자입니다. 2 ** 3은 2를 세 번 곱한 8입니다."
+tags:
+  - arithmetic
+  - power
+  - code-completion
+difficulty: 2

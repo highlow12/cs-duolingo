@@ -4,7 +4,7 @@ SYSTEM_SPEC.md, CONTENT_SPEC.md, QUESTION_SPEC.md 기준의 오프라인 학습 
 
 ## 구현 완료
 
-- 5개 트랙, 19개 레슨, 60개 문제와 선행 조건 DAG.
+- 5개 트랙, 21개 레슨, 78개 문제와 선행 조건 DAG.
 - 7종 입력 Renderer와 공통 Question Host, 첫 오답 재시도, 최종 결과 저장.
 - Dexie 원자적 학습 이벤트·상태·Outbox 저장, 중복 방지와 세션 복구.
 - ts-fsrs 5.4.2 복습 일정, 경험치·연속 학습·일일 목표.

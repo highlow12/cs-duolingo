@@ -1,0 +1,25 @@
+schemaVersion: 1
+id: py.io.conversion-output-01
+revision: 1
+type: code-output
+prompt:
+  - type: text
+    text: 다음 코드의 출력 결과를 고르세요.
+language: python
+code: |-
+  age = int("20")
+  print(age + 1)
+choices:
+  - "21"
+  - "201"
+  - "20"
+acceptedOutputs:
+  - "21"
+explanation:
+  - type: text
+    text: int("20")은 문자열 20을 정수 20으로 바꿉니다. 그러면 정수 덧셈으로 1을 더해 21이 됩니다.
+tags:
+  - io
+  - int
+  - code-output
+difficulty: 2

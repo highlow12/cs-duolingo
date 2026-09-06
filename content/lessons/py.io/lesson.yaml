@@ -1,0 +1,30 @@
+schemaVersion: 1
+id: py.io
+revision: 1
+track: python
+title: 입출력
+description: print로 값을 출력하고 input으로 문자열을 입력받은 뒤 숫자로 변환하는 방법을 학습한다.
+
+flow:
+  - type: content
+    ref: content/print.md
+  - type: question
+    ref: py.io.print-purpose-01
+  - type: question
+    ref: py.io.print-output-01
+  - type: question
+    ref: py.io.print-completion-01
+  - type: content
+    ref: content/input.md
+  - type: question
+    ref: py.io.input-type-01
+  - type: question
+    ref: py.io.input-completion-01
+  - type: content
+    ref: content/conversion.md
+  - type: question
+    ref: py.io.int-input-01
+  - type: question
+    ref: py.io.conversion-output-01
+  - type: question
+    ref: py.io.io-roles-01

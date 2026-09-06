@@ -12,7 +12,7 @@ import type { Lesson, Curriculum } from '../../src/lib/content/types';
 import type { Question, UserAnswer } from '../../src/lib/questions/types';
 
 describe('real authored lesson to saved progress and review',()=>{
-  it('completes variables, reopens the database, unlocks conditionals and reviews a prior mistake',async()=>{
+  it('completes variables, reports the next Python prerequisite and reviews a prior mistake',async()=>{
     const compiled=compileContent(await loadSourceContent(process.cwd()));
     const lesson=compiled.lessons.get('py.variables') as Lesson;
     const name=`vertical-slice-${crypto.randomUUID()}`;
@@ -49,7 +49,8 @@ describe('real authored lesson to saved progress and review',()=>{
     database.close();database=new LearningDatabase(name);repository=new LearningRepository({database,clock:()=>now});
     const snapshot=await repository.getSnapshot();
     expect(snapshot.lessonStates.find(s=>s.lessonId===lesson.id)?.status).toBe('completed');
-    expect(missingPrerequisites('py.conditionals',compiled.curriculum as Curriculum,snapshot.lessonStates)).toEqual([]);
+    expect(missingPrerequisites('py.types',compiled.curriculum as Curriculum,snapshot.lessonStates)).toEqual([]);
+    expect(missingPrerequisites('py.conditionals',compiled.curriculum as Curriculum,snapshot.lessonStates)).toEqual(['py.io']);
     expect(snapshot.questionStates.find(s=>s.questionId===studied[0].id)?.incorrectCount).toBe(1);
     expect(snapshot.questionStates).toHaveLength(2);
     now=Math.max(...snapshot.questionStates.map(s=>s.nextReviewAt??now))+1;

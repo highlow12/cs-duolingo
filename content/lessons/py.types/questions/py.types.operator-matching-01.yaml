@@ -1,0 +1,96 @@
+schemaVersion: 1
+id: py.types.operator-matching-01
+revision: 1
+type: matching
+prompt:
+  - type: text
+    text: 산술 연산자와 그 뜻을 알맞게 연결하세요.
+leftItems:
+  - id: add
+    content:
+      - type: code
+        language: python
+        code: 2 + 3
+  - id: subtract
+    content:
+      - type: code
+        language: python
+        code: 5 - 2
+  - id: multiply
+    content:
+      - type: code
+        language: python
+        code: 2 * 3
+  - id: divide
+    content:
+      - type: code
+        language: python
+        code: 7 / 2
+  - id: floor-divide
+    content:
+      - type: code
+        language: python
+        code: 7 // 2
+  - id: remainder
+    content:
+      - type: code
+        language: python
+        code: 7 % 2
+  - id: power
+    content:
+      - type: code
+        language: python
+        code: 2 ** 3
+rightItems:
+  - id: add-values
+    content:
+      - type: text
+        text: 두 값을 더한다
+  - id: subtract-values
+    content:
+      - type: text
+        text: 오른쪽 값을 왼쪽 값에서 뺀다
+  - id: multiply-values
+    content:
+      - type: text
+        text: 두 값을 곱한다
+  - id: divide-values
+    content:
+      - type: text
+        text: 나눈 결과를 계산한다
+  - id: floor-quotient
+    content:
+      - type: text
+        text: 나눈 몫을 내림해 구한다
+  - id: remainder-value
+    content:
+      - type: text
+        text: 나눈 뒤 남은 값을 구한다
+  - id: power-value
+    content:
+      - type: text
+        text: 같은 수를 여러 번 곱한다
+correctPairs:
+  - leftId: add
+    rightId: add-values
+  - leftId: subtract
+    rightId: subtract-values
+  - leftId: multiply
+    rightId: multiply-values
+  - leftId: divide
+    rightId: divide-values
+  - leftId: floor-divide
+    rightId: floor-quotient
+  - leftId: remainder
+    rightId: remainder-value
+  - leftId: power
+    rightId: power-value
+explanation:
+  - type: text
+    text: +, -, *는 기본적인 사칙 연산에 사용합니다. /는 나눈 결과, //는 몫, %는 나머지를 구합니다.
+  - type: text
+    text: "**는 거듭제곱으로, 2 ** 3은 2를 세 번 곱한 8입니다."
+tags:
+  - arithmetic
+  - operators
+difficulty: 2

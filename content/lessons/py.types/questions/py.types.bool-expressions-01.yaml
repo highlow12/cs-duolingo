@@ -1,0 +1,45 @@
+schemaVersion: 1
+id: py.types.bool-expressions-01
+revision: 1
+type: multi-select
+prompt:
+  - type: text
+    text: 결과가 bool인 표현식을 모두 고르세요.
+options:
+  - id: number-comparison
+    content:
+      - type: code
+        language: python
+        code: 3 < 5
+  - id: string-comparison
+    content:
+      - type: code
+        language: python
+        code: '"a" == "a"'
+  - id: arithmetic-expression
+    content:
+      - type: code
+        language: python
+        code: 2 + 3
+  - id: string-expression
+    content:
+      - type: code
+        language: python
+        code: '"ha" * 2'
+  - id: type-expression
+    content:
+      - type: code
+        language: python
+        code: type(3)
+correctOptionIds:
+  - number-comparison
+  - string-comparison
+shuffleOptions: false
+explanation:
+  - type: text
+    text: 비교 연산식은 두 값을 비교한 결과로 True 또는 False를 만들므로 bool입니다. 산술식은 숫자를, 문자열 연산식은 문자열을 만듭니다.
+tags:
+  - bool
+  - comparison
+  - python-types
+difficulty: 2

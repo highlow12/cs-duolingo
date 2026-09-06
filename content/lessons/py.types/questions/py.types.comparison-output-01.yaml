@@ -1,0 +1,26 @@
+schemaVersion: 1
+id: py.types.comparison-output-01
+revision: 1
+type: code-output
+prompt:
+  - type: text
+    text: 다음 비교식이 출력하는 값을 고르세요.
+language: python
+code: |-
+  left = 4
+  right = 6
+  print(left < right)
+choices:
+  - "True"
+  - "False"
+  - "6"
+acceptedOutputs:
+  - "True"
+explanation:
+  - type: text
+    text: 4는 6보다 작으므로 left < right의 결과는 불리언 값 True입니다.
+tags:
+  - bool
+  - comparison
+  - code-output
+difficulty: 1

@@ -1,0 +1,24 @@
+schemaVersion: 1
+id: py.io.print-completion-01
+revision: 1
+type: fill-blank
+prompt:
+  - type: text
+    text: 값 7을 화면에 출력하도록 빈칸에 들어갈 함수 이름을 고르세요.
+  - type: code
+    language: python
+    code: |-
+      ___(7)
+choices:
+  - print
+  - input
+  - int
+acceptedAnswers:
+  - print
+explanation:
+  - type: text
+    text: 값을 화면에 출력할 때는 print()를 사용합니다. input()은 사용자의 입력을 받고 int()는 값을 정수로 변환합니다.
+tags:
+  - io
+  - print
+difficulty: 1

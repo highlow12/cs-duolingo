@@ -1,0 +1,26 @@
+schemaVersion: 1
+id: py.io.input-completion-01
+revision: 1
+type: code-completion
+prompt:
+  - type: text
+    text: 사용자의 이름을 입력받아 name에 저장하도록 빈칸의 함수를 고르세요.
+language: python
+template: |-
+  name = {{blank:function}}("이름: ")
+blanks:
+  - id: function
+    choices:
+      - input
+      - print
+      - int
+    acceptedAnswers:
+      - input
+explanation:
+  - type: text
+    text: 'input("이름: ")은 안내 문구를 보여 준 뒤 사용자의 입력을 문자열로 돌려줍니다.'
+tags:
+  - io
+  - input
+  - code-completion
+difficulty: 1

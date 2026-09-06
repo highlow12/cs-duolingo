@@ -1,0 +1,24 @@
+schemaVersion: 1
+id: py.types.division-output-01
+revision: 1
+type: code-output
+prompt:
+  - type: text
+    text: 다음 Python 코드의 출력 결과를 고르세요.
+language: python
+code: |-
+  print(7 / 2)
+choices:
+  - "3.5"
+  - "3"
+  - "1"
+acceptedOutputs:
+  - "3.5"
+explanation:
+  - type: text
+    text: /는 나눈 결과를 계산하므로 7 / 2는 3.5가 됩니다. 결과는 소수이므로 float 값입니다.
+tags:
+  - arithmetic
+  - division
+  - code-output
+difficulty: 1

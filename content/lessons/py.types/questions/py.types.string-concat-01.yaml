@@ -1,0 +1,26 @@
+schemaVersion: 1
+id: py.types.string-concat-01
+revision: 1
+type: code-output
+prompt:
+  - type: text
+    text: 다음 Python 코드의 출력 결과를 고르세요.
+language: python
+code: |-
+  first = "Py"
+  second = "thon"
+  print(first + second)
+choices:
+  - Python
+  - "Py thon"
+  - Py
+acceptedOutputs:
+  - Python
+explanation:
+  - type: text
+    text: 문자열에 +를 사용하면 두 문자열이 공백 없이 이어집니다. 따라서 Py와 thon이 합쳐져 Python이 됩니다.
+tags:
+  - str
+  - string-concatenation
+  - code-output
+difficulty: 1

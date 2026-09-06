@@ -2,9 +2,15 @@ schemaVersion: 1
 nodes:
   - lesson: py.variables
     requires: []
-  - lesson: py.conditionals
+  - lesson: py.types
     requires:
       - py.variables
+  - lesson: py.io
+    requires:
+      - py.types
+  - lesson: py.conditionals
+    requires:
+      - py.io
   - lesson: py.loops
     requires:
       - py.conditionals

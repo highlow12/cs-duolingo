@@ -1,0 +1,38 @@
+schemaVersion: 1
+id: py.io.input-type-01
+revision: 1
+type: single-choice
+prompt:
+  - type: text
+    text: '사용자가 20을 입력했을 때 input("나이: ")가 처음 돌려주는 값의 자료형은 무엇인가요?'
+options:
+  - id: string
+    content:
+      - type: code
+        language: python
+        code: str
+  - id: integer
+    content:
+      - type: code
+        language: python
+        code: int
+  - id: boolean
+    content:
+      - type: code
+        language: python
+        code: bool
+  - id: float
+    content:
+      - type: code
+        language: python
+        code: float
+correctOptionId: string
+shuffleOptions: false
+explanation:
+  - type: text
+    text: input()은 입력한 글자를 항상 str로 돌려줍니다. 숫자 계산이 필요하면 int(input(...))처럼 변환해야 합니다.
+tags:
+  - io
+  - input
+  - str
+difficulty: 1

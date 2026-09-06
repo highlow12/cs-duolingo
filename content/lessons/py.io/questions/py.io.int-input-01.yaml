@@ -1,0 +1,27 @@
+schemaVersion: 1
+id: py.io.int-input-01
+revision: 1
+type: code-completion
+prompt:
+  - type: text
+    text: 입력한 나이를 정수로 변환해 age에 저장하도록 빈칸의 함수를 고르세요.
+language: python
+template: |-
+  age = {{blank:converter}}(input("나이: "))
+blanks:
+  - id: converter
+    choices:
+      - int
+      - str
+      - bool
+    acceptedAnswers:
+      - int
+explanation:
+  - type: text
+    text: input()의 결과는 str이므로 숫자 계산 전에는 int()로 감싸 정수로 변환합니다.
+tags:
+  - io
+  - input
+  - int
+  - code-completion
+difficulty: 2

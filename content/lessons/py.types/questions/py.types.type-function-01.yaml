@@ -1,0 +1,33 @@
+schemaVersion: 1
+id: py.types.type-function-01
+revision: 1
+type: single-choice
+prompt:
+  - type: text
+    text: type(42)를 사용하면 무엇을 알 수 있나요?
+options:
+  - id: value-type
+    content:
+      - type: text
+        text: 값 42의 자료형
+  - id: variable-name
+    content:
+      - type: text
+        text: 42를 담은 변수의 이름
+  - id: value-size
+    content:
+      - type: text
+        text: 값 42가 차지하는 화면의 크기
+  - id: repeated-value
+    content:
+      - type: text
+        text: 42를 반복한 결과
+correctOptionId: value-type
+shuffleOptions: false
+explanation:
+  - type: text
+    text: type(value)는 값의 자료형을 알려 줍니다. type(42)의 결과에는 정수를 뜻하는 int가 들어 있습니다.
+tags:
+  - python-types
+  - type
+difficulty: 1
