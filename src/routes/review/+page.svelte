@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { base } from '$app/paths';
   import { onMount } from 'svelte';
   import QuestionRenderer from '$lib/components/QuestionRenderer.svelte';
   import { loadDashboard, errorMessage, type Dashboard } from '$lib/application/dashboard';
@@ -32,13 +33,13 @@
   {:else if !started}
     <section class="card review-start"><h2>{data.queue.length ? `${data.queue.length}개 문제가 기다려요` : '지금은 복습을 모두 마쳤어요'}</h2>
     <p class="muted">{data.queue.length ? `이번에는 최대 ${data.snapshot.settings.reviewLimit}개씩 풀어요. 오답은 한 번 더 생각해볼 수 있어요.` : '다음 복습 시간이 되면 배운 문제가 여기에 나타납니다.'}</p>
-    {#if data.queue.length}<button class="button" onclick={start}>복습 시작</button>{:else}<div class="actions"><a class="button" href="/learn">새로운 개념 배우기</a><button class="button secondary" onclick={refresh}>복습 다시 확인</button></div>{/if}
+    {#if data.queue.length}<button class="button" onclick={start}>복습 시작</button>{:else}<div class="actions"><a class="button" href={`${base}/learn`}>새로운 개념 배우기</a><button class="button secondary" onclick={refresh}>복습 다시 확인</button></div>{/if}
     </section>
   {:else if index >= queue.length}
-    <section class="card review-start"><p class="eyebrow">복습 완료</p><h2>{queue.length}개 문제를 다시 떠올렸어요</h2><p>첫 시도 정답 {correct}개 · 다시 배운 문제 {queue.length-correct}개</p><p class="muted">복습 기록과 다음 복습 시간을 저장했습니다.</p><div class="actions"><a class="button" href="/">홈으로</a><button class="button secondary" onclick={refresh}>남은 복습 확인</button></div></section>
+    <section class="card review-start"><p class="eyebrow">복습 완료</p><h2>{queue.length}개 문제를 다시 떠올렸어요</h2><p>첫 시도 정답 {correct}개 · 다시 배운 문제 {queue.length-correct}개</p><p class="muted">복습 기록과 다음 복습 시간을 저장했습니다.</p><div class="actions"><a class="button" href={`${base}/`}>홈으로</a><button class="button secondary" onclick={refresh}>남은 복습 확인</button></div></section>
   {:else if current}
     <div class="row"><span>{data.lessons.find((l) => l.id === current.lessonId)?.title}</span><span>{index+1} / {queue.length}</span></div><progress max={queue.length} value={index} aria-label="복습 진행도"></progress>
-    <section class="card review-question">{#key `${index}:${current.id}`}<QuestionRenderer question={current} onCompleted={completed} onReady={() => { ready=true; }} />{/key}<div class="actions"><button class="button" disabled={!ready} onclick={next}>{index+1 === queue.length ? '복습 마치기' : '다음 문제'}</button><a class="text-link" href="/">여기까지 학습하기</a></div></section>
+    <section class="card review-question">{#key `${index}:${current.id}`}<QuestionRenderer question={current} onCompleted={completed} onReady={() => { ready=true; }} />{/key}<div class="actions"><button class="button" disabled={!ready} onclick={next}>{index+1 === queue.length ? '복습 마치기' : '다음 문제'}</button><a class="text-link" href={`${base}/`}>여기까지 학습하기</a></div></section>
   {/if}
 </div>
 <style>.review-shell {max-width:800px;margin:auto}.review-start,.review-question {padding:clamp(1.25rem,4vw,2.5rem)}.review-start p {line-height:1.7}.review-question .actions {margin-top:2rem}</style>

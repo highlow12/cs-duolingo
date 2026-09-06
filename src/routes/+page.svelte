@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { base } from '$app/paths';
   import { onMount } from 'svelte';
   import { loadDashboard, errorMessage, type Dashboard } from '$lib/application/dashboard';
   let data = $state<Dashboard | null>(null);
@@ -22,16 +23,16 @@
         <p class="eyebrow">{data.nextLesson ? '다음 학습' : '모든 레슨 완료'}</p>
         <h2>{data.nextLesson?.title ?? '배운 내용을 오래 기억해요'}</h2>
         <p>{data.nextLesson?.description ?? '복습을 이어가거나 학습 경로에서 다시 읽을 레슨을 골라보세요.'}</p>
-        <a class="button" href={data.nextLesson ? `/learn/${data.nextLesson.id}` : '/learn'}>{data.nextLesson ? '이어서 학습하기' : '학습 경로 보기'}</a>
+        <a class="button" href={data.nextLesson ? `${base}/learn/${data.nextLesson.id}` : `${base}/learn`}>{data.nextLesson ? '이어서 학습하기' : '학습 경로 보기'}</a>
       </section>
       <section class="card review-card">
         <p class="eyebrow">오늘의 복습</p><h2>{data.queue.length}개 문제</h2>
         <p class="muted">{data.queue.length ? '배운 개념을 다시 떠올릴 시간이에요.' : '지금 풀 복습이 없어요. 새로운 개념을 배워볼까요?'}</p>
-        <a class="button secondary" href="/review">복습 확인하기</a>
+        <a class="button secondary" href={`${base}/review`}>복습 확인하기</a>
       </section>
     </div>
     <section class="card daily-goal"><div class="row"><h2>오늘의 목표</h2><strong>{data.snapshot.game.todayXp} / {data.snapshot.settings.dailyGoal} XP</strong></div><progress max={data.snapshot.settings.dailyGoal} value={Math.min(data.snapshot.game.todayXp, data.snapshot.settings.dailyGoal)} aria-label="오늘의 XP 목표"></progress><p class="muted">{data.snapshot.game.todayXp >= data.snapshot.settings.dailyGoal ? '오늘 목표를 달성했어요. 내일도 이어가요!' : '짧은 문제 풀이가 하루하루 쌓여요.'}</p></section>
-    <div class="row"><a class="text-link" href="/learn">전체 학습 경로 보기 →</a><a class="text-link" href="/progress">나의 기록 보기 →</a></div>
+    <div class="row"><a class="text-link" href={`${base}/learn`}>전체 학습 경로 보기 →</a><a class="text-link" href={`${base}/progress`}>나의 기록 보기 →</a></div>
   {/if}
 </div>
 <style>

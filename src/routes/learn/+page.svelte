@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { base } from '$app/paths';
   import { onMount } from 'svelte';
   import { loadDashboard, errorMessage, type Dashboard } from '$lib/application/dashboard';
   import { lessonStatus, missingPrerequisites, statusLabels } from '$lib/curriculum/progress';
@@ -26,7 +27,7 @@
               <span class="lesson-number" class:done={status === 'completed'} aria-hidden="true">{status === 'completed' ? '✓' : String(index+1).padStart(2,'0')}</span>
               <div class="lesson-info"><span class="badge" class:success={status === 'completed'}>{statusLabels[status]}</span><h3>{lesson.title}</h3><p class="muted">{lesson.description}</p>
               {#if status === 'locked'}<p class="prerequisites">먼저 배워요: {missingPrerequisites(lesson.id,data.curriculum,data.snapshot.lessonStates).map((id) => data!.lessons.find((l) => l.id === id)?.title ?? id).join(', ')}</p>{/if}</div>
-              {#if status !== 'locked'}<a class="button secondary" href={`/learn/${lesson.id}`} aria-label={`${lesson.title} ${status === 'completed' ? '다시 읽기' : '학습하기'}`}>{status === 'completed' ? '다시 읽기' : status === 'in-progress' ? '이어하기' : '시작'}</a>{/if}
+              {#if status !== 'locked'}<a class="button secondary" href={`${base}/learn/${lesson.id}`} aria-label={`${lesson.title} ${status === 'completed' ? '다시 읽기' : '학습하기'}`}>{status === 'completed' ? '다시 읽기' : status === 'in-progress' ? '이어하기' : '시작'}</a>{/if}
             </article>
           {/each}
         </div>

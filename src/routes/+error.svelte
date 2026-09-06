@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { base } from '$app/paths';
 	import { page } from '$app/state';
 
 	let status = $derived(page.status || 404);
@@ -23,8 +24,8 @@
 	</h1>
 	<p class="message">{message}</p>
 	<div class="actions">
-		<a class="button" href="/">홈으로 가기</a>
-		<a class="button secondary" href="/learn">학습 경로 열기</a>
+		<a class="button" href={`${base}/`}>홈으로 가기</a>
+		<a class="button secondary" href={`${base}/learn`}>학습 경로 열기</a>
 	</div>
 </section>
 

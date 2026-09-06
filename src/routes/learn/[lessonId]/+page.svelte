@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { base } from '$app/paths';
   import { page } from '$app/state';
   import ContentBlockRenderer from '$lib/components/ContentBlockRenderer.svelte';
   import QuestionRenderer from '$lib/components/QuestionRenderer.svelte';
@@ -77,13 +78,13 @@
 </script>
 <svelte:head><title>{lesson?.title ?? '레슨'} | CS 듀오링고</title></svelte:head>
 {#if loading}<p class="card" role="status">레슨을 준비하는 중입니다…</p>
-{:else if error}<section class="card error" role="alert"><h1>레슨을 열지 못했어요</h1><p>{error}</p><a class="button secondary" href="/learn">학습 경로로</a></section>
-{:else if blocked.length}<section class="card"><h1>먼저 배울 개념이 있어요</h1><p>{blocked.join(', ')} 레슨을 완료하면 {lesson?.title} 레슨이 열립니다.</p><a class="button" href="/learn">학습 경로로</a></section>
+{:else if error}<section class="card error" role="alert"><h1>레슨을 열지 못했어요</h1><p>{error}</p><a class="button secondary" href={`${base}/learn`}>학습 경로로</a></section>
+{:else if blocked.length}<section class="card"><h1>먼저 배울 개념이 있어요</h1><p>{blocked.join(', ')} 레슨을 완료하면 {lesson?.title} 레슨이 열립니다.</p><a class="button" href={`${base}/learn`}>학습 경로로</a></section>
 {:else if lesson && session?.status === 'completed'}
-  <section class="card completion"><span class="completion-mark" aria-hidden="true">✓</span><p class="eyebrow">학습 완료</p><h1>{lesson.title}</h1><p>학습 기록을 저장했어요. 배운 문제는 알맞은 때에 복습으로 다시 만나요.</p><p class="muted">첫 시도 정답 {session.answers.filter((a) => a.correct).length} / {session.answers.length}</p><div class="actions"><a class="button" href="/">다음 학습 확인</a><a class="button secondary" href="/learn">학습 경로</a></div></section>
+  <section class="card completion"><span class="completion-mark" aria-hidden="true">✓</span><p class="eyebrow">학습 완료</p><h1>{lesson.title}</h1><p>학습 기록을 저장했어요. 배운 문제는 알맞은 때에 복습으로 다시 만나요.</p><p class="muted">첫 시도 정답 {session.answers.filter((a) => a.correct).length} / {session.answers.length}</p><div class="actions"><a class="button" href={`${base}/`}>다음 학습 확인</a><a class="button secondary" href={`${base}/learn`}>학습 경로</a></div></section>
 {:else if lesson && session && flow}
   <div class="lesson-player stack">
-    <header><a class="text-link" href="/learn">← 학습 경로</a><div class="row lesson-counter"><span>{lesson.title}</span><span>{session.currentIndex+1} / {lesson.flow.length}</span></div><progress value={session.currentIndex} max={lesson.flow.length} aria-label="레슨 진행도"></progress></header>
+    <header><a class="text-link" href={`${base}/learn`}>← 학습 경로</a><div class="row lesson-counter"><span>{lesson.title}</span><span>{session.currentIndex+1} / {lesson.flow.length}</span></div><progress value={session.currentIndex} max={lesson.flow.length} aria-label="레슨 진행도"></progress></header>
     <section class="card learning-card">
       {#if flow.type === 'content'}
         <p class="eyebrow">개념 익히기</p>
@@ -97,7 +98,7 @@
         {/key}
       {/if}
       {#if saveError}<p class="error" role="alert">저장하지 못했어요. {saveError} 아래 버튼으로 다시 시도할 수 있습니다.</p>{/if}
-      <div class="lesson-controls"><a class="text-link" href="/learn">나중에 이어하기</a><button class="button" disabled={saving || (flow.type === 'question' && !ready)} onclick={next}>{saving ? '저장 중…' : session.currentIndex+1 === lesson.flow.length ? '레슨 완료' : '계속'}</button></div>
+      <div class="lesson-controls"><a class="text-link" href={`${base}/learn`}>나중에 이어하기</a><button class="button" disabled={saving || (flow.type === 'question' && !ready)} onclick={next}>{saving ? '저장 중…' : session.currentIndex+1 === lesson.flow.length ? '레슨 완료' : '계속'}</button></div>
     </section>
   </div>
 {/if}

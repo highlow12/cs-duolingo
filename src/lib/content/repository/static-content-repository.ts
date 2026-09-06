@@ -1,6 +1,11 @@
+import { base } from "$app/paths";
 import type { ContentManifest, Curriculum, Lesson } from "$lib/content/types";
 import type { Question } from "$lib/questions/types";
 import type { ContentRepository } from "./content-repository";
+
+function contentPath(path: string): string {
+  return `${base}/generated/${path}`;
+}
 
 async function getJson<T>(path: string): Promise<T> {
   const response = await fetch(path);
@@ -14,20 +19,22 @@ async function getJson<T>(path: string): Promise<T> {
 
 export class StaticContentRepository implements ContentRepository {
   async getManifest(): Promise<ContentManifest> {
-    return getJson<ContentManifest>("/generated/manifest.json");
+    return getJson<ContentManifest>(contentPath("manifest.json"));
   }
 
   async getCurriculum(): Promise<Curriculum> {
-    return getJson<Curriculum>("/generated/curriculum.json");
+    return getJson<Curriculum>(contentPath("curriculum.json"));
   }
 
   async getLesson(id: string): Promise<Lesson> {
-    return getJson<Lesson>(`/generated/lessons/${encodeURIComponent(id)}.json`);
+    return getJson<Lesson>(
+      contentPath(`lessons/${encodeURIComponent(id)}.json`),
+    );
   }
 
   async getQuestion(id: string): Promise<Question> {
     return getJson<Question>(
-      `/generated/questions/${encodeURIComponent(id)}.json`,
+      contentPath(`questions/${encodeURIComponent(id)}.json`),
     );
   }
 

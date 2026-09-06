@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { base } from '$app/paths';
   import { onMount } from 'svelte';
   import { loadDashboard, errorMessage, type Dashboard } from '$lib/application/dashboard';
   let data = $state<Dashboard | null>(null);
@@ -20,10 +21,10 @@
         {#if lessons.length}<div><div class="row"><strong>{track.title}</strong><span>{completed} / {lessons.length}</span></div><progress value={completed} max={lessons.length} aria-label={`${track.title} 진행도`}></progress></div>{/if}
       {/each}
     </section>
-    <section class="card"><div class="row"><h2>복습 기록</h2><a class="text-link" href="/review">복습하러 가기 →</a></div><p>학습한 문제 <strong>{data.snapshot.questionStates.length}개</strong> · 지금 복습할 문제 <strong>{data.queue.length}개</strong></p><p class="muted">첫 시도에서 틀린 문제는 재시도에서 맞혀도 다시 배울 문제로 기록합니다.</p></section>
+    <section class="card"><div class="row"><h2>복습 기록</h2><a class="text-link" href={`${base}/review`}>복습하러 가기 →</a></div><p>학습한 문제 <strong>{data.snapshot.questionStates.length}개</strong> · 지금 복습할 문제 <strong>{data.queue.length}개</strong></p><p class="muted">첫 시도에서 틀린 문제는 재시도에서 맞혀도 다시 배울 문제로 기록합니다.</p></section>
     <section class="card"><h2>최근 학습한 레슨</h2>
-      {#if !data.snapshot.lessonStates.length}<p class="muted">아직 학습 기록이 없어요. 첫 레슨을 시작해보세요.</p><a class="button" href="/learn">학습 시작</a>
-      {:else}<ul class="recent-list">{#each [...data.snapshot.lessonStates].filter((s)=>data!.lessons.some((l)=>l.id===s.lessonId)).sort((a,b)=>(b.lastStudiedAt??0)-(a.lastStudiedAt??0)).slice(0,10) as state}<li><a class="text-link" href={`/learn/${state.lessonId}`}>{data.lessons.find((l)=>l.id===state.lessonId)?.title}</a><span class="muted">{state.status==='completed'?'완료':'학습 중'} · {state.lastStudiedAt ? new Date(state.lastStudiedAt).toLocaleDateString('ko-KR') : '—'}</span></li>{/each}</ul>{/if}
+      {#if !data.snapshot.lessonStates.length}<p class="muted">아직 학습 기록이 없어요. 첫 레슨을 시작해보세요.</p><a class="button" href={`${base}/learn`}>학습 시작</a>
+      {:else}<ul class="recent-list">{#each [...data.snapshot.lessonStates].filter((s)=>data!.lessons.some((l)=>l.id===s.lessonId)).sort((a,b)=>(b.lastStudiedAt??0)-(a.lastStudiedAt??0)).slice(0,10) as state}<li><a class="text-link" href={`${base}/learn/${state.lessonId}`}>{data.lessons.find((l)=>l.id===state.lessonId)?.title}</a><span class="muted">{state.status==='completed'?'완료':'학습 중'} · {state.lastStudiedAt ? new Date(state.lastStudiedAt).toLocaleDateString('ko-KR') : '—'}</span></li>{/each}</ul>{/if}
     </section>
   {/if}
 </div>
