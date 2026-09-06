@@ -2,6 +2,11 @@ import { build, files, version } from "$service-worker";
 
 const shellCache = `cs-duolingo-shell-${version}`;
 const contentCache = `cs-duolingo-content-${version}`;
+const migrationCache = "cs-duolingo-migrations";
+const pagesBasePathMigration = new URL(
+  "migration-pages-base-path-v1",
+  self.registration.scope,
+);
 const contentAssets = files.filter((asset) => asset.includes("/generated/"));
 const shellAssets = files.filter((asset) => !asset.includes("/generated/"));
 const appAssets = [...build, ...shellAssets];
@@ -32,7 +37,11 @@ async function navigationResponse(request: Request) {
   const shellUrl = new URL(".", self.registration.scope);
   const shell = await cache.match(shellUrl);
   if (shell) return shell;
-  try { return await fetch(request); } catch { return Response.error(); }
+  try {
+    return await fetch(request);
+  } catch {
+    return Response.error();
+  }
 }
 
 self.addEventListener("install", (event) => {
@@ -41,11 +50,28 @@ self.addEventListener("install", (event) => {
       const shell = await caches.open(shellCache);
       const content = await caches.open(contentCache);
       const shellUrl = new URL(".", self.registration.scope);
+      const existingCaches = await caches.keys();
+      const hasPreviousRelease = existingCaches.some(
+        (key) =>
+          key.startsWith("cs-duolingo-shell-") && key !== shellCache,
+      );
 
       await shell.addAll(appAssets);
       await shell.add(shellUrl);
       await content.addAll(contentAssets);
-      // Updates wait until the learner finishes the current question.
+
+      // One-time recovery for releases that cached root-relative Pages URLs.
+      // Later updates continue waiting for the learner's confirmation.
+      if (hasPreviousRelease) {
+        const migrations = await caches.open(migrationCache);
+        if (!(await migrations.match(pagesBasePathMigration))) {
+          await migrations.put(
+            pagesBasePathMigration,
+            new Response("complete"),
+          );
+          await self.skipWaiting();
+        }
+      }
     })(),
   );
 });
@@ -59,7 +85,8 @@ self.addEventListener("activate", (event) => {
             (key) =>
               key.startsWith("cs-duolingo-") &&
               key !== shellCache &&
-              key !== contentCache,
+              key !== contentCache &&
+              key !== migrationCache,
           )
           .map((key) => caches.delete(key)),
       );
@@ -83,5 +110,6 @@ self.addEventListener("fetch", (event) => {
 });
 
 self.addEventListener("message", (event) => {
-  if (event.data?.type === "ACTIVATE_UPDATE") event.waitUntil(self.skipWaiting());
+  if (event.data?.type === "ACTIVATE_UPDATE")
+    event.waitUntil(self.skipWaiting());
 });
