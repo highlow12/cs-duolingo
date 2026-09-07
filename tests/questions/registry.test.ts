@@ -7,6 +7,8 @@ import type {
   CodeCompletionQuestion,
   CodeOutputQuestion,
   FillBlankQuestion,
+  GraphPathQuestion,
+  InteractiveSimulationQuestion,
   MatchingQuestion,
   MultiSelectQuestion,
   OrderingQuestion,
@@ -24,8 +26,8 @@ function result(question: unknown, answer: unknown) {
 }
 
 describe("question registry", () => {
-  it("registers all seven question types", () => {
-    expect(questionPlugins.size).toBe(7);
+  it("registers all nine question types", () => {
+    expect(questionPlugins.size).toBe(9);
   });
 
   it("evaluates single-choice and fill-blank", () => {
@@ -195,6 +197,95 @@ describe("question registry", () => {
       result(question, { type: "code-completion", values: { value: "1 - 2" } })
         .correct,
     ).toBe(false);
+  });
+
+  it("evaluates graph paths while rejecting impossible moves", () => {
+    const question: GraphPathQuestion = {
+      schemaVersion: 1,
+      id: "test.graph-path",
+      lessonId: "test",
+      revision: 1,
+      type: "graph-path",
+      prompt,
+      directed: true,
+      nodes: [
+        { id: "a", label: "A", x: 10, y: 50 },
+        { id: "b", label: "B", x: 40, y: 20 },
+        { id: "c", label: "C", x: 40, y: 80 },
+        { id: "d", label: "D", x: 85, y: 50 },
+      ],
+      edges: [
+        { fromId: "a", toId: "b" },
+        { fromId: "b", toId: "d" },
+        { fromId: "a", toId: "c" },
+        { fromId: "c", toId: "d" },
+      ],
+      startNodeId: "a",
+      goalNodeId: "d",
+      acceptedPaths: [["a", "b", "d"]],
+    };
+
+    expect(
+      result(question, { type: "graph-path", nodeIds: ["a", "b", "d"] })
+        .correct,
+    ).toBe(true);
+    expect(
+      result(question, { type: "graph-path", nodeIds: ["a", "c", "d"] })
+        .correct,
+    ).toBe(false);
+
+    expect(
+      evaluateQuestion(question, { type: "graph-path", nodeIds: ["a", "d"] }),
+    ).toMatchObject({ status: "error", error: { code: "invalid-answer" } });
+  });
+
+  it("evaluates deterministic interactive simulations by reached state", () => {
+    const question: InteractiveSimulationQuestion = {
+      schemaVersion: 1,
+      id: "test.interactive-simulation",
+      lessonId: "test",
+      revision: 1,
+      type: "interactive-simulation",
+      prompt,
+      states: [
+        { id: "idle", label: "대기" },
+        { id: "running", label: "실행 중" },
+        { id: "done", label: "완료" },
+      ],
+      actions: [
+        { id: "start", label: "시작" },
+        { id: "finish", label: "완료" },
+        { id: "abort", label: "중단" },
+      ],
+      transitions: [
+        { fromStateId: "idle", actionId: "start", toStateId: "running" },
+        { fromStateId: "running", actionId: "finish", toStateId: "done" },
+        { fromStateId: "running", actionId: "abort", toStateId: "idle" },
+      ],
+      initialStateId: "idle",
+      goalStateIds: ["done"],
+      maxSteps: 3,
+      canonicalActionIds: ["start", "finish"],
+    };
+
+    expect(
+      result(question, {
+        type: "interactive-simulation",
+        actionIds: ["start", "finish"],
+      }).correct,
+    ).toBe(true);
+    expect(
+      result(question, {
+        type: "interactive-simulation",
+        actionIds: ["start"],
+      }).correct,
+    ).toBe(false);
+    expect(
+      evaluateQuestion(question, {
+        type: "interactive-simulation",
+        actionIds: ["finish"],
+      }),
+    ).toMatchObject({ status: "error", error: { code: "invalid-answer" } });
   });
 
   it("only accepts values offered by the question choices", () => {

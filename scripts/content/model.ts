@@ -2,6 +2,13 @@ import { createHash } from "node:crypto";
 import { readdir, readFile } from "node:fs/promises";
 import { extname, join, relative, resolve, sep } from "node:path";
 import { parse } from "yaml";
+import {
+  ADVANCED_FIELDS_BY_TYPE,
+  ADVANCED_QUESTION_TYPES,
+  ADVANCED_REQUIRED_BY_TYPE,
+  isAdvancedQuestionType,
+  validateAdvancedQuestion,
+} from "./advanced-question-validation";
 
 export const CONTENT_SCHEMA_VERSION = 1 as const;
 export const CONTENT_BUILDER_VERSION = "1";
@@ -82,6 +89,7 @@ const QUESTION_TYPES = new Set([
   "matching",
   "code-output",
   "code-completion",
+  ...ADVANCED_QUESTION_TYPES,
 ]);
 const IMAGE_EXTENSIONS = new Set([".svg", ".png", ".jpg", ".jpeg", ".webp"]);
 const REGISTERED_DIAGRAM_TYPES = new Set<string>();
@@ -525,6 +533,7 @@ const fieldsByType: Record<string, string[]> = {
   matching: ["leftItems", "rightItems", "correctPairs"],
   "code-output": ["language", "code", "choices", "acceptedOutputs"],
   "code-completion": ["language", "template", "blanks"],
+  ...ADVANCED_FIELDS_BY_TYPE,
 };
 const requiredByType: Record<string, string[]> = {
   "single-choice": ["options", "correctOptionId"],
@@ -534,6 +543,7 @@ const requiredByType: Record<string, string[]> = {
   matching: ["leftItems", "rightItems", "correctPairs"],
   "code-output": ["language", "code", "choices", "acceptedOutputs"],
   "code-completion": ["language", "template", "blanks"],
+  ...ADVANCED_REQUIRED_BY_TYPE,
 };
 
 function question(
@@ -807,6 +817,8 @@ function question(
       errors.push(
         `${at}: placeholder와 blanks가 ID별로 정확히 한 번 대응해야 합니다.`,
       );
+  } else if (isAdvancedQuestionType(type)) {
+    validateAdvancedQuestion(value, type, at, errors);
   }
 }
 

@@ -76,6 +76,8 @@ const QUESTION_TYPES = new Set<QuestionType>([
   "matching",
   "code-output",
   "code-completion",
+  "graph-path",
+  "interactive-simulation",
 ]);
 
 function defaultNow(): number {

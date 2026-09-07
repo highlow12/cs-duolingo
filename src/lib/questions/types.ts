@@ -7,7 +7,9 @@ export type QuestionType =
   | "ordering"
   | "matching"
   | "code-output"
-  | "code-completion";
+  | "code-completion"
+  | "graph-path"
+  | "interactive-simulation";
 
 export interface QuestionBase {
   schemaVersion: 1;
@@ -85,6 +87,55 @@ export interface CodeCompletionQuestion extends QuestionBase {
   blanks: CodeBlank[];
 }
 
+export interface GraphPathNode {
+  id: string;
+  label: string;
+  x: number;
+  y: number;
+}
+
+export interface GraphPathEdge {
+  fromId: string;
+  toId: string;
+}
+
+export interface GraphPathQuestion extends QuestionBase {
+  type: "graph-path";
+  nodes: GraphPathNode[];
+  edges: GraphPathEdge[];
+  directed: boolean;
+  startNodeId: string;
+  goalNodeId: string;
+  acceptedPaths: string[][];
+}
+
+export interface SimulationState {
+  id: string;
+  label: string;
+}
+
+export interface SimulationAction {
+  id: string;
+  label: string;
+}
+
+export interface SimulationTransition {
+  fromStateId: string;
+  actionId: string;
+  toStateId: string;
+}
+
+export interface InteractiveSimulationQuestion extends QuestionBase {
+  type: "interactive-simulation";
+  states: SimulationState[];
+  actions: SimulationAction[];
+  transitions: SimulationTransition[];
+  initialStateId: string;
+  goalStateIds: string[];
+  maxSteps: number;
+  canonicalActionIds: string[];
+}
+
 export type Question =
   | SingleChoiceQuestion
   | MultiSelectQuestion
@@ -92,7 +143,9 @@ export type Question =
   | OrderingQuestion
   | MatchingQuestion
   | CodeOutputQuestion
-  | CodeCompletionQuestion;
+  | CodeCompletionQuestion
+  | GraphPathQuestion
+  | InteractiveSimulationQuestion;
 
 export interface SingleChoiceAnswer {
   type: "single-choice";
@@ -129,6 +182,16 @@ export interface CodeCompletionAnswer {
   values: Record<string, string>;
 }
 
+export interface GraphPathAnswer {
+  type: "graph-path";
+  nodeIds: string[];
+}
+
+export interface InteractiveSimulationAnswer {
+  type: "interactive-simulation";
+  actionIds: string[];
+}
+
 export type UserAnswer =
   | SingleChoiceAnswer
   | MultiSelectAnswer
@@ -136,7 +199,9 @@ export type UserAnswer =
   | OrderingAnswer
   | MatchingAnswer
   | CodeOutputAnswer
-  | CodeCompletionAnswer;
+  | CodeCompletionAnswer
+  | GraphPathAnswer
+  | InteractiveSimulationAnswer;
 
 export interface EvaluationResult {
   correct: boolean;
@@ -178,7 +243,9 @@ export type CanonicalAnswer =
   | { type: "ordering"; orderedItemIds: string[] }
   | { type: "matching"; pairs: MatchingPair[] }
   | { type: "code-output"; value: string }
-  | { type: "code-completion"; values: Record<string, string> };
+  | { type: "code-completion"; values: Record<string, string> }
+  | { type: "graph-path"; nodeIds: string[] }
+  | { type: "interactive-simulation"; actionIds: string[] };
 
 export interface QuestionByType {
   "single-choice": SingleChoiceQuestion;
@@ -188,6 +255,8 @@ export interface QuestionByType {
   matching: MatchingQuestion;
   "code-output": CodeOutputQuestion;
   "code-completion": CodeCompletionQuestion;
+  "graph-path": GraphPathQuestion;
+  "interactive-simulation": InteractiveSimulationQuestion;
 }
 
 export interface AnswerByType {
@@ -198,6 +267,8 @@ export interface AnswerByType {
   matching: MatchingAnswer;
   "code-output": CodeOutputAnswer;
   "code-completion": CodeCompletionAnswer;
+  "graph-path": GraphPathAnswer;
+  "interactive-simulation": InteractiveSimulationAnswer;
 }
 
 export type QuestionOf<T extends QuestionType> = QuestionByType[T];
