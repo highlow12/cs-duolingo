@@ -1,3 +1,7 @@
+import {
+  graphPathDefinition,
+  interactiveSimulationDefinition,
+} from "./advanced-registry";
 import type {
   AnswerOf,
   CanonicalAnswerOf,
@@ -54,6 +58,8 @@ const QUESTION_TYPES = new Set<QuestionType>([
   "matching",
   "code-output",
   "code-completion",
+  "graph-path",
+  "interactive-simulation",
 ]);
 
 const BASE_FIELDS = [
@@ -908,6 +914,8 @@ const definitions: {
   matching: matchingDefinition(),
   "code-output": codeOutputDefinition(),
   "code-completion": codeCompletionDefinition(),
+  "graph-path": graphPathDefinition,
+  "interactive-simulation": interactiveSimulationDefinition,
 };
 
 export const questionPlugins = new Map<QuestionType, AnyQuestionPlugin>([
@@ -929,6 +937,17 @@ export const questionPlugins = new Map<QuestionType, AnyQuestionPlugin>([
   [
     "code-completion",
     { type: "code-completion", definition: definitions["code-completion"] },
+  ],
+  [
+    "graph-path",
+    { type: "graph-path", definition: definitions["graph-path"] },
+  ],
+  [
+    "interactive-simulation",
+    {
+      type: "interactive-simulation",
+      definition: definitions["interactive-simulation"],
+    },
   ],
 ]);
 
