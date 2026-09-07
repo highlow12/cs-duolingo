@@ -14,6 +14,7 @@ import {
 import type {
   GameEvent,
   GameState,
+  HeartState,
   LearningSettings,
   LessonSessionRecord,
   LessonState,
@@ -42,6 +43,22 @@ const MIN_DAILY_GOAL = 1;
 const MAX_DAILY_GOAL = 100;
 const MIN_REVIEW_LIMIT = 1;
 const MAX_REVIEW_LIMIT = 50;
+export const MAX_HEARTS = 3;
+export const HEART_REGENERATION_INTERVAL_MS = 8 * 60 * 60 * 1000;
+export const HEARTS_CHANGED_EVENT = "cs-duolingo:hearts-changed";
+export const NO_HEARTS_MESSAGE =
+  "하트를 모두 사용했어요. 다음 하트가 생길 때까지 기다려 주세요.";
+
+export class NoHeartsError extends Error {
+  readonly code = "NO_HEARTS" as const;
+  readonly nextRecoveryAt: number | null;
+
+  constructor(nextRecoveryAt: number | null) {
+    super(NO_HEARTS_MESSAGE);
+    this.name = "NoHeartsError";
+    this.nextRecoveryAt = nextRecoveryAt;
+  }
+}
 
 export interface SaveAttemptInput {
   id: string;
@@ -67,6 +84,14 @@ export interface LearningSnapshot {
     dailyGoal: number;
     reviewLimit: number;
   };
+  hearts: HeartStatus;
+}
+
+export interface HeartStatus {
+  count: number;
+  max: number;
+  nextRecoveryAt: number | null;
+  isFull: boolean;
 }
 
 export interface LearningBackup {
@@ -78,6 +103,8 @@ export interface LearningBackup {
   schedulerProfiles: SchedulerProfile[];
   gameEvents: GameEvent[];
   settings: LearningSettings;
+  /** Persisted allowance state used to keep recovery and reset deterministic. */
+  heartState?: HeartState;
   /** Sessions are a convenience backup; all progress is replayed from events. */
   lessonSessions?: LessonSessionRecord[];
 }
@@ -192,6 +219,109 @@ function defaultSettings(now: number): LearningSettings {
     id: LOCAL_ID,
     dailyGoal: DEFAULT_DAILY_GOAL,
     reviewLimit: DEFAULT_REVIEW_LIMIT,
+    updatedAt: now,
+  };
+}
+
+function defaultHeartState(now: number): HeartState {
+  return {
+    id: LOCAL_ID,
+    count: MAX_HEARTS,
+    lastCalculatedAt: now,
+    localDate: localDateFor(now),
+    updatedAt: now,
+  };
+}
+
+function heartStatus(state: HeartState): HeartStatus {
+  return {
+    count: state.count,
+    max: MAX_HEARTS,
+    nextRecoveryAt:
+      state.count >= MAX_HEARTS
+        ? null
+        : state.lastCalculatedAt + HEART_REGENERATION_INTERVAL_MS,
+    isFull: state.count >= MAX_HEARTS,
+  };
+}
+
+function sameHeartState(left: HeartState, right: HeartState): boolean {
+  return (
+    left.id === right.id &&
+    left.count === right.count &&
+    left.lastCalculatedAt === right.lastCalculatedAt &&
+    left.localDate === right.localDate &&
+    left.updatedAt === right.updatedAt
+  );
+}
+
+/**
+ * Reconcile a persisted heart state against the current clock.  A later local
+ * calendar date grants the daily reset before interval recovery is considered;
+ * a backwards-moving clock leaves all allowance fields untouched.
+ */
+function reconcileHeartState(
+  current: HeartState | undefined,
+  now: number,
+): HeartState {
+  if (!current) return defaultHeartState(now);
+
+  const today = localDateFor(now);
+  const dayDistance = calendarDayDistance(current.localDate, today);
+  if (dayDistance > 0) {
+    return {
+      ...current,
+      count: MAX_HEARTS,
+      lastCalculatedAt: now,
+      localDate: today,
+      updatedAt: now,
+    };
+  }
+
+  // A device clock moving backwards must not manufacture recovery credits.  Do
+  // not even replace localDate here: when the clock returns to the previously
+  // observed date, it is still the same logical day for the allowance.
+  if (dayDistance < 0 || now <= current.lastCalculatedAt) return current;
+
+  if (current.count >= MAX_HEARTS) {
+    // Once full, discard any accumulated interval.  Otherwise spending a
+    // heart after a long idle period would immediately refill it again.
+    return {
+      ...current,
+      count: MAX_HEARTS,
+      lastCalculatedAt: now,
+      localDate: today,
+      updatedAt: now,
+    };
+  }
+
+  const recovered = Math.floor(
+    (now - current.lastCalculatedAt) / HEART_REGENERATION_INTERVAL_MS,
+  );
+  if (recovered <= 0) return current;
+
+  const count = Math.min(MAX_HEARTS, current.count + recovered);
+  return {
+    ...current,
+    count,
+    // Preserve the unused fraction of an interval.  When the cap is reached,
+    // anchor the next timer at this observation so the next spent heart starts
+    // a fresh eight-hour wait.
+    lastCalculatedAt:
+      count >= MAX_HEARTS
+        ? now
+        : current.lastCalculatedAt + recovered * HEART_REGENERATION_INTERVAL_MS,
+    localDate: today,
+    updatedAt: now,
+  };
+}
+
+function consumeHeart(state: HeartState, now: number): HeartState {
+  if (state.count <= 0)
+    throw new NoHeartsError(heartStatus(state).nextRecoveryAt);
+  return {
+    ...state,
+    count: state.count - 1,
     updatedAt: now,
   };
 }
@@ -471,6 +601,26 @@ function validateSettings(value: unknown): LearningSettings {
   return clone(settings as LearningSettings);
 }
 
+function validateHeartState(value: unknown): HeartState {
+  const state = value as Partial<HeartState>;
+  if (state.id !== LOCAL_ID) throw new Error("heartState.id is invalid");
+  boundedPositiveInteger(state.count, "heartState.count", 0, MAX_HEARTS);
+  const lastCalculatedAt = finiteNumber(
+    state.lastCalculatedAt,
+    "heartState.lastCalculatedAt",
+  );
+  const updatedAt = finiteNumber(state.updatedAt, "heartState.updatedAt");
+  if (lastCalculatedAt < 0 || updatedAt < 0)
+    throw new Error("heartState date is invalid");
+  if (
+    typeof state.localDate !== "string" ||
+    !/^\d{4}-\d{2}-\d{2}$/.test(state.localDate)
+  ) {
+    throw new Error("heartState.localDate is invalid");
+  }
+  return clone(state as HeartState);
+}
+
 function validateSessionRecord(
   value: unknown,
   index: number,
@@ -513,6 +663,10 @@ function validateBackup(value: unknown): LearningBackup {
   const schedulerProfiles = backup.schedulerProfiles.map(validateProfile);
   const gameEvents = backup.gameEvents.map(validateGameEvent);
   const settings = validateSettings(backup.settings);
+  const heartState =
+    backup.heartState === undefined
+      ? undefined
+      : validateHeartState(backup.heartState);
   const lessonSessions = backup.lessonSessions?.map(validateSessionRecord);
   const ids = new Set<string>();
   for (const event of studyEvents) {
@@ -552,6 +706,7 @@ function validateBackup(value: unknown): LearningBackup {
     schedulerProfiles,
     gameEvents,
     settings,
+    heartState,
     lessonSessions,
   };
 }
@@ -619,6 +774,7 @@ export class LearningRepository {
       this.database.schedulerProfiles,
       this.database.gameEvents,
       this.database.gameState,
+      this.database.heartState,
       this.database.settings,
       this.database.lessonSessions,
       this.database.outbox,
@@ -667,15 +823,38 @@ export class LearningRepository {
     return this.schedulerFactory(profile);
   }
 
+  /** Must be called from inside a repository transaction. */
+  private async refreshHeartState(now: number): Promise<HeartState> {
+    const current = await this.database.heartState.get(LOCAL_ID);
+    const next = reconcileHeartState(current, now);
+    if (!current || !sameHeartState(current, next))
+      await this.database.heartState.put(next);
+    return next;
+  }
+
+  private notifyHeartsChanged(): void {
+    if (typeof window !== "undefined")
+      window.dispatchEvent(new CustomEvent(HEARTS_CHANGED_EVENT));
+  }
+
+  async getHeartStatus(): Promise<HeartStatus> {
+    const now = timestamp(this.clock);
+    return this.transaction("rw", async () => {
+      const state = await this.refreshHeartState(now);
+      return heartStatus(state);
+    });
+  }
+
   async getSnapshot(): Promise<LearningSnapshot> {
     const now = timestamp(this.clock);
-    return this.transaction("r", async () => {
-      const [lessonStates, questionStates, savedGame, savedSettings] =
+    const snapshot = await this.transaction("rw", async () => {
+      const [lessonStates, questionStates, savedGame, savedSettings, state] =
         await Promise.all([
           this.database.lessonStates.toArray(),
           this.database.questionStates.toArray(),
           this.database.gameState.get(LOCAL_ID),
           this.database.settings.get(LOCAL_ID),
+          this.refreshHeartState(now),
         ]);
       const game = savedGame ?? defaultGame(now);
       const today = localDateFor(now);
@@ -696,27 +875,41 @@ export class LearningRepository {
           dailyGoal: savedSettings?.dailyGoal ?? DEFAULT_DAILY_GOAL,
           reviewLimit: savedSettings?.reviewLimit ?? DEFAULT_REVIEW_LIMIT,
         },
+        hearts: heartStatus(state),
       };
     });
+    this.notifyHeartsChanged();
+    return snapshot;
   }
 
   async startLesson(lesson: Lesson): Promise<LessonSession> {
     assertLesson(lesson);
     const now = timestamp(this.clock);
-    return this.transaction("rw", async () => {
+    const result = await this.transaction("rw", async () => {
+      let hearts = await this.refreshHeartState(now);
       const existingState = await this.database.lessonStates.get(lesson.id);
       const existingSession = await this.database.lessonSessions.get(lesson.id);
       if (
         existingSession?.contentRevision === lesson.revision &&
         existingSession.session.status === "active" &&
         existingSession.session.currentIndex < lesson.flow.length &&
-        existingSession.session.answers.every((answer) => lesson.flow.some((step) => step.type === "question" && step.ref === answer.questionId)) &&
+        existingSession.session.answers.every((answer) =>
+          lesson.flow.some(
+            (step) =>
+              step.type === "question" && step.ref === answer.questionId,
+          ),
+        ) &&
         (!existingState || existingState.contentRevision === lesson.revision)
       ) {
         return clone(existingSession.session) as LessonSession;
       }
 
+      if (hearts.count <= 0)
+        throw new NoHeartsError(heartStatus(hearts).nextRecoveryAt);
+
       const fresh = createLessonSession(lesson);
+      hearts = consumeHeart(hearts, now);
+      await this.database.heartState.put(hearts);
       await this.database.lessonSessions.put({
         lessonId: lesson.id,
         contentRevision: lesson.revision,
@@ -747,6 +940,8 @@ export class LearningRepository {
       }
       return clone(fresh);
     });
+    this.notifyHeartsChanged();
+    return result;
   }
 
   async saveSession(session: LessonSession): Promise<void> {
@@ -1038,10 +1233,7 @@ export class LearningRepository {
         const currentSession = await this.database.lessonSessions.get(
           input.question.lessonId,
         );
-        if (
-          currentSession &&
-            currentSession.session.status === "active"
-        ) {
+        if (currentSession && currentSession.session.status === "active") {
           const answer = {
             questionId: input.question.id,
             correct: input.correct,
@@ -1251,14 +1443,15 @@ export class LearningRepository {
 
   async exportBackup(): Promise<string> {
     const now = timestamp(this.clock);
-    return this.transaction("r", async () => {
-      const [events, profiles, gameEvents, settings, identity] =
+    const backup = await this.transaction("rw", async () => {
+      const [events, profiles, gameEvents, settings, identity, heartState] =
         await Promise.all([
           this.database.studyEvents.toArray(),
           this.database.schedulerProfiles.toArray(),
           this.database.gameEvents.toArray(),
           this.database.settings.get(LOCAL_ID),
           this.database.syncMeta.get(LOCAL_ID),
+          this.refreshHeartState(now),
         ]);
       const fallbackUser =
         events[0]?.userId ?? this.configuredUserId ?? DEFAULT_USER_ID;
@@ -1273,10 +1466,13 @@ export class LearningRepository {
         schedulerProfiles: clone(profiles),
         gameEvents: [...gameEvents].sort(gameEventSort),
         settings: settings ?? defaultSettings(now),
+        heartState,
         lessonSessions: await this.database.lessonSessions.toArray(),
       };
       return JSON.stringify(backup);
     });
+    this.notifyHeartsChanged();
+    return backup;
   }
 
   async importBackup(json: string): Promise<void> {
@@ -1297,6 +1493,7 @@ export class LearningRepository {
         this.database.schedulerProfiles.clear(),
         this.database.gameEvents.clear(),
         this.database.gameState.clear(),
+        this.database.heartState.clear(),
         this.database.settings.clear(),
         this.database.lessonSessions.clear(),
         this.database.outbox.clear(),
@@ -1317,6 +1514,9 @@ export class LearningRepository {
       for (const gameEvent of backup.gameEvents)
         await this.database.gameEvents.add(gameEvent);
       await this.database.settings.put(backup.settings);
+      await this.database.heartState.put(
+        backup.heartState ?? defaultHeartState(now),
+      );
       for (const event of events) {
         if (event.eventType === "content-revision") {
           const profile = profiles.get(event.schedulerProfileId!);
@@ -1455,6 +1655,7 @@ export class LearningRepository {
         deviceId: backup.deviceId,
       });
     });
+    this.notifyHeartsChanged();
   }
 
   async resetProgress(): Promise<void> {
@@ -1466,6 +1667,7 @@ export class LearningRepository {
         this.database.lessonStates.clear(),
         this.database.gameEvents.clear(),
         this.database.gameState.clear(),
+        this.database.heartState.clear(),
         this.database.lessonSessions.clear(),
         this.database.outbox.clear(),
       ]);
@@ -1479,7 +1681,9 @@ export class LearningRepository {
       });
       if (!(await this.database.settings.get(LOCAL_ID)))
         await this.database.settings.put(defaultSettings(now));
+      await this.database.heartState.put(defaultHeartState(now));
     });
+    this.notifyHeartsChanged();
   }
 }
 

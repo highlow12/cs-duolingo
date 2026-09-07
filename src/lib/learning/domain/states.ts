@@ -110,6 +110,21 @@ export interface LearningSettings {
   updatedAt: number;
 }
 
+/**
+ * Local-only lesson allowance.  This is intentionally separate from settings
+ * so restoring or resetting study progress cannot accidentally drop the
+ * user's configured daily goal or review limit.
+ */
+export interface HeartState {
+  id: "local";
+  count: number;
+  /** The last point from which an eight-hour recovery interval is measured. */
+  lastCalculatedAt: number;
+  /** The latest local calendar date observed by the app. */
+  localDate: string;
+  updatedAt: number;
+}
+
 export interface LessonSessionRecord {
   lessonId: string;
   contentRevision: number;

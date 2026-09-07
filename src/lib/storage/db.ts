@@ -2,6 +2,7 @@ import Dexie, { type Table } from "dexie";
 import type {
   GameEvent,
   GameState,
+  HeartState,
   LessonState,
   LessonSessionRecord,
   QuestionState,
@@ -32,6 +33,7 @@ export class LearningDatabase extends Dexie {
   lessonStates!: Table<LessonState, string>;
   gameEvents!: Table<GameEvent, string>;
   gameState!: Table<GameState, string>;
+  heartState!: Table<HeartState, string>;
   schedulerProfiles!: Table<SchedulerProfile, string>;
   settings!: Table<LearningSettings, string>;
   lessonSessions!: Table<LessonSessionRecord, string>;
@@ -61,6 +63,9 @@ export class LearningDatabase extends Dexie {
       lessonSessions: "lessonId, contentRevision, updatedAt",
       outbox: "id, eventId, status, createdAt",
       syncMeta: "id",
+    });
+    this.version(3).stores({
+      heartState: "id",
     });
   }
 }
