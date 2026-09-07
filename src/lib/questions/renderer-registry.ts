@@ -1,4 +1,6 @@
 import CodeCompletionQuestion from "./plugins/CodeCompletionQuestion.svelte";
+import GraphPathQuestion from "./plugins/GraphPathQuestion.svelte";
+import InteractiveSimulationQuestion from "./plugins/InteractiveSimulationQuestion.svelte";
 import MatchingQuestion from "./plugins/MatchingQuestion.svelte";
 import OrderingQuestion from "./plugins/OrderingQuestion.svelte";
 import SelectionQuestion from "./plugins/SelectionQuestion.svelte";
@@ -28,6 +30,11 @@ export const questionRenderers = new Map<QuestionType, AnyQuestionRenderer>([
   ["matching", MatchingQuestion as AnyQuestionRenderer],
   ["code-output", SelectionQuestion as AnyQuestionRenderer],
   ["code-completion", CodeCompletionQuestion as AnyQuestionRenderer],
+  ["graph-path", GraphPathQuestion as AnyQuestionRenderer],
+  [
+    "interactive-simulation",
+    InteractiveSimulationQuestion as AnyQuestionRenderer,
+  ],
 ]);
 
 export interface QuestionPluginDescriptor<T extends QuestionType = QuestionType> {
