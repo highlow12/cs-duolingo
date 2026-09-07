@@ -53,15 +53,27 @@
     return question.goalStateIds.includes(stateId);
   }
 
+  function isTerminal(nextActions: string[], nextStateId: string): boolean {
+    return (
+      isGoal(nextStateId) ||
+      nextActions.length >= question.maxSteps ||
+      !question.transitions.some(
+        (transition) => transition.fromStateId === nextStateId,
+      )
+    );
+  }
+
   function emit(nextActions: string[], nextStateId: string) {
     actionIds = nextActions;
     currentStateId = nextStateId;
-    if (nextActions.length === 0) onAnswerChange(null);
-    else
-      onAnswerChange({
-        type: "interactive-simulation",
-        actionIds: [...nextActions],
-      });
+    if (nextActions.length === 0 || !isTerminal(nextActions, nextStateId)) {
+      onAnswerChange(null);
+      return;
+    }
+    onAnswerChange({
+      type: "interactive-simulation",
+      actionIds: [...nextActions],
+    });
   }
 
   function run(actionId: string) {
@@ -70,7 +82,10 @@
     if (!transition) return;
     const nextActions = [...actionIds, actionId];
     emit(nextActions, transition.toStateId);
-    announcement = `${actionLabel(actionId)} 실행. ${stateLabel(transition.toStateId)} 상태가 되었습니다.`;
+    const suffix = isTerminal(nextActions, transition.toStateId)
+      ? " 제출할 수 있습니다."
+      : "";
+    announcement = `${actionLabel(actionId)} 실행. ${stateLabel(transition.toStateId)} 상태가 되었습니다.${suffix}`;
   }
 
   function replay(actions: string[]): string {
