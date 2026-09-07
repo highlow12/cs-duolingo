@@ -83,7 +83,7 @@ function stringIds(
   value: unknown,
   at: string,
   errors: string[],
-  options: { nonEmpty?: boolean; known?: Set<string> } = {},
+  options: { nonEmpty?: boolean; known?: Set<string>; unique?: boolean } = {},
 ): string[] {
   if (!Array.isArray(value) || (options.nonEmpty && value.length === 0)) {
     errors.push(`${at}: ${options.nonEmpty ? "하나 이상의 " : ""}ID 배열이어야 합니다.`);
@@ -97,8 +97,9 @@ function stringIds(
         errors.push(`${at}[${index}]: 존재하지 않는 ID ${entry}`);
     }
   });
-  for (const duplicate of duplicateValues(ids))
-    errors.push(`${at}: 중복 ID ${duplicate}`);
+  if (options.unique !== false)
+    for (const duplicate of duplicateValues(ids))
+      errors.push(`${at}: 중복 ID ${duplicate}`);
   return ids;
 }
 
@@ -134,12 +135,29 @@ function validateGraphPath(
     value.nodes.forEach((node, index) => {
       const here = `${at}.nodes[${index}]`;
       if (!object(node)) return void errors.push(`${here}: 객체여야 합니다.`);
-      fields(node, ["id", "label", "x", "y"], ["id", "label", "x", "y"], here, errors);
+      fields(
+        node,
+        ["id", "label", "x", "y"],
+        ["id", "label", "x", "y"],
+        here,
+        errors,
+      );
       if (itemId(node.id, `${here}.id`, errors)) nodeIds.push(node.id);
-      if (!text(node.label)) errors.push(`${here}.label: 비어 있지 않은 문자열이어야 합니다.`);
-      if (typeof node.x !== "number" || !Number.isFinite(node.x) || node.x < 0 || node.x > 100)
+      if (!text(node.label))
+        errors.push(`${here}.label: 비어 있지 않은 문자열이어야 합니다.`);
+      if (
+        typeof node.x !== "number" ||
+        !Number.isFinite(node.x) ||
+        node.x < 0 ||
+        node.x > 100
+      )
         errors.push(`${here}.x: 0 ~ 100 숫자여야 합니다.`);
-      if (typeof node.y !== "number" || !Number.isFinite(node.y) || node.y < 0 || node.y > 100)
+      if (
+        typeof node.y !== "number" ||
+        !Number.isFinite(node.y) ||
+        node.y < 0 ||
+        node.y > 100
+      )
         errors.push(`${here}.y: 0 ~ 100 숫자여야 합니다.`);
     });
   for (const duplicate of duplicateValues(nodeIds))
@@ -155,22 +173,29 @@ function validateGraphPath(
       const here = `${at}.edges[${index}]`;
       if (!object(edge)) return void errors.push(`${here}: 객체여야 합니다.`);
       fields(edge, ["fromId", "toId"], ["fromId", "toId"], here, errors);
-      const fromId = itemId(edge.fromId, `${here}.fromId`, errors) ? edge.fromId : "";
-      const toId = itemId(edge.toId, `${here}.toId`, errors) ? edge.toId : "";
+      const fromId = itemId(edge.fromId, `${here}.fromId`, errors)
+        ? edge.fromId
+        : "";
+      const toId = itemId(edge.toId, `${here}.toId`, errors)
+        ? edge.toId
+        : "";
       if (fromId && !knownNodes.has(fromId))
         errors.push(`${here}.fromId: 존재하지 않는 node ID입니다.`);
       if (toId && !knownNodes.has(toId))
         errors.push(`${here}.toId: 존재하지 않는 node ID입니다.`);
       if (fromId && toId) {
         edges.push({ fromId, toId });
-        const key = value.directed === false
-          ? [fromId, toId].sort().join("\u0000")
-          : `${fromId}\u0000${toId}`;
+        const key =
+          value.directed === false
+            ? [fromId, toId].sort().join("\u0000")
+            : `${fromId}\u0000${toId}`;
         edgeKeys.push(key);
       }
     });
   for (const duplicate of duplicateValues(edgeKeys))
-    errors.push(`${at}.edges: 중복 edge ${duplicate.replace("\u0000", " → ")}`);
+    errors.push(
+      `${at}.edges: 중복 edge ${duplicate.replace("\u0000", " → ")}`,
+    );
 
   if (typeof value.directed !== "boolean")
     errors.push(`${at}.directed: boolean이어야 합니다.`);
@@ -202,7 +227,9 @@ function validateGraphPath(
   value.acceptedPaths.forEach((path, index) => {
     const here = `${at}.acceptedPaths[${index}]`;
     if (!Array.isArray(path) || path.length < 2) {
-      errors.push(`${here}: 시작과 목표를 포함한 두 개 이상의 node ID가 필요합니다.`);
+      errors.push(
+        `${here}: 시작과 목표를 포함한 두 개 이상의 node ID가 필요합니다.`,
+      );
       return;
     }
     const ids = stringIds(path, here, errors, { known: knownNodes });
@@ -214,7 +241,9 @@ function validateGraphPath(
       errors.push(`${here}: 마지막 node는 goalNodeId여야 합니다.`);
     for (let step = 1; step < ids.length; step += 1)
       if (!edgeAllowed(graph, ids[step - 1], ids[step]))
-        errors.push(`${here}: ${ids[step - 1]} → ${ids[step]} 간선이 없습니다.`);
+        errors.push(
+          `${here}: ${ids[step - 1]} → ${ids[step]} 간선이 없습니다.`,
+        );
   });
   for (const duplicate of duplicateValues(pathKeys))
     errors.push(`${at}.acceptedPaths: 중복 경로 ${duplicate}`);
@@ -222,13 +251,18 @@ function validateGraphPath(
 
 function simulate(
   initialStateId: string,
-  transitions: Array<{ fromStateId: string; actionId: string; toStateId: string }>,
+  transitions: Array<{
+    fromStateId: string;
+    actionId: string;
+    toStateId: string;
+  }>,
   actionIds: string[],
 ): { valid: boolean; stateId: string } {
   let stateId = initialStateId;
   for (const actionId of actionIds) {
     const transition = transitions.find(
-      (candidate) => candidate.fromStateId === stateId && candidate.actionId === actionId,
+      (candidate) =>
+        candidate.fromStateId === stateId && candidate.actionId === actionId,
     );
     if (!transition) return { valid: false, stateId };
     stateId = transition.toStateId;
@@ -250,7 +284,8 @@ function validateInteractiveSimulation(
       if (!object(state)) return void errors.push(`${here}: 객체여야 합니다.`);
       fields(state, ["id", "label"], ["id", "label"], here, errors);
       if (itemId(state.id, `${here}.id`, errors)) stateIds.push(state.id);
-      if (!text(state.label)) errors.push(`${here}.label: 비어 있지 않은 문자열이어야 합니다.`);
+      if (!text(state.label))
+        errors.push(`${here}.label: 비어 있지 않은 문자열이어야 합니다.`);
     });
   for (const duplicate of duplicateValues(stateIds))
     errors.push(`${at}.states: 중복 ID ${duplicate}`);
@@ -265,7 +300,8 @@ function validateInteractiveSimulation(
       if (!object(action)) return void errors.push(`${here}: 객체여야 합니다.`);
       fields(action, ["id", "label"], ["id", "label"], here, errors);
       if (itemId(action.id, `${here}.id`, errors)) actionIds.push(action.id);
-      if (!text(action.label)) errors.push(`${here}.label: 비어 있지 않은 문자열이어야 합니다.`);
+      if (!text(action.label))
+        errors.push(`${here}.label: 비어 있지 않은 문자열이어야 합니다.`);
     });
   for (const duplicate of duplicateValues(actionIds))
     errors.push(`${at}.actions: 중복 ID ${duplicate}`);
@@ -282,7 +318,8 @@ function validateInteractiveSimulation(
   else
     value.transitions.forEach((transition, index) => {
       const here = `${at}.transitions[${index}]`;
-      if (!object(transition)) return void errors.push(`${here}: 객체여야 합니다.`);
+      if (!object(transition))
+        return void errors.push(`${here}: 객체여야 합니다.`);
       fields(
         transition,
         ["fromStateId", "actionId", "toStateId"],
@@ -290,13 +327,25 @@ function validateInteractiveSimulation(
         here,
         errors,
       );
-      const fromStateId = itemId(transition.fromStateId, `${here}.fromStateId`, errors)
+      const fromStateId = itemId(
+        transition.fromStateId,
+        `${here}.fromStateId`,
+        errors,
+      )
         ? transition.fromStateId
         : "";
-      const actionId = itemId(transition.actionId, `${here}.actionId`, errors)
+      const actionId = itemId(
+        transition.actionId,
+        `${here}.actionId`,
+        errors,
+      )
         ? transition.actionId
         : "";
-      const toStateId = itemId(transition.toStateId, `${here}.toStateId`, errors)
+      const toStateId = itemId(
+        transition.toStateId,
+        `${here}.toStateId`,
+        errors,
+      )
         ? transition.toStateId
         : "";
       if (fromStateId && !knownStates.has(fromStateId))
@@ -311,29 +360,47 @@ function validateInteractiveSimulation(
       }
     });
   for (const duplicate of duplicateValues(transitionKeys))
-    errors.push(`${at}.transitions: 같은 state/action 전이는 하나만 허용됩니다: ${duplicate}`);
+    errors.push(
+      `${at}.transitions: 같은 state/action 전이는 하나만 허용됩니다: ${duplicate}`,
+    );
 
-  const initialStateId = itemId(value.initialStateId, `${at}.initialStateId`, errors)
+  const initialStateId = itemId(
+    value.initialStateId,
+    `${at}.initialStateId`,
+    errors,
+  )
     ? value.initialStateId
     : "";
   if (initialStateId && !knownStates.has(initialStateId))
     errors.push(`${at}.initialStateId: 존재하지 않는 state ID입니다.`);
-  const goalStateIds = stringIds(value.goalStateIds, `${at}.goalStateIds`, errors, {
-    nonEmpty: true,
-    known: knownStates,
-  });
+  const goalStateIds = stringIds(
+    value.goalStateIds,
+    `${at}.goalStateIds`,
+    errors,
+    {
+      nonEmpty: true,
+      known: knownStates,
+    },
+  );
   if (initialStateId && goalStateIds.includes(initialStateId))
     errors.push(`${at}: initialStateId는 goalStateIds에 포함될 수 없습니다.`);
 
-  if (!Number.isInteger(value.maxSteps) || (value.maxSteps as number) < 1 || (value.maxSteps as number) > 50)
+  if (
+    !Number.isInteger(value.maxSteps) ||
+    (value.maxSteps as number) < 1 ||
+    (value.maxSteps as number) > 50
+  )
     errors.push(`${at}.maxSteps: 1 ~ 50 정수여야 합니다.`);
   const canonicalActionIds = stringIds(
     value.canonicalActionIds,
     `${at}.canonicalActionIds`,
     errors,
-    { nonEmpty: true, known: knownActions },
+    { nonEmpty: true, known: knownActions, unique: false },
   );
-  if (Number.isInteger(value.maxSteps) && canonicalActionIds.length > (value.maxSteps as number))
+  if (
+    Number.isInteger(value.maxSteps) &&
+    canonicalActionIds.length > (value.maxSteps as number)
+  )
     errors.push(`${at}.canonicalActionIds: maxSteps를 초과할 수 없습니다.`);
   if (initialStateId && canonicalActionIds.length) {
     const result = simulate(initialStateId, transitions, canonicalActionIds);
