@@ -297,6 +297,31 @@ describe("LearningRepository", () => {
     expect(await repo.exportBackup()).toBe(beforeReject);
   });
 
+  it("restores an in-progress lesson before its first question is answered", async () => {
+    const repo = repository();
+    const currentLesson = lesson();
+    const started = await repo.startLesson(currentLesson);
+    const contentOnlyProgress = { ...started, currentIndex: 1 };
+    await repo.saveSession(contentOnlyProgress);
+    const backup = await repo.exportBackup();
+
+    await repo.resetProgress();
+    await repo.importBackup(backup);
+
+    await expect(repo.getSnapshot()).resolves.toMatchObject({
+      lessonStates: [
+        expect.objectContaining({
+          lessonId: currentLesson.id,
+          status: "in-progress",
+          contentRevision: currentLesson.revision,
+        }),
+      ],
+    });
+    await expect(repo.startLesson(currentLesson)).resolves.toEqual(
+      contentOnlyProgress,
+    );
+  });
+
   it("resumes sessions and reopens a completed lesson with a fresh active session", async () => {
     const repo = repository();
     const currentLesson = lesson();

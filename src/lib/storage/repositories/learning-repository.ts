@@ -1639,8 +1639,36 @@ export class LearningRepository {
           ? gameFromEvents(backup.gameEvents, now)
           : defaultGame(now);
       await this.database.gameState.put(derivedGame);
-      if (backup.lessonSessions)
+      if (backup.lessonSessions) {
         await this.database.lessonSessions.bulkAdd(backup.lessonSessions);
+        // Starting a lesson is persisted as a session and materialized
+        // LessonState, but it does not create a StudyEvent until the learner
+        // answers a question. Replay therefore has nothing from which to
+        // rebuild a content-only active lesson. Recreate that missing derived
+        // state from the backed-up session so the dashboard and resume flow
+        // agree immediately after import.
+        for (const record of backup.lessonSessions) {
+          if (
+            record.session.status !== "active" ||
+            (await this.database.lessonStates.get(record.lessonId))
+          ) {
+            continue;
+          }
+          const answers = record.session.answers;
+          await this.database.lessonStates.put({
+            ...defaultLessonState(
+              record.lessonId,
+              record.contentRevision,
+              record.updatedAt,
+            ),
+            userId: backup.userId,
+            attemptedQuestions: answers.length,
+            completedQuestions: answers.length,
+            correctCount: answers.filter((answer) => answer.correct).length,
+            incorrectCount: answers.filter((answer) => !answer.correct).length,
+          });
+        }
+      }
       for (const event of events)
         await this.database.outbox.add(outboxFor(event, now));
       const maxSeq = events.reduce(

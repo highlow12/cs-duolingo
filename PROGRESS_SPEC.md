@@ -40,4 +40,4 @@ UI는 `learningRepository`를 통해서만 저장한다. StudyEvent, 문제/레�
 
 ## 백업
 
-JSON 백업은 StudyEvent, SchedulerProfile, GameEvent, Settings, HeartState와 세션 보조 정보를 담는다. 문제 상태와 레슨 상태는 이벤트를 replay해 만든다. 복원은 현재 기록을 교체하며 사용자가 확인한 뒤 수행한다. 형식·버전·ID·수치·참조가 잘못된 백업을 거부하고 실패 시 기존 DB를 보존한다. 자동 동기화와 여러 기기 병합은 아직 제공하지 않는다.
+JSON 백업은 StudyEvent, SchedulerProfile, GameEvent, Settings, HeartState와 세션 보조 정보를 담는다. 문제 상태와 레슨 상태는 이벤트를 replay해 만들되, 아직 첫 문제를 풀지 않아 StudyEvent가 없는 진행 중 레슨은 세션 보조 정보로 상태를 복원한다. 복원은 현재 기록을 교체하며 사용자가 확인한 뒤 수행한다. 형식·버전·ID·수치·참조가 잘못된 백업을 거부하고 실패 시 기존 DB를 보존한다. 자동 동기화와 여러 기기 병합은 아직 제공하지 않는다.
