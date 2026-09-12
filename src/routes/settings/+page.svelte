@@ -3,6 +3,7 @@
   import { learningRepository } from '$lib/storage/repositories/learning-repository';
   import { contentRepository } from '$lib/content/repository/static-content-repository';
   import { errorMessage } from '$lib/application/dashboard';
+  import { readThemeChoice, setThemePreference, subscribeThemeChanges, type ThemeChoice } from '$lib/application/theme';
   let dailyGoal = $state(30);
   let reviewLimit = $state(10);
   let buildId = $state('');
@@ -15,8 +16,24 @@
   let importExportedAt = $state<number | null>(null);
   let resetOpen = $state(false);
   let resetText = $state('');
+  let themeChoice = $state<ThemeChoice>('system');
+
+  function setTheme(choice: ThemeChoice) {
+    themeChoice = choice;
+    setThemePreference(choice);
+  }
+
   async function load() { const [snapshot,manifest] = await Promise.all([learningRepository.getSnapshot(),contentRepository.getManifest()]); dailyGoal=snapshot.settings.dailyGoal;reviewLimit=snapshot.settings.reviewLimit;buildId=manifest.buildId;loaded=true; }
-  onMount(() => { void load().catch((e)=>{error=errorMessage(e);}); });
+  onMount(() => {
+    let storage: Storage | null = null;
+    try { storage = window.localStorage; } catch { /* system theme is still available */ }
+    themeChoice = readThemeChoice(storage);
+    const unsubscribe = subscribeThemeChanges((change) => {
+      themeChoice = change.choice;
+    });
+    void load().catch((e)=>{error=errorMessage(e);});
+    return unsubscribe;
+  });
   async function action(work:()=>Promise<void>,success:string) { if(busy)return;busy=true;error='';message='';try {await work();message=success;}catch(e){error=errorMessage(e);}finally{busy=false;} }
   function save() { return action(async()=>{await learningRepository.updateSettings({dailyGoal,reviewLimit});},'학습 목표를 저장했습니다.'); }
   function exportData() { return action(async()=>{const json=await learningRepository.exportBackup();const url=URL.createObjectURL(new Blob([json],{type:'application/json'}));const anchor=document.createElement('a');const exportedAt=new Date();anchor.href=url;anchor.download=`cs-duolingo-backup-${exportedAt.toISOString().replace(/\.\d{3}Z$/,'Z').replaceAll(':','-')}.json`;anchor.click();setTimeout(()=>URL.revokeObjectURL(url),30000);},'백업 파일을 만들었습니다. 다운로드한 파일을 보관해 주세요.'); }
@@ -26,11 +43,12 @@
 </script>
 <svelte:head><title>설정 | CS 듀오링고</title></svelte:head>
 <div class="stack settings-shell">
-  <div class="page-heading"><p class="eyebrow">나에게 맞는 학습</p><h1>설정</h1></div>
+  <div class="page-heading"><span class="page-kicker">앱 / 나의 학습</span><h1>설정</h1><p class="muted">학습 리듬과 이 기기의 표시 방식을 조절해요.</p></div>
   {#if error}<div class="card error" role="alert">{error}{#if !loaded}<button class="button secondary" onclick={()=>{error='';void load().catch((e)=>{error=errorMessage(e);});}}>다시 시도</button>{/if}</div>{/if}
   {#if message}<p class="card success" role="status">{message}</p>{/if}
   {#if !loaded && !error}<p class="card">설정을 불러오는 중입니다…</p>
   {:else if loaded}
+    <section class="card stack theme-settings"><div class="section-heading"><h2>화면 테마</h2><span class="system-mark" aria-hidden="true">◐</span></div><p class="muted">기기의 설정을 따르거나 원하는 테마를 선택할 수 있어요. 선택은 이 기기에 저장됩니다.</p><label for="theme-choice">테마<select id="theme-choice" bind:value={themeChoice} onchange={(event)=>setTheme((event.currentTarget as HTMLSelectElement).value as ThemeChoice)} disabled={busy}><option value="system">기기 설정</option><option value="light">라이트</option><option value="dark">다크</option></select></label></section>
     <form class="card stack" onsubmit={(e)=>{e.preventDefault();void save();}}><h2>학습 목표</h2><label>하루 목표 XP<select bind:value={dailyGoal} disabled={busy}>{#each [10,20,30,50,100] as goal}<option value={goal}>{goal} XP</option>{/each}</select></label><label>한 번에 복습할 문제<select bind:value={reviewLimit} disabled={busy}>{#each [5,10,20,30,50] as limit}<option value={limit}>{limit}개</option>{/each}</select></label><button class="button" disabled={busy}>목표 저장</button></form>
     <section class="card stack"><h2>학습 기록 백업</h2><p class="muted">기록은 이 브라우저와 기기에 저장됩니다. 기기를 바꾸거나 브라우저 데이터를 지우기 전에 백업하세요.</p><div class="actions"><button class="button secondary" disabled={busy} onclick={exportData}>백업 다운로드</button><label class="file-label">백업 파일 선택<input type="file" accept=".json,application/json" disabled={busy} onchange={selectFile}/></label></div>
       {#if importData}<div class="confirmation" role="group" aria-label="백업 복원 확인"><strong>{importName}</strong>{#if importExportedAt !== null}<p class="muted">백업 생성 시각: {new Date(importExportedAt).toLocaleString()}</p>{/if}<p>현재 학습 기록을 이 백업으로 교체합니다. 필요한 기록은 먼저 다운로드해 주세요.</p><div class="actions"><button class="button" disabled={busy} onclick={restore}>이 백업으로 복원</button><button class="button secondary" disabled={busy} onclick={()=>{importData=null;importName='';importExportedAt=null;}}>취소</button></div></div>{/if}
@@ -40,4 +58,18 @@
     {#if resetOpen}<div class="confirmation"><label>계속하려면 ‘초기화’를 입력하세요<input bind:value={resetText} autocomplete="off" disabled={busy}/></label><div class="actions"><button class="button danger-button" disabled={busy||resetText!=='초기화'} onclick={reset}>기록 삭제</button><button class="button secondary" disabled={busy} onclick={()=>{resetOpen=false;resetText='';}}>취소</button></div></div>{/if}</section>
   {/if}
 </div>
-<style>.settings-shell{max-width:760px;margin:auto}label{display:grid;gap:.5rem}form .button{justify-self:start}.confirmation{border:1px solid var(--border);border-radius:.75rem;padding:1rem;background:var(--primary-soft);overflow-wrap:anywhere}.file-label{font-weight:600;font-size:.9rem}.file-label input{max-width:100%}.version{margin:0;font-size:.9rem}.danger-button{background:var(--danger)}.danger-button:hover{background:#991b1b}</style>
+<style>
+  .settings-shell{max-width:760px;margin:auto}
+  label{display:grid;gap:var(--space-2);font-weight:500}
+  form .button{justify-self:start}
+  .section-heading{display:flex;align-items:center;justify-content:space-between;gap:var(--space-3)}
+  .section-heading h2{margin:0}
+  .system-mark{display:grid;place-items:center;width:2rem;height:2rem;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--primary);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .theme-settings{border-top:3px solid var(--primary)}
+  .confirmation{border:1px solid var(--border);border-radius:var(--radius-md);padding:var(--space-4);background:var(--primary-soft);overflow-wrap:anywhere}
+  .file-label{font-weight:600;font-size:.9rem}
+  .file-label input{max-width:100%}
+  .version{margin:0;font-size:.9rem}
+  .danger-button{border-color:var(--danger);background:var(--danger);color:var(--text-on-accent)}
+  .danger-button:hover{border-color:var(--danger);background:color-mix(in srgb,var(--danger) 82%,var(--text))}
+</style>

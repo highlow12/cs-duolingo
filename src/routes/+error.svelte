@@ -17,7 +17,7 @@
 </svelte:head>
 
 <section class="error-page card" aria-labelledby="error-title">
-	<p class="eyebrow">{notFound ? '페이지를 찾을 수 없습니다' : '오류가 발생했습니다'}</p>
+	<p class="error-kicker">{notFound ? '404 / path not found' : 'system / unavailable'}</p>
 	<p class="status" aria-hidden="true">{status}</p>
 	<h1 id="error-title">
 		{notFound ? '잠깐, 길을 다시 찾아볼까요?' : '잠시 후 다시 시도해 주세요.'}
@@ -32,33 +32,34 @@
 <style>
 	.error-page {
 		max-width: 680px;
-		margin: 3rem auto;
+		margin: var(--space-12) auto;
 		text-align: center;
 	}
 
-	.eyebrow {
+	.error-kicker {
 		margin: 0 0 0.5rem;
 		color: var(--primary);
-		font-weight: 800;
-		letter-spacing: 0.1em;
-		text-transform: uppercase;
+		font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+		font-size: 0.75rem;
+		font-weight: 650;
 	}
 
 	.status {
 		margin: 0;
 		color: var(--primary);
+		font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 		font-size: clamp(4rem, 15vw, 7rem);
-		font-weight: 900;
+		font-weight: 650;
 		letter-spacing: -0.08em;
 		line-height: 1;
 	}
 
 	h1 {
-		margin: 1rem 0 0.75rem;
+		margin: var(--space-4) 0 var(--space-3);
 	}
 
 	.message {
-		margin-bottom: 1.5rem;
+		margin-bottom: var(--space-6);
 		color: var(--muted);
 		line-height: 1.7;
 	}

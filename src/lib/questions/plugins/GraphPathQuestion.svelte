@@ -181,18 +181,18 @@
 <style>
   .question-body {
     display: grid;
-    gap: 1rem;
+    gap: var(--space-4);
   }
 
   .graph-meta,
   .actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: var(--space-2);
   }
 
   .graph-meta span {
-    border: 1px solid var(--border, #d8dee9);
+    border: 1px solid var(--border);
     border-radius: 999px;
     padding: 0.3rem 0.65rem;
     font-size: 0.85rem;
@@ -201,10 +201,10 @@
   .graph {
     position: relative;
     min-height: 22rem;
-    border: 1px solid var(--border, #d8dee9);
-    border-radius: 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
     overflow: hidden;
-    background: var(--surface, #fff);
+    background: var(--surface);
   }
 
   .edges {
@@ -231,9 +231,9 @@
     transform: translate(-50%, -50%);
     min-width: 4.25rem;
     min-height: 4.25rem;
-    border: 2px solid var(--border, #b8c0cc);
+    border: 2px solid var(--border-strong);
     border-radius: 999px;
-    background: var(--surface, #fff);
+    background: var(--surface);
     padding: 0.55rem;
     display: grid;
     place-items: center;
@@ -249,6 +249,7 @@
 
   .node.selected {
     border-width: 3px;
+    background: var(--primary-soft);
   }
 
   .node.current {
@@ -290,15 +291,17 @@
     display: grid;
     gap: 0.25rem;
     padding: 0.8rem 1rem;
-    border-radius: 0.75rem;
-    background: var(--surface-muted, #f3f5f8);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--surface-muted);
   }
 
   .secondary {
     min-height: 2.5rem;
-    border: 1px solid var(--border, #c7ced8);
-    border-radius: 0.7rem;
-    background: var(--surface, #fff);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--text);
     padding: 0.45rem 0.8rem;
   }
 

@@ -246,27 +246,27 @@
 </div>
 
 <style>
-  .question-body { display: grid; gap: 1rem; }
-  .drag-hint { margin: 0; color: #60708a; font-size: 0.9rem; }
-  .items { display: grid; gap: 0.7rem; margin: 0; padding: 0; list-style: none; }
-  .item { display: flex; align-items: center; justify-content: space-between; gap: 0.65rem; border: 1px solid #dce3ef; border-radius: 0.75rem; background: white; padding: 0.8rem 1rem; transition: border-color 120ms ease, box-shadow 120ms ease, opacity 120ms ease; }
+  .question-body { display: grid; gap: var(--space-4); }
+  .drag-hint { margin: 0; color: var(--text-muted); font-size: 0.85rem; }
+  .items { display: grid; gap: var(--space-3); margin: 0; padding: 0; list-style: none; }
+  .item { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); padding: 0.8rem 1rem; transition: border-color var(--dur-1) ease, box-shadow var(--dur-1) ease, opacity var(--dur-1) ease; }
   .item[draggable="true"] { cursor: grab; }
   .item.dragging { opacity: 0.65; }
-  .item.drop-target { border-color: #2563eb; box-shadow: 0 0 0 2px rgb(37 99 235 / 15%); }
-  .drag-handle { display: inline-grid; flex: 0 0 auto; place-items: center; width: 2.25rem; height: 2.5rem; border: 0; border-radius: 0.5rem; background: transparent; color: #64748b; font-size: 1.45rem; line-height: 1; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
-  .drag-handle:active { cursor: grabbing; background: #f1f5f9; }
+  .item.drop-target { border-color: var(--primary); box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 18%, transparent); }
+  .drag-handle { display: inline-grid; flex: 0 0 auto; place-items: center; width: 2.75rem; height: 2.75rem; border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--text-muted); font-size: 1.35rem; line-height: 1; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
+  .drag-handle:active { cursor: grabbing; background: var(--surface-muted); }
   .drag-handle:disabled { cursor: default; opacity: 0.4; }
-  .drag-handle:focus-visible { outline: 3px solid rgb(37 99 235 / 35%); outline-offset: 2px; }
-  .item-content { display: flex; align-items: flex-start; flex: 1; gap: 0.7rem; min-width: 0; }
+  .drag-handle:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .item-content { display: flex; align-items: flex-start; flex: 1; gap: var(--space-3); min-width: 0; }
   .item-label { flex: 1; min-width: 0; }
   .item-label :global(p), .item-label :global(pre) { margin: 0; }
-  .item-number { display: inline-grid; flex: 0 0 auto; place-items: center; width: 1.7rem; height: 1.7rem; border-radius: 50%; background: #e8eef8; font-weight: 800; }
-  .move-actions { display: flex; gap: 0.35rem; }
-  .icon-button { width: 2rem; height: 2rem; border: 1px solid #cbd5e1; border-radius: 0.45rem; background: white; font-size: 1.1rem; cursor: pointer; }
+  .item-number { display: inline-grid; flex: 0 0 auto; place-items: center; width: 1.7rem; height: 1.7rem; border: 1px solid var(--border); border-radius: 50%; background: var(--surface-muted); color: var(--text-muted); font-family: ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:.75rem; font-weight:650; }
+  .move-actions { display: flex; gap: var(--space-1); }
+  .icon-button { width: 2.75rem; height: 2.75rem; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color:var(--text); font-size: 1.1rem; cursor: pointer; }
   .icon-button:disabled { cursor: not-allowed; opacity: 0.45; }
-  .icon-button:focus-visible { outline: 3px solid rgb(37 99 235 / 35%); outline-offset: 2px; }
-  .answer-marker { flex: 0 0 auto; border-radius: 999px; background: #eef2ff; padding: 0.2rem 0.45rem; color: #3730a3; font-size: 0.78rem; font-weight: 700; white-space: nowrap; }
-  .announcement { min-height: 1.5rem; margin: 0; color: #60708a; }
+  .icon-button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .answer-marker { flex: 0 0 auto; border-radius: 999px; background: var(--primary-soft); padding: 0.2rem 0.45rem; color: var(--primary-strong); font-size: 0.72rem; font-weight: 650; white-space: nowrap; }
+  .announcement { min-height: 1.5rem; margin: 0; color: var(--text-muted); font-size:.85rem; }
 
   @media (max-width: 640px) {
     .item { padding: 0.7rem 0.65rem; }

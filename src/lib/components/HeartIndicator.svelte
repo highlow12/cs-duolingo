@@ -10,6 +10,7 @@
   let open = $state(false);
   let now = $state(Date.now());
   let loading = $state(true);
+  let adNotice = $state("");
   let observedLocalDate = "";
 
   function localDateNow() {
@@ -37,8 +38,9 @@
   }
 
   function showAdNotice() {
+    adNotice = "현재 광고가 준비되지 않았어요.";
     if (typeof window !== "undefined")
-      window.alert("현재 광고가 준비되지 않았어요.");
+      window.setTimeout(() => (adNotice = ""), 3200);
   }
 
   onMount(() => {
@@ -98,6 +100,7 @@
       >
         광고 보고 하트 초기화
       </button>
+      {#if adNotice}<p class="ad-notice" role="status" aria-live="polite">{adNotice}</p>{/if}
     </section>
   {/if}
 </div>
@@ -114,16 +117,17 @@
     min-height: 2.25rem;
     padding: 0.35rem 0.55rem;
     border: 1px solid var(--border);
-    border-radius: 0.65rem;
-    background: white;
-    color: #b91c1c;
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--heart);
     font-size: 0.85rem;
     font-weight: 800;
     font-variant-numeric: tabular-nums;
   }
   .heart-button:hover,
   .heart-button:focus-visible {
-    background: #fff1f2;
+    border-color: var(--heart);
+    background: var(--danger-soft);
   }
   .heart-popover {
     position: absolute;
@@ -131,11 +135,12 @@
     right: 0;
     z-index: 20;
     width: min(18rem, calc(100vw - 2rem));
-    padding: 1rem;
+    padding: var(--space-4);
     border: 1px solid var(--border);
-    border-radius: 0.8rem;
-    background: white;
-    box-shadow: 0 12px 30px rgb(35 55 90 / 16%);
+    border-radius: var(--radius-md);
+    background: var(--surface-raised);
+    box-shadow: var(--shadow-sm);
+    animation: popover-in var(--dur-2) var(--ease-out-quart);
   }
   .heart-popover::before {
     position: absolute;
@@ -145,7 +150,7 @@
     height: 0.75rem;
     border-top: 1px solid var(--border);
     border-left: 1px solid var(--border);
-    background: white;
+    background: var(--surface-raised);
     content: "";
     transform: rotate(45deg);
   }
@@ -154,7 +159,7 @@
     font-weight: 800;
   }
   .heart-total span {
-    color: #b91c1c;
+    color: var(--heart);
   }
   .heart-recovery {
     margin: 0.4rem 0 1rem;
@@ -166,5 +171,19 @@
     min-height: 2.4rem;
     padding: 0.55rem 0.7rem;
     font-size: 0.85rem;
+  }
+
+  .ad-notice {
+    margin: 0.65rem 0 0;
+    border-left: 2px solid var(--warning);
+    background: var(--warning-soft);
+    color: var(--text);
+    padding: 0.45rem 0.6rem;
+    font-size: 0.8rem;
+  }
+
+  @keyframes popover-in {
+    from { opacity: 0; transform: translateY(-0.35rem) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
   }
 </style>

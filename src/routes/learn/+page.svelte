@@ -29,6 +29,19 @@
   let transitionDirection = $state<SwipeDirection>("next");
   let hintEvaluated = false;
   let swipeStart: SwipeStart | null = null;
+  let reducedMotion = $state(false);
+
+  function trackMotif(trackId: string): string {
+    switch (trackId) {
+      case "python": return ">_";
+      case "computer-architecture": return "CPU";
+      case "discrete-math": return "Σ";
+      case "data-structures": return "•—•";
+      case "algorithms": return "↗";
+      case "computer-systems": return "0101";
+      default: return "[]";
+    }
+  }
 
   let tracks = $derived(
     data
@@ -89,6 +102,11 @@
 
   onMount(() => {
     void load();
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const syncMotion = () => (reducedMotion = media.matches);
+    syncMotion();
+    media.addEventListener?.("change", syncMotion);
+    return () => media.removeEventListener?.("change", syncMotion);
   });
 
   function dismissSwipeHint() {
@@ -174,7 +192,7 @@
 
 <div class="stack">
   <div class="page-heading">
-    <p class="eyebrow">개념을 연결하는 길</p>
+    <span class="page-kicker">학습 경로 / {tracks.length || "—"}개 트랙</span>
     <h1>학습 경로</h1>
     <p class="muted">
       Python에서 자료구조로, 컴퓨터 구조에서 네트워크와 그래픽스로.
@@ -253,15 +271,18 @@
             aria-labelledby={`track-tab-${selectedTrack.id}`}
             tabindex="0"
             in:fly={{
-              x: transitionDirection === "next" ? 72 : -72,
-              duration: 220,
+              x: reducedMotion ? 0 : transitionDirection === "next" ? 72 : -72,
+              duration: reducedMotion ? 0 : 240,
               opacity: 1,
             }}
           >
             <div>
-              <div class="row">
-                <h2>{selectedTrack.title}</h2>
-                <span class="muted"
+              <div class="track-heading" data-track={selectedTrack.id}>
+                <span class="track-motif" aria-hidden="true">{trackMotif(selectedTrack.id)}</span>
+                <div class="track-heading-copy">
+                  <div class="row">
+                    <h2>{selectedTrack.title}</h2>
+                    <span class="muted"
                   >{selectedLessons.filter(
                     (lesson) =>
                       lessonStatus(
@@ -269,12 +290,13 @@
                         data!.curriculum,
                         data!.snapshot.lessonStates,
                       ) === "completed",
-                  ).length} / {selectedLessons.length} 완료</span
-                >
+                  ).length} / {selectedLessons.length} 완료</span>
+                  </div>
+                  {#if selectedTrack.description}<p class="muted">
+                    {selectedTrack.description}
+                  </p>{/if}
+                </div>
               </div>
-              {#if selectedTrack.description}<p class="muted">
-                  {selectedTrack.description}
-                </p>{/if}
             </div>
             <div class="lesson-list">
               {#each selectedLessons as lesson, index}
@@ -286,14 +308,14 @@
                 <article
                   class="card lesson-card"
                   class:locked={status === "locked"}
+                  class:in-progress={status === "in-progress"}
+                  data-track={selectedTrack.id}
                 >
                   <span
                     class="lesson-number"
                     class:done={status === "completed"}
                     aria-hidden="true"
-                    >{status === "completed"
-                      ? "✓"
-                      : String(index + 1).padStart(2, "0")}</span
+                    ><span class="lesson-motif">{status === "completed" ? "✓" : trackMotif(selectedTrack.id)}</span><span class="lesson-index">{String(index + 1).padStart(2, "0")}</span></span
                   >
                   <div class="lesson-info">
                     <span class="badge" class:success={status === "completed"}
@@ -338,120 +360,216 @@
 <style>
   .track-switcher {
     display: grid;
-    gap: 0.8rem;
+    gap: var(--space-4);
   }
+
   .track-navigation {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: center;
-    gap: 0.5rem;
+    gap: var(--space-2);
   }
+
   .track-tabs {
     display: flex;
     min-width: 0;
-    gap: 0.5rem;
+    gap: var(--space-2);
     overflow-x: auto;
     overscroll-behavior-x: contain;
     scrollbar-width: thin;
+    padding: 0.15rem 0.1rem 0.35rem;
   }
+
   .track-tab,
   .track-arrow {
-    min-height: 2.75rem;
+    min-height: 44px;
     border: 1px solid var(--border);
-    border-radius: 0.7rem;
-    background: white;
-    color: #26344c;
-    font-weight: 700;
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--text-muted);
+    font-weight: 600;
+    transition: border-color var(--dur-1) ease, background-color var(--dur-1) ease, color var(--dur-1) ease;
   }
+
   .track-tab {
     flex: 0 0 auto;
-    padding: 0.65rem 0.9rem;
+    padding: 0.6rem 0.85rem;
     white-space: nowrap;
   }
+
   .track-tab:hover,
   .track-tab:focus-visible,
   .track-tab.active {
-    border-color: var(--primary);
+    border-color: color-mix(in srgb, var(--primary) 72%, var(--border));
     background: var(--primary-soft);
-    color: var(--primary);
+    color: var(--primary-strong);
   }
+
   .track-arrow {
     display: grid;
     width: 2.75rem;
     place-items: center;
     padding: 0;
-    font-size: 1.25rem;
+    color: var(--text);
+    font-size: 1.1rem;
   }
+
+  .track-arrow:hover:not(:disabled) {
+    border-color: var(--border-strong);
+    background: var(--surface-muted);
+  }
+
   .track-arrow:disabled {
-    cursor: not-allowed;
     opacity: 0.45;
   }
+
   .swipe-hint {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 0.75rem;
-    border: 1px solid #bfdbfe;
-    border-radius: 0.8rem;
+    gap: var(--space-3);
+    border: 1px solid color-mix(in srgb, var(--primary) 35%, var(--border));
+    border-radius: var(--radius-md);
     background: var(--primary-soft);
-    color: #1e3a8a;
-    padding: 0.75rem 1rem;
+    color: var(--text);
+    padding: 0.7rem 0.9rem;
+    font-size: 0.9rem;
   }
+
   .hint-dismiss {
     flex: 0 0 auto;
     color: var(--primary);
     font-weight: 700;
     text-decoration: underline;
     text-underline-offset: 0.2rem;
+    min-height: 44px;
+    padding: 0.4rem;
   }
+
   .track-surface {
     overflow: hidden;
     touch-action: pan-y;
     overscroll-behavior-x: contain;
   }
+
   .track h2,
   .track .row {
     margin: 0;
   }
+
   .track p {
-    margin: 0.5rem 0 0;
+    margin: var(--space-2) 0 0;
   }
+
+  .track-heading {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-4);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: var(--space-5);
+  }
+
+  .track-heading-copy {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .track-motif {
+    display: grid;
+    flex: 0 0 auto;
+    place-items: center;
+    width: 3.25rem;
+    height: 3.25rem;
+    border: 1px solid color-mix(in srgb, var(--track-accent, var(--primary)) 60%, var(--border));
+    border-radius: var(--radius-md);
+    background: color-mix(in srgb, var(--track-accent, var(--primary)) 12%, var(--surface));
+    color: var(--track-accent, var(--primary));
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.78rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+
   .lesson-list {
     display: grid;
-    gap: 0.75rem;
+    gap: var(--space-3);
   }
+
   .lesson-card {
     display: flex;
     align-items: center;
-    gap: 1.25rem;
+    gap: var(--space-4);
+    border-left: 3px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+    transition: border-color var(--dur-1) ease, background-color var(--dur-1) ease;
   }
+
+  .lesson-card[data-track] {
+    border-left-color: color-mix(in srgb, var(--track-accent, var(--border)) 62%, var(--border));
+  }
+
+  .lesson-card.in-progress {
+    border-left-width: 4px;
+    background: color-mix(in srgb, var(--track-accent, var(--primary)) 5%, var(--surface));
+  }
+
   .lesson-info {
     flex: 1;
     min-width: 0;
   }
+
   .lesson-info h3 {
-    margin: 0.5rem 0;
+    margin: var(--space-2) 0 var(--space-1);
   }
+
+  .lesson-info p {
+    margin-bottom: 0;
+  }
+
   .lesson-number {
     display: grid;
-    place-items: center;
-    width: 3rem;
-    height: 3rem;
+    align-content: center;
+    justify-items: center;
+    flex: 0 0 auto;
+    width: 3.25rem;
+    min-height: 3.25rem;
     flex-shrink: 0;
-    border-radius: 1rem;
-    background: var(--primary-soft);
-    color: var(--primary);
-    font-weight: 800;
+    border: 1px solid color-mix(in srgb, var(--track-accent, var(--primary)) 60%, var(--border));
+    border-radius: var(--radius-md);
+    background: color-mix(in srgb, var(--track-accent, var(--primary)) 10%, var(--surface));
+    color: var(--track-accent, var(--primary));
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-weight: 700;
+    line-height: 1;
   }
+
+  .lesson-motif { font-size: 0.72rem; }
+  .lesson-index { margin-top: 0.28rem; color: var(--text-muted); font-size: 0.65rem; font-weight: 500; }
+
   .lesson-number.done {
-    background: #dcfce7;
+    border-color: var(--success);
+    background: var(--success-soft);
     color: var(--success);
   }
+
+  .lesson-number.done .lesson-index { color: var(--success); }
+
   .locked {
-    background: #f0f3f8;
+    border-left-color: var(--border) !important;
+    background: var(--surface-muted);
+    color: var(--text-muted);
   }
+
+  .locked .lesson-number {
+    border-color: var(--border);
+    background: var(--surface-muted);
+    color: var(--text-muted);
+  }
+
   .prerequisites {
-    font-size: 0.9rem;
+    color: var(--warning) !important;
+    font-size: 0.82rem;
   }
 
   @media (max-width: 540px) {
@@ -467,10 +585,10 @@
     }
     .lesson-card {
       flex-wrap: wrap;
-      gap: 0.75rem;
+      gap: var(--space-3);
     }
     .lesson-card .button {
-      margin-left: 3.75rem;
+      margin-left: calc(3.25rem + var(--space-3));
     }
   }
 

@@ -187,20 +187,21 @@
 </div>
 
 <style>
-  .question-body { display: grid; gap: 1rem; }
-  .matching-board { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0.75rem; }
-  .matching-column { display: grid; min-width: 0; align-content: start; gap: 0.6rem; }
-  .matching-column h3 { margin: 0; color: #334155; font-size: 0.9rem; }
-  .card-list { display: grid; gap: 0.75rem; }
-  .memory-card { display: flex; align-items: center; gap: 0.5rem; width: 100%; min-width: 0; max-width: 100%; min-height: 5rem; overflow: hidden; border: 1px solid #cbd5e1; border-radius: 0.75rem; background: white; padding: 0.75rem; color: #1e3a8a; text-align: center; cursor: pointer; }
-  .memory-card.selected { border-color: #2563eb; background: #eff6ff; box-shadow: 0 0 0 2px rgb(37 99 235 / 15%); }
-  .memory-card.matched { border-color: #16a34a; background: #f0fdf4; }
+  .question-body { display: grid; gap: var(--space-4); }
+  .matching-board { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-3); }
+  .matching-column { display: grid; min-width: 0; align-content: start; gap: var(--space-2); }
+  .matching-column h3 { margin: 0; color: var(--text-muted); font-size: 0.78rem; font-weight: 600; }
+  .card-list { display: grid; gap: var(--space-3); }
+  .memory-card { display: flex; align-items: center; gap: var(--space-2); width: 100%; min-width: 0; max-width: 100%; min-height: 4.5rem; overflow: hidden; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); padding: 0.75rem; color: var(--text); text-align: center; cursor: pointer; transition: border-color var(--dur-1) ease, background-color var(--dur-1) ease, box-shadow var(--dur-1) ease; }
+  .memory-card:hover:not(:disabled) { border-color: var(--border-strong); background: var(--surface-muted); }
+  .memory-card.selected { border-color: var(--primary); background: var(--primary-soft); box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 18%, transparent); }
+  .memory-card.matched { border-color: var(--success); background: var(--success-soft); }
   .card-content { flex: 1; min-width: 0; max-width: 100%; overflow-wrap: anywhere; word-break: break-word; }
   .card-content :global(p), .card-content :global(pre) { margin: 0; }
   .card-content :global(pre), .card-content :global(code) { white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; }
-  .answer-marker { flex: 0 0 auto; border-radius: 999px; background: #eef2ff; padding: 0.2rem 0.45rem; color: #3730a3; font-size: 0.78rem; font-weight: 700; white-space: nowrap; }
+  .answer-marker { flex: 0 0 auto; border-radius: 999px; background: var(--primary-soft); padding: 0.2rem 0.45rem; color: var(--primary-strong); font-size: 0.72rem; font-weight: 650; white-space: nowrap; }
   .memory-card:disabled { cursor: default; }
-  .memory-card:focus-visible { outline: 3px solid rgb(37 99 235 / 35%); outline-offset: 2px; }
-  .announcement { min-height: 1.5rem; margin: 0; color: #60708a; }
+  .memory-card:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .announcement { min-height: 1.5rem; margin: 0; color: var(--text-muted); font-size: .85rem; }
   @media (max-width: 640px) { .matching-board { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
 </style>

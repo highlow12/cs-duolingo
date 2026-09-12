@@ -10,8 +10,8 @@
       name="description"
       content="짧은 설명과 반복 문제로 컴퓨터과학을 학습하는 Offline First 앱"
     />
-    <meta name="theme-color" content="#2563eb" />
-    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#f5f7f4" />
+    <meta name="color-scheme" content="light dark" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="CS 듀오링고" />
@@ -23,6 +23,23 @@
       type="image/svg+xml"
     />
     <link rel="apple-touch-icon" href="%sveltekit.assets%/icons/icon-192.png" />
+    <script>
+      (function () {
+        try {
+          var key = "cs-duolingo:theme";
+          var stored = localStorage.getItem(key);
+          var theme = stored === "light" || stored === "dark"
+            ? stored
+            : (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+          document.documentElement.dataset.theme = theme;
+          document.documentElement.style.colorScheme = theme;
+          var themeColor = document.querySelector('meta[name="theme-color"]');
+          if (themeColor) themeColor.setAttribute("content", theme === "dark" ? "#111714" : "#f5f7f4");
+        } catch (_) {
+          /* A blocked storage API must not prevent the app from loading. */
+        }
+      })();
+    </script>
     %sveltekit.head%
   </head>
   <body

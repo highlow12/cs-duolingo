@@ -267,7 +267,13 @@
       {@const finalResult = hostState.attempts[hostState.attempts.length - 1]}
       {@const submitted = answerDisplay()}
       {@const canonical = canonicalDisplay()}
-      <section class="final-feedback" aria-live="polite" aria-labelledby="question-final-heading">
+      <section
+        class="final-feedback"
+        class:final-correct={finalResult?.correct === true}
+        class:final-wrong={finalResult?.correct === false}
+        aria-live="polite"
+        aria-labelledby="question-final-heading"
+      >
         <h2 id="question-final-heading" tabindex="-1" bind:this={finalHeading}>
           {finalResult?.correct ? "정답입니다." : "정답을 확인해 보세요."}
         </h2>
@@ -313,25 +319,26 @@
 {/if}
 
 <style>
-  .question-host { display: grid; gap: 1rem; }
+  .question-host { display: grid; gap: var(--space-4); }
   .answer-region { min-width: 0; }
-  .button { border: 0; border-radius: 0.65rem; background: #2563eb; padding: 0.7rem 1rem; color: white; font: inherit; font-weight: 700; cursor: pointer; }
-  .button:disabled { cursor: not-allowed; opacity: 0.5; }
-  .button:focus-visible { outline: 3px solid rgb(37 99 235 / 35%); outline-offset: 2px; }
-  .submit-button { justify-self: start; }
-  .feedback-card, .final-feedback, .question-error { display: grid; gap: 0.75rem; border-radius: 0.75rem; background: #f8fafc; padding: 1rem; }
+  .submit-button { justify-self: start; min-width: 8rem; }
+  .feedback-card, .final-feedback, .question-error { display: grid; gap: var(--space-3); border: 1px solid var(--border); border-left: 3px solid var(--danger); border-radius: var(--radius-md); background: var(--danger-soft); padding: var(--space-4); animation: feedback-in var(--dur-2) var(--ease-out-quart); }
+  .final-feedback.final-correct { border-left-color: var(--success); background: var(--success-soft); }
+  .final-feedback.final-wrong { border-left-color: var(--danger); background: var(--danger-soft); }
+  .question-error { border-left-color: var(--warning); background: var(--warning-soft); }
   .feedback-card .button, .question-error .button { justify-self: start; }
-  .feedback { margin: 0; font-weight: 700; }
-  .incorrect { color: #b91c1c; }
+  .feedback { margin: 0; font-weight: 650; }
+  .incorrect { color: var(--danger); }
   .final-feedback h2, .question-error h2 { margin: 0; }
-  .final-feedback h2:focus { outline: 3px solid rgb(37 99 235 / 35%); outline-offset: 3px; }
-  .answer-comparison { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; }
-  .answer-panel { min-width: 0; border: 1px solid #dce3ef; border-radius: 0.65rem; background: white; padding: 0.8rem; }
-  .answer-panel h3 { margin: 0 0 0.5rem; font-size: 0.95rem; }
+  .final-feedback h2:focus { outline: 2px solid var(--focus); outline-offset: 3px; }
+  .answer-comparison { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
+  .answer-panel { min-width: 0; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); padding: var(--space-3); }
+  .answer-panel h3 { margin: 0 0 var(--space-2); font-size: .95rem; }
   .answer-panel p { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
-  .answer-panel ol, .answer-panel ul { display: grid; gap: 0.35rem; margin: 0; padding-left: 1.25rem; }
-  .canonical-panel { border-color: #86efac; }
-  .explanation { border-top: 1px solid #dce3ef; padding-top: 0.75rem; }
-  .explanation h3 { margin: 0; }
-  @media (max-width: 640px) { .answer-comparison { grid-template-columns: 1fr; } }
+  .answer-panel ol, .answer-panel ul { display: grid; gap: .35rem; margin: 0; padding-left: 1.25rem; }
+  .canonical-panel { border-color: color-mix(in srgb, var(--success) 58%, var(--border)); }
+  .explanation { border-top: 1px solid color-mix(in srgb, var(--success) 35%, var(--border)); padding-top: var(--space-4); }
+  .explanation h3 { margin: 0 0 var(--space-2); }
+  @keyframes feedback-in { from { opacity:0; transform:translateY(.25rem); } to { opacity:1; transform:translateY(0); } }
+  @media (max-width: 640px) { .answer-comparison { grid-template-columns: 1fr; } .submit-button { width:100%; } }
 </style>

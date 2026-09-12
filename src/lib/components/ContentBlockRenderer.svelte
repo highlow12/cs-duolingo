@@ -30,12 +30,13 @@
 	.plain-text,
 	.code,
 	.diagram pre {
-		margin: 0.75rem 0;
-		border-radius: 0.7rem;
-		background: #f1f5fb;
-		padding: 1rem;
+		margin: var(--space-4) 0;
+		border: 1px solid var(--border);
+		border-radius: var(--radius-md);
+		background: var(--surface-muted);
+		padding: var(--space-4);
 		white-space: pre-wrap;
-		font-family: "SFMono-Regular", Consolas, monospace;
+		font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 		line-height: 1.6;
 	}
 
@@ -48,24 +49,24 @@
 	}
 
 	figcaption {
-		color: #60708a;
+		color: var(--text-muted);
 		font-size: 0.9rem;
 	}
 
 	.diagram {
-		border: 1px dashed #a9b8cf;
-		border-radius: 0.7rem;
-		padding: 1rem;
+		border: 1px dashed var(--border-strong);
+		border-radius: var(--radius-md);
+		background: color-mix(in srgb, var(--primary-soft) 38%, var(--surface));
+		padding: var(--space-4);
 	}
   .prose { line-height:1.8;overflow-wrap:anywhere; }
-  .prose :global(h1) { font-size:1.65rem;line-height:1.4;letter-spacing:-.025em; }
-  .prose :global(h2) { font-size:1.3rem;margin-top:1.5rem; }
-  .prose :global(pre) { background:#15243c;color:#edf3ff;padding:1.25rem;border-radius:.75rem;line-height:1.7;white-space:pre; }
+  .prose :global(h1) { font-size:1.6rem;line-height:1.4;letter-spacing:-.025em; }
+  .prose :global(h2) { font-size:1.25rem;margin-top:1.75rem; }
+  .prose :global(pre) { border:1px solid color-mix(in srgb,var(--primary) 35%,var(--border)); background:var(--code-bg);color:var(--code-text);padding:1.25rem;border-radius:var(--radius-md);line-height:1.7;white-space:pre; }
   .prose :global(pre code) { background:transparent;color:inherit;padding:0; }
   .prose :global(a) { color:var(--primary);text-underline-offset:3px; }
-  .prose :global(a[target='_blank'])::after { content:' ↗'; }
   .prose :global(img) { max-width:100%;height:auto; }
   .prose :global(table) { display:block;overflow-x:auto;border-collapse:collapse; }
   .prose :global(th),.prose :global(td) { border:1px solid var(--border);padding:.5rem .75rem; }
-  .prose :global(blockquote) { margin:1rem 0;padding:.5rem 1rem;border-left:3px solid var(--primary);background:var(--primary-soft); }
+  .prose :global(blockquote) { margin:1rem 0;padding:.65rem 1rem;border-left:3px solid var(--primary);background:var(--primary-soft); }
 </style>

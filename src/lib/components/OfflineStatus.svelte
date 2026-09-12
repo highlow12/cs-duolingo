@@ -21,4 +21,34 @@
   function refresh(){if(!update)return;updating=true;update.postMessage({type:'ACTIVATE_UPDATE'});}
 </script>
 <div class="connection" role="status"><span>{!online ? '오프라인 학습 중' : offlineReady ? '오프라인 학습 준비 완료' : '기기에서 바로 학습'}</span>{#if update}<span>새 버전이 있어요.</span><button onclick={refresh} disabled={updating}>{updating?'새로 여는 중…':'문제를 마친 뒤 새로고침'}</button>{/if}</div>
-<style>.connection{display:flex;flex-wrap:wrap;align-items:center;gap:.75rem;font-size:.875rem}.connection button{padding:.5rem .75rem;border-radius:.5rem;color:var(--primary);background:var(--primary-soft);font-weight:700;min-height:44px}</style>
+<style>
+  .connection {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .connection::before {
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 50%;
+    background: var(--success);
+    content: "";
+  }
+
+  .connection button {
+    min-height: 44px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--primary-soft);
+    color: var(--primary-strong);
+    padding: 0.5rem 0.75rem;
+    font-weight: 650;
+  }
+
+  .connection button:hover {
+    border-color: var(--primary);
+  }
+</style>

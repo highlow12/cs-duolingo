@@ -203,27 +203,28 @@
 <style>
   .question-body {
     display: grid;
-    gap: 1rem;
+    gap: var(--space-4);
   }
 
   .state-panel {
     position: relative;
     display: grid;
-    gap: 0.3rem;
+    gap: var(--space-2);
     padding: 1.1rem;
-    border: 1px solid var(--border, #d8dee9);
-    border-radius: 1rem;
-    background: var(--surface-muted, #f3f5f8);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface-muted);
   }
 
   .eyebrow,
   .step-count {
-    font-size: 0.8rem;
-    opacity: 0.72;
+    color: var(--text-muted);
+    font-size: 0.78rem;
   }
 
   .state-name {
-    font-size: 1.35rem;
+    font-size: 1.2rem;
+    font-weight: 650;
   }
 
   .goal-status {
@@ -231,7 +232,8 @@
   }
 
   .goal-status.goal {
-    font-weight: 800;
+    color: var(--success);
+    font-weight: 650;
   }
 
   .step-count {
@@ -243,7 +245,7 @@
   .action-panel,
   .history {
     display: grid;
-    gap: 0.65rem;
+    gap: var(--space-3);
   }
 
   h3,
@@ -255,7 +257,7 @@
   .action-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
-    gap: 0.65rem;
+    gap: var(--space-2);
   }
 
   .action-button {
@@ -263,26 +265,31 @@
     display: grid;
     gap: 0.2rem;
     text-align: left;
-    border: 1px solid var(--border, #c7ced8);
-    border-radius: 0.8rem;
-    background: var(--surface, #fff);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    color: var(--text);
     padding: 0.75rem;
   }
 
   .action-button.available {
     cursor: pointer;
     border-width: 2px;
+    border-color: var(--primary);
   }
+
+  .action-button.available:hover { background: var(--primary-soft); }
 
   .action-button span {
     font-size: 0.8rem;
-    opacity: 0.72;
+    color: var(--text-muted);
   }
 
   .history {
     padding: 0.9rem 1rem;
-    border-radius: 0.8rem;
-    background: var(--surface-muted, #f3f5f8);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--surface-muted);
   }
 
   .history ol {
@@ -292,27 +299,32 @@
   .controls {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: var(--space-2);
   }
 
   .secondary {
     min-height: 2.5rem;
-    border: 1px solid var(--border, #c7ced8);
-    border-radius: 0.7rem;
-    background: var(--surface, #fff);
+    min-height: 44px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--text);
     padding: 0.45rem 0.8rem;
   }
 
   .answer-summary {
     display: grid;
-    gap: 0.2rem;
+    gap: var(--space-2);
     padding: 0.8rem 1rem;
-    border: 1px solid var(--border, #d8dee9);
-    border-radius: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--surface);
   }
 
   .canonical-summary {
     border-width: 2px;
+    border-color: var(--success);
+    background: var(--success-soft);
   }
 
   .sr-only {
