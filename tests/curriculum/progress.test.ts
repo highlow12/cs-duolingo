@@ -3,6 +3,7 @@ import { compileContent } from "../../scripts/content/compiler";
 import { loadSourceContent } from "../../scripts/content/model";
 import {
   missingPrerequisites,
+  newlyUnlockedLessonIds,
   lessonStatus,
   visibleTracks,
 } from "../../src/lib/curriculum/progress";
@@ -42,6 +43,20 @@ describe("curriculum prerequisites", () => {
     expect(lessonStatus(lesson, curriculum, [completed("branch")])).toBe(
       "completed",
     );
+  });
+  it("reports only lessons that become available between snapshots", () => {
+    const before = [completed("root")];
+    const after = [completed("root"), completed("other")];
+    expect(newlyUnlockedLessonIds(curriculum, before, after)).toEqual([
+      "branch",
+    ]);
+    expect(newlyUnlockedLessonIds(curriculum, after, after)).toEqual([]);
+    expect(
+      newlyUnlockedLessonIds(curriculum, before, [
+        ...after,
+        completed("branch"),
+      ]),
+    ).toEqual([]);
   });
 });
 

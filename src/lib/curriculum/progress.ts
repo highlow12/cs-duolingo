@@ -53,6 +53,23 @@ export function visibleTracks(
     );
 }
 
+export function newlyUnlockedLessonIds(
+  curriculum: Curriculum,
+  before: readonly LessonState[],
+  after: readonly LessonState[],
+): string[] {
+  return curriculum.nodes
+    .filter(
+      (node) =>
+        missingPrerequisites(node.lesson, curriculum, before).length > 0 &&
+        missingPrerequisites(node.lesson, curriculum, after).length === 0 &&
+        !after.some(
+          (state) =>
+            state.lessonId === node.lesson && state.status === "completed",
+        ),
+    )
+    .map((node) => node.lesson);
+}
 export const statusLabels = {
   completed: "학습 완료",
   locked: "선행 학습 필요",

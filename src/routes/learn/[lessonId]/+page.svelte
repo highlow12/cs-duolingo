@@ -5,9 +5,10 @@
   import QuestionRenderer from '$lib/components/QuestionRenderer.svelte';
   import { contentRepository } from '$lib/content/repository/static-content-repository';
   import { learningRepository } from '$lib/storage/repositories/learning-repository';
-  import { missingPrerequisites } from '$lib/curriculum/progress';
+  import { missingPrerequisites, newlyUnlockedLessonIds } from '$lib/curriculum/progress';
   import { advanceLesson, recordAnswer, type LessonSession } from '$lib/lesson/lesson-engine';
-  import type { Lesson } from '$lib/content/types';
+  import type { Curriculum, Lesson } from '$lib/content/types';
+  import type { LessonState } from '$lib/learning/domain/states';
   import type { Question } from '$lib/questions/types';
   import { errorMessage } from '$lib/application/dashboard';
   let navigationEpoch = 0;
@@ -21,6 +22,9 @@
   let resumedAnswer = $state(false);
   let saving = $state(false);
   let blocked = $state<string[]>([]);
+  let loadedCurriculum = $state<Curriculum | null>(null);
+  let lessonStates = $state<LessonState[]>([]);
+  let unlockedLessons = $state<Lesson[]>([]);
   let flow = $derived(lesson && session ? lesson.flow[session.currentIndex] : null);
   let question = $derived(flow?.type === 'question' ? questions[flow.ref] : null);
 
@@ -39,12 +43,14 @@
     const id = page.params.lessonId;
     navigationEpoch++;
     let cancelled = false;
-    loading = true; error = ''; saveError = ''; ready = false; resumedAnswer = false; saving = false; lesson = null; session = null; blocked = [];
+    loading = true; error = ''; saveError = ''; ready = false; resumedAnswer = false; saving = false; lesson = null; session = null; blocked = []; loadedCurriculum = null; lessonStates = []; unlockedLessons = [];
     void (async () => {
       try {
         const [loaded, curriculum, snapshot] = await Promise.all([contentRepository.getLesson(id!), contentRepository.getCurriculum(), learningRepository.getSnapshot()]);
         if(cancelled) return;
         const missing = missingPrerequisites(loaded.id,curriculum,snapshot.lessonStates);
+        lessonStates = snapshot.lessonStates;
+        loadedCurriculum = curriculum;
         if(missing.length && !snapshot.lessonStates.some((s) => s.lessonId === loaded.id && s.status === 'completed')) {
           const labels = await Promise.all(missing.map(async (required) => (await contentRepository.getLesson(required)).title));
           if(!cancelled) { blocked = labels; lesson = loaded; }
@@ -81,9 +87,17 @@
     const epoch = navigationEpoch;
     try {
       const advanced = advanceLesson(session,lesson);
-      if(advanced.status === 'completed') await learningRepository.completeLesson(lesson,advanced);
-      else await learningRepository.saveSession(advanced);
-      if(epoch === navigationEpoch) { session = advanced; ready = false; resumedAnswer = false; }
+      let newlyUnlocked: Lesson[] = [];
+      if(advanced.status === 'completed') {
+        await learningRepository.completeLesson(lesson,advanced);
+        if(loadedCurriculum) {
+          const snapshot = await learningRepository.getSnapshot();
+          const ids = newlyUnlockedLessonIds(loadedCurriculum,lessonStates,snapshot.lessonStates);
+          newlyUnlocked = await Promise.all(ids.map((id) => contentRepository.getLesson(id)));
+          lessonStates = snapshot.lessonStates;
+        }
+      } else await learningRepository.saveSession(advanced);
+      if(epoch === navigationEpoch) { session = advanced; unlockedLessons = newlyUnlocked; ready = false; resumedAnswer = false; }
     } catch(e) { if(epoch === navigationEpoch) saveError = errorMessage(e); }
     finally { if(epoch === navigationEpoch) saving = false; }
   }
@@ -93,7 +107,7 @@
 {:else if error}<section class="card error" role="alert"><h1>레슨을 열지 못했어요</h1><p>{error}</p><a class="button secondary" href={`${base}/learn`}>학습 경로로</a></section>
 {:else if blocked.length}<section class="card blocked-lesson"><span class="blocked-mark" aria-hidden="true">/</span><h1>먼저 배울 개념이 있어요</h1><p>{blocked.join(', ')} 레슨을 완료하면 {lesson?.title} 레슨이 열립니다.</p><a class="button" href={`${base}/learn`}>학습 경로로</a></section>
 {:else if lesson && session?.status === 'completed'}
-  <section class="card completion" data-track={lesson.track}><span class="completion-mark" aria-hidden="true">✓</span><span class="completion-kicker">학습 완료</span><h1>{lesson.title}</h1><p>학습 기록을 저장했어요. 배운 문제는 알맞은 때에 복습으로 다시 만나요.</p><p class="muted">첫 시도 정답 {session.answers.filter((a) => a.correct).length} / {session.answers.length}</p><div class="actions"><a class="button" href={`${base}/`}>다음 학습 확인</a><a class="button secondary" href={`${base}/learn`}>학습 경로</a></div></section>
+  <section class="card completion" data-track={lesson.track}><span class="completion-mark" aria-hidden="true">✓</span><span class="completion-kicker">학습 완료</span><h1>{lesson.title}</h1><p>학습 기록을 저장했어요. 배운 문제는 알맞은 때에 복습으로 다시 만나요.</p><p class="muted">첫 시도 정답 {session.answers.filter((a) => a.correct).length} / {session.answers.length}</p>{#if unlockedLessons.length}<div class="unlock-notice" role="status"><span class="completion-kicker">새 레슨이 열렸어요!</span><ul>{#each unlockedLessons as unlocked}<li><a class="text-link" href={`${base}/learn/${unlocked.id}`}>{unlocked.title}</a></li>{/each}</ul></div>{/if}<div class="actions"><a class="button" href={`${base}/`}>다음 학습 확인</a><a class="button secondary" href={`${base}/learn`}>학습 경로</a></div></section>
 {:else if lesson && session && flow}
   <div class="lesson-player stack" data-track={lesson.track}>
     <header class="lesson-header"><a class="text-link" href={`${base}/learn`}>학습 경로</a><div class="row lesson-counter"><span><span class="lesson-header-motif" aria-hidden="true">{lessonMotif(lesson.track)}</span>{lesson.title}</span><span class="lesson-step">{session.currentIndex+1} / {lesson.flow.length}</span></div><progress value={session.currentIndex} max={lesson.flow.length} aria-label="레슨 진행도"></progress></header>
@@ -128,6 +142,8 @@
   .completion p,.blocked-lesson p { line-height:1.7; }
   .completion-mark { display:grid;place-items:center;margin:0 auto var(--space-4);border:1px solid var(--success);background:var(--success-soft);color:var(--success);border-radius:50%;width:4rem;height:4rem;font-size:2rem;animation:completion-pop var(--dur-5) var(--ease-out-quart) both; }
   .completion .actions { justify-content:center; margin-top:var(--space-5); }
+  .unlock-notice { margin:var(--space-5) auto 0;padding:var(--space-4) var(--space-5);max-width:32rem;border:1px solid color-mix(in srgb,var(--track-accent,var(--primary)) 45%,var(--border));border-radius:var(--radius-md);background:color-mix(in srgb,var(--track-accent,var(--primary)) 8%,var(--surface)); }
+  .unlock-notice ul { display:flex;flex-wrap:wrap;justify-content:center;gap:var(--space-2) var(--space-5);margin:var(--space-2) 0 0;padding:0;list-style:none; }
   .blocked-mark { display:grid;place-items:center;width:3rem;height:3rem;margin:0 auto var(--space-4);border:1px solid var(--warning);border-radius:var(--radius-md);background:var(--warning-soft);color:var(--warning);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:1.4rem; }
   @keyframes completion-pop { from { opacity:0; transform:scale(.96); } to { opacity:1; transform:scale(1); } }
   @media(max-width:640px) { .lesson-controls { align-items:stretch; flex-direction:column-reverse; } .lesson-controls .button { width:100%; } .completion,.blocked-lesson { margin-top:0; } }
