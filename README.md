@@ -2,6 +2,8 @@
 
 짧은 설명과 7종 문제, 개인 복습 일정으로 컴퓨터과학을 익히는 **오프라인 우선 학습 앱 MVP**입니다. Svelte 5 + SvelteKit 정적 SPA이며 계정이나 서버 없이 동작합니다.
 
+👉 **[GitHub Pages에서 바로 실행하기](https://highlow12.github.io/cs-duolingo/)**
+
 ## 실행
 
 Node.js 24를 사용합니다.
