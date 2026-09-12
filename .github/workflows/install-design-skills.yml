@@ -1,0 +1,42 @@
+name: Install design skills
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - scripts/install-design-skills.sh
+      - .github/workflows/install-design-skills.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install project design skills
+        run: bash scripts/install-design-skills.sh
+      - name: Verify Microsoft review skill is excluded
+        run: |
+          if find .agents/skills -mindepth 2 -maxdepth 2 -name SKILL.md -print0 | xargs -0 grep -lE '^name:[[:space:]]*frontend-design-review[[:space:]]*$' | grep -q .; then
+            echo 'frontend-design-review must not be installed' >&2
+            exit 1
+          fi
+      - name: Commit installed skills
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .agents/skills docs/DESIGN_SKILLS.md
+          if git diff --cached --quiet; then
+            echo 'Design skills already up to date.'
+            exit 0
+          fi
+          git commit -m 'chore: install design agent skills'
+          git push origin HEAD:main
