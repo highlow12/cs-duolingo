@@ -27,6 +27,7 @@ jobs:
       - run: npm run verify
         env:
           BASE_PATH: /${{ github.event.repository.name }}
+          PUBLIC_BUILD_COMMIT: ${{ github.sha }}
       - run: cp build/index.html build/404.html
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

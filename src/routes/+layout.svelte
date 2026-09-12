@@ -5,6 +5,12 @@
   import OfflineStatus from "$lib/components/OfflineStatus.svelte";
   import HeartIndicator from "$lib/components/HeartIndicator.svelte";
 
+  const buildCommit = import.meta.env.PUBLIC_BUILD_COMMIT;
+  const buildCommitShort = buildCommit?.slice(0, 7);
+  const buildCommitUrl = buildCommit
+    ? `https://github.com/highlow12/cs-duolingo/commit/${buildCommit}`
+    : null;
+
   let { children } = $props();
   let currentPath = $derived(page.url.pathname);
 
@@ -50,7 +56,14 @@
 <footer class="site-footer">
   <div class="shell footer-inner">
     <span>CS 듀오링고</span>
-    <OfflineStatus />
+    <div class="footer-meta">
+      {#if buildCommitUrl}
+        <a class="build-commit" href={buildCommitUrl}>배포 기준 {buildCommitShort}</a>
+      {:else}
+        <span class="build-commit">로컬 빌드</span>
+      {/if}
+      <OfflineStatus />
+    </div>
   </div>
 </footer>
 
@@ -77,5 +90,24 @@
       grid-area: heart;
       justify-self: end;
     }
+  }
+
+  .footer-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.7rem;
+  }
+
+  .build-commit {
+    color: var(--muted);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.8rem;
+  }
+
+  a.build-commit:hover,
+  a.build-commit:focus-visible {
+    color: var(--primary);
   }
 </style>
