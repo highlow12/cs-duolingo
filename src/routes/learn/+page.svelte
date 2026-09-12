@@ -1,6 +1,7 @@
 <script lang="ts">
   import { base } from "$app/paths";
   import { onMount } from "svelte";
+  import { fly } from "svelte/transition";
   import {
     loadDashboard,
     errorMessage,
@@ -25,6 +26,7 @@
   let error = $state("");
   let selectedTrackId = $state<string | null>(null);
   let showSwipeHint = $state(false);
+  let transitionDirection = $state<SwipeDirection>("next");
   let hintEvaluated = false;
   let swipeStart: SwipeStart | null = null;
 
@@ -97,7 +99,9 @@
   function selectTrack(trackId: string) {
     // This guard keeps both tap and swipe navigation inside the currently
     // reachable set, even if a stale event arrives after progress changes.
-    if (!tracks.some((track) => track.id === trackId)) return;
+    const nextIndex = tracks.findIndex((track) => track.id === trackId);
+    if (nextIndex < 0 || nextIndex === selectedTrackIndex) return;
+    transitionDirection = nextIndex > selectedTrackIndex ? "next" : "previous";
     selectedTrackId = trackId;
     if (showSwipeHint) dismissSwipeHint();
   }
@@ -241,84 +245,91 @@
         onpointerup={handlePointerUp}
         onpointercancel={handlePointerCancel}
       >
-        <div
-          id={`track-panel-${selectedTrack.id}`}
-          class="stack track"
-          role="tabpanel"
-          aria-labelledby={`track-tab-${selectedTrack.id}`}
-          tabindex="0"
-        >
-          <div>
-            <div class="row">
-              <h2>{selectedTrack.title}</h2>
-              <span class="muted"
-                >{selectedLessons.filter(
-                  (lesson) =>
-                    lessonStatus(
-                      lesson,
-                      data!.curriculum,
-                      data!.snapshot.lessonStates,
-                    ) === "completed",
-                ).length} / {selectedLessons.length} 완료</span
-              >
-            </div>
-            {#if selectedTrack.description}<p class="muted">
-                {selectedTrack.description}
-              </p>{/if}
-          </div>
-          <div class="lesson-list">
-            {#each selectedLessons as lesson, index}
-              {@const status = lessonStatus(
-                lesson,
-                data.curriculum,
-                data.snapshot.lessonStates,
-              )}
-              <article
-                class="card lesson-card"
-                class:locked={status === "locked"}
-              >
-                <span
-                  class="lesson-number"
-                  class:done={status === "completed"}
-                  aria-hidden="true"
-                  >{status === "completed"
-                    ? "✓"
-                    : String(index + 1).padStart(2, "0")}</span
+        {#key selectedTrack.id}
+          <div
+            id={`track-panel-${selectedTrack.id}`}
+            class="stack track"
+            role="tabpanel"
+            aria-labelledby={`track-tab-${selectedTrack.id}`}
+            tabindex="0"
+            in:fly={{
+              x: transitionDirection === "next" ? 72 : -72,
+              duration: 220,
+              opacity: 1,
+            }}
+          >
+            <div>
+              <div class="row">
+                <h2>{selectedTrack.title}</h2>
+                <span class="muted"
+                  >{selectedLessons.filter(
+                    (lesson) =>
+                      lessonStatus(
+                        lesson,
+                        data!.curriculum,
+                        data!.snapshot.lessonStates,
+                      ) === "completed",
+                  ).length} / {selectedLessons.length} 완료</span
                 >
-                <div class="lesson-info">
-                  <span class="badge" class:success={status === "completed"}
-                    >{statusLabels[status]}</span
-                  >
-                  <h3>{lesson.title}</h3>
-                  <p class="muted">{lesson.description}</p>
-                  {#if status === "locked"}<p class="prerequisites">
-                      먼저 배워요: {missingPrerequisites(
-                        lesson.id,
-                        data.curriculum,
-                        data.snapshot.lessonStates,
-                      )
-                        .map(
-                          (id) =>
-                            data!.lessons.find((item) => item.id === id)
-                              ?.title ?? id,
-                        )
-                        .join(", ")}
-                    </p>{/if}
-                </div>
-                {#if status !== "locked"}<a
-                    class="button secondary"
-                    href={`${base}/learn/${lesson.id}`}
-                    aria-label={`${lesson.title} ${status === "completed" ? "다시 읽기" : "학습하기"}`}
+              </div>
+              {#if selectedTrack.description}<p class="muted">
+                  {selectedTrack.description}
+                </p>{/if}
+            </div>
+            <div class="lesson-list">
+              {#each selectedLessons as lesson, index}
+                {@const status = lessonStatus(
+                  lesson,
+                  data.curriculum,
+                  data.snapshot.lessonStates,
+                )}
+                <article
+                  class="card lesson-card"
+                  class:locked={status === "locked"}
+                >
+                  <span
+                    class="lesson-number"
+                    class:done={status === "completed"}
+                    aria-hidden="true"
                     >{status === "completed"
-                      ? "다시 읽기"
-                      : status === "in-progress"
-                        ? "이어하기"
-                        : "시작"}</a
-                  >{/if}
-              </article>
-            {/each}
+                      ? "✓"
+                      : String(index + 1).padStart(2, "0")}</span
+                  >
+                  <div class="lesson-info">
+                    <span class="badge" class:success={status === "completed"}
+                      >{statusLabels[status]}</span
+                    >
+                    <h3>{lesson.title}</h3>
+                    <p class="muted">{lesson.description}</p>
+                    {#if status === "locked"}<p class="prerequisites">
+                        먼저 배워요: {missingPrerequisites(
+                          lesson.id,
+                          data.curriculum,
+                          data.snapshot.lessonStates,
+                        )
+                          .map(
+                            (id) =>
+                              data!.lessons.find((item) => item.id === id)
+                                ?.title ?? id,
+                          )
+                          .join(", ")}
+                      </p>{/if}
+                  </div>
+                  {#if status !== "locked"}<a
+                      class="button secondary"
+                      href={`${base}/learn/${lesson.id}`}
+                      aria-label={`${lesson.title} ${status === "completed" ? "다시 읽기" : "학습하기"}`}
+                      >{status === "completed"
+                        ? "다시 읽기"
+                        : status === "in-progress"
+                          ? "이어하기"
+                          : "시작"}</a
+                    >{/if}
+                </article>
+              {/each}
+            </div>
           </div>
-        </div>
+        {/key}
       </div>
     </section>
   {/if}
@@ -394,6 +405,7 @@
     text-underline-offset: 0.2rem;
   }
   .track-surface {
+    overflow: hidden;
     touch-action: pan-y;
     overscroll-behavior-x: contain;
   }
@@ -459,6 +471,13 @@
     }
     .lesson-card .button {
       margin-left: 3.75rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .track-surface :global(*) {
+      transition-duration: 0ms !important;
+      animation-duration: 0ms !important;
     }
   }
 </style>
