@@ -192,11 +192,12 @@
   .matching-column { display: grid; min-width: 0; align-content: start; gap: 0.6rem; }
   .matching-column h3 { margin: 0; color: #334155; font-size: 0.9rem; }
   .card-list { display: grid; gap: 0.75rem; }
-  .memory-card { display: flex; align-items: center; gap: 0.5rem; width: 100%; min-height: 5rem; border: 1px solid #cbd5e1; border-radius: 0.75rem; background: white; padding: 0.75rem; color: #1e3a8a; text-align: center; cursor: pointer; }
+  .memory-card { display: flex; align-items: center; gap: 0.5rem; width: 100%; min-width: 0; max-width: 100%; min-height: 5rem; overflow: hidden; border: 1px solid #cbd5e1; border-radius: 0.75rem; background: white; padding: 0.75rem; color: #1e3a8a; text-align: center; cursor: pointer; }
   .memory-card.selected { border-color: #2563eb; background: #eff6ff; box-shadow: 0 0 0 2px rgb(37 99 235 / 15%); }
   .memory-card.matched { border-color: #16a34a; background: #f0fdf4; }
-  .card-content { flex: 1; min-width: 0; }
+  .card-content { flex: 1; min-width: 0; max-width: 100%; overflow-wrap: anywhere; word-break: break-word; }
   .card-content :global(p), .card-content :global(pre) { margin: 0; }
+  .card-content :global(pre), .card-content :global(code) { white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; }
   .answer-marker { flex: 0 0 auto; border-radius: 999px; background: #eef2ff; padding: 0.2rem 0.45rem; color: #3730a3; font-size: 0.78rem; font-weight: 700; white-space: nowrap; }
   .memory-card:disabled { cursor: default; }
   .memory-card:focus-visible { outline: 3px solid rgb(37 99 235 / 35%); outline-offset: 2px; }
