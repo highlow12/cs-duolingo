@@ -1,0 +1,37 @@
+schemaVersion: 1
+id: math.propositions.equivalence-01
+revision: 1
+type: ordering
+prompt:
+  - type: text
+    text: 두 명제 P와 Q의 AND 진리표를 입력 조합 순서대로 배열하세요.
+items:
+  - id: true-true
+    content:
+      - type: text
+        text: P=참, Q=참 → P ∧ Q=참
+  - id: true-false
+    content:
+      - type: text
+        text: P=참, Q=거짓 → P ∧ Q=거짓
+  - id: false-true
+    content:
+      - type: text
+        text: P=거짓, Q=참 → P ∧ Q=거짓
+  - id: false-false
+    content:
+      - type: text
+        text: P=거짓, Q=거짓 → P ∧ Q=거짓
+correctOrder:
+  - true-true
+  - true-false
+  - false-true
+  - false-false
+explanation:
+  - type: text
+    text: 입력 조합을 P부터 참·참, 참·거짓, 거짓·참, 거짓·거짓 순으로 나열하면 AND 결과는 첫 줄만 참이고 나머지는 거짓입니다.
+tags:
+  - discrete-math
+  - truth-table
+  - and
+difficulty: 2

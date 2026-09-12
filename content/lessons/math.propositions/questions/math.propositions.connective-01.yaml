@@ -1,0 +1,48 @@
+schemaVersion: 1
+id: math.propositions.connective-01
+revision: 1
+type: matching
+prompt:
+  - type: text
+    text: 논리 연산자와 그 의미를 알맞게 연결하세요.
+leftItems:
+  - id: not
+    content:
+      - type: text
+        text: ¬P
+  - id: and
+    content:
+      - type: text
+        text: P ∧ Q
+  - id: or
+    content:
+      - type: text
+        text: P ∨ Q
+rightItems:
+  - id: negate
+    content:
+      - type: text
+        text: P의 진리값을 뒤집는다
+  - id: both
+    content:
+      - type: text
+        text: P와 Q가 모두 참일 때 참이다
+  - id: either
+    content:
+      - type: text
+        text: P와 Q 중 하나 이상이 참이면 참이다
+correctPairs:
+  - leftId: not
+    rightId: negate
+  - leftId: and
+    rightId: both
+  - leftId: or
+    rightId: either
+explanation:
+  - type: text
+    text: NOT은 진리값을 반대로 만들고, AND는 모든 입력이 참일 때, OR는 하나 이상의 입력이 참일 때 참입니다.
+tags:
+  - discrete-math
+  - logic
+  - connectives
+difficulty: 1

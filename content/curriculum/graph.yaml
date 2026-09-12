@@ -54,6 +54,8 @@ nodes:
       - ds.queue
   - lesson: arch.binary
     requires: []
+  - lesson: math.propositions
+    requires: []
   - lesson: arch.logic
     requires:
       - arch.binary

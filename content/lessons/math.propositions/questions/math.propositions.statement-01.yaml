@@ -1,0 +1,34 @@
+schemaVersion: 1
+id: math.propositions.statement-01
+revision: 1
+type: single-choice
+prompt:
+  - type: text
+    text: 다음 중 참인지 거짓인지 판별할 수 있는 명제는 무엇인가요?
+options:
+  - id: arithmetic
+    content:
+      - type: text
+        text: 2 + 3 = 5
+  - id: command
+    content:
+      - type: text
+        text: 이 문장을 읽어 보세요.
+  - id: question
+    content:
+      - type: text
+        text: 지금 몇 시인가요?
+  - id: open-sentence
+    content:
+      - type: text
+        text: x + 1 = 3
+correctOptionId: arithmetic
+shuffleOptions: true
+explanation:
+  - type: text
+    text: 2 + 3 = 5는 참인지 거짓인지 판별할 수 있는 문장이므로 명제입니다. 명령문, 의문문, 값이 정해지지 않은 변수식은 명제가 아닙니다.
+tags:
+  - discrete-math
+  - propositions
+  - logic
+difficulty: 1

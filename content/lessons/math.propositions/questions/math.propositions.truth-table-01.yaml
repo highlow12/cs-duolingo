@@ -1,0 +1,26 @@
+schemaVersion: 1
+id: math.propositions.truth-table-01
+revision: 1
+type: single-choice
+prompt:
+  - type: text
+    text: P가 거짓이고 Q가 참일 때 P ∨ Q의 진리값은 무엇인가요?
+options:
+  - id: "true"
+    content:
+      - type: text
+        text: 참
+  - id: "false"
+    content:
+      - type: text
+        text: 거짓
+correctOptionId: "true"
+shuffleOptions: true
+explanation:
+  - type: text
+    text: OR는 두 명제 중 하나 이상이 참이면 참입니다. Q가 참이므로 P ∨ Q도 참입니다.
+tags:
+  - discrete-math
+  - truth-table
+  - or
+difficulty: 1

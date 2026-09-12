@@ -761,6 +761,8 @@ SPA에서도 브라우저의 일반적인 뒤로가기 동작을 유지한다.
 
 lesson node는 `Locked`, `Available`, `In Progress`, `Completed` 상태를 가진다. DAG의 모든 edge를 기계적으로 노출하기보다 학습 경로를 이해하기 쉽게 보여주는 것을 우선한다.
 
+학습 경로 화면은 현재 `Locked`가 아닌 lesson을 하나 이상 가진 트랙만 표시한다. 따라서 아직 진입할 수 없는 트랙은 화면과 트랙 탐색 대상에서 모두 제외된다. 현재 첫 진입에서 열리는 트랙은 Python, 컴퓨터 구조, 이산수학이며, 각 트랙에는 바로 시작할 수 있는 루트 lesson이 있다. 표시 순서는 트랙의 `order`를 따르며, 화면에 처음 들어오면 첫 번째로 열린 트랙 하나를 기본 선택한다. 열린 트랙이 추가되면 다음 진입 시 같은 규칙으로 목록에 포함된다. 트랙은 탭 버튼과 좌우 스와이프로 바꿀 수 있고, 스와이프 안내는 기기에 한 번만 표시한다.
+
 ### Lesson
 
 Lesson 화면은 progress bar, 현재 Content/Question, feedback, continue action으로 구성되는 player 역할을 한다.
