@@ -19,7 +19,7 @@ options:
   - type: text
     text: 화면의 모든 픽셀을 직접 그리는 장치다
 correctOptionId: temporary
-shuffleOptions: false
+shuffleOptions: true
 explanation:
 - type: text
   text: 레지스터는 CPU 가까이에서 명령 실행에 필요한 값을 빠르게 보관합니다.

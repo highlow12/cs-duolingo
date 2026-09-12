@@ -19,7 +19,7 @@ options:
   - type: text
     text: 변수 이름을 자동으로 바꾸기 위해서
 correctOptionId: repeat
-shuffleOptions: false
+shuffleOptions: true
 explanation:
 - type: text
   text: 반복문은 같은 규칙을 여러 회차에 적용할 때 사용합니다.

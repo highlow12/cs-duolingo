@@ -19,7 +19,7 @@ options:
   - type: text
     text: 방문 순서를 무작위로 고른다
 correctOptionId: level
-shuffleOptions: false
+shuffleOptions: true
 explanation:
 - type: text
   text: BFS는 큐를 이용해 거리나 레벨이 가까운 노드를 먼저 방문합니다.

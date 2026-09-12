@@ -480,7 +480,7 @@ options:
       - type: text
         text: 한 번 정한 자료형을 바꿀 수 없는 저장소다.
 correctOptionId: named-value
-shuffleOptions: false
+shuffleOptions: true
 explanation:
   - type: text
     text: 변수 이름을 사용하면 연결된 값을 다시 읽거나 바꿀 수 있습니다.
@@ -506,7 +506,7 @@ interface ChoiceOptionSource {
 
 - `options`는 2개 이상이어야 한다.
 - `correctOptionId`는 정확히 하나의 option을 참조해야 한다.
-- `shuffleOptions` 기본값은 `false`다.
+- `shuffleOptions` 기본값은 `true`다. 카드 위치 암기를 막기 위해 일반적인 선택형 문제는 섞어서 표시한다.
 - 제출한 option ID가 `correctOptionId`와 같을 때만 정답이다.
 
 ### 11.2 multi-select
@@ -538,7 +538,7 @@ options:
         language: python
         code: 2nd_place
 correctOptionIds: [score, user-name]
-shuffleOptions: false
+shuffleOptions: true
 ```
 
 ```ts

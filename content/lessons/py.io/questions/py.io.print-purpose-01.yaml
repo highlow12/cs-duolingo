@@ -23,7 +23,7 @@ options:
       - type: text
         text: 두 값을 비교해 bool을 만든다
 correctOptionId: show-value
-shuffleOptions: false
+shuffleOptions: true
 explanation:
   - type: text
     text: print()는 괄호 안의 값을 화면에 보여 줍니다. 사용자의 입력을 받는 함수는 input()입니다.

@@ -19,7 +19,7 @@ options:
   - type: text
     text: 값을 찾지 않고 배열을 정렬만 하는 방법
 correctOptionId: linear
-shuffleOptions: false
+shuffleOptions: true
 explanation:
 - type: text
   text: 선형 탐색은 정렬되지 않은 배열에서도 각 원소를 차례로 비교할 수 있습니다.

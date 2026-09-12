@@ -522,7 +522,9 @@ Question Host는 callback을 임의로 재호출하지 않는다. 저장 계층�
 
 ### 9.1 적용 대상
 
-- `single-choice`, `multi-select`: `shuffleOptions: true`일 때만 option을 섞는다.
+- `single-choice`, `multi-select`: 기본적으로 option을 섞는다. 콘텐츠가 `shuffleOptions: false`를 명시한 경우에만 source 순서를 유지한다.
+- `fill-blank`, `code-output`: 모든 attempt에서 선택 카드 순서를 섞는다.
+- `code-completion`: 모든 attempt에서 각 빈칸의 선택 카드 순서를 독립적으로 섞는다.
 - `ordering`: 모든 attempt의 최초 item 순서를 섞는다.
 - `matching`: 모든 attempt에서 left item은 왼쪽 A 열에 source 순서로 세로 배치하고, right item은 오른쪽 B 열에 세로 배치한다. B 열의 순서만 mount 시 섞으며, 모든 카드 내용을 처음부터 표시한다.
 - 나머지 type은 shuffle하지 않는다.
@@ -533,7 +535,7 @@ Question Host는 callback을 임의로 재호출하지 않는다. 저장 계층�
 - 선택 변경이나 component 재렌더링으로 순서를 바꾸지 않는다.
 - 첫 오답 뒤 두 번째 attempt를 시작할 때 새로 섞는다.
 - `shuffleOptions: false`인 선택형은 재시도에서도 source 순서를 유지한다.
-- 항목이 2개 이상이면 ordering의 최초 순서와 matching B 열의 순서는 가능한 한 직전 attempt와 다르게 만든다. A 열의 source 순서는 유지한다.
+- 항목이 2개 이상이면 선택 카드, ordering의 최초 순서와 matching B 열의 순서는 가능한 한 직전 attempt와 다르게 만든다. A 열의 source 순서는 유지한다.
 - 테스트에서 deterministic random source를 주입할 수 있어야 한다.
 
 ## 10. 시도 시간 측정

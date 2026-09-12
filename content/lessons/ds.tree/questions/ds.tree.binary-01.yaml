@@ -19,7 +19,7 @@ options:
   - type: text
     text: 모든 노드가 서로 원형으로 연결된다
 correctOptionId: two
-shuffleOptions: false
+shuffleOptions: true
 explanation:
 - type: text
   text: 이진 트리는 각 노드가 가질 수 있는 자식의 최대 수가 둘인 트리입니다.

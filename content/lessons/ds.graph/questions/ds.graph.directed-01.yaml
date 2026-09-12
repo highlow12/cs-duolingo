@@ -19,7 +19,7 @@ options:
   - type: text
     text: 정점이 없으므로 그래프가 될 수 없다
 correctOptionId: one-way
-shuffleOptions: false
+shuffleOptions: true
 explanation:
 - type: text
   text: 방향 그래프의 간선은 출발 정점에서 도착 정점으로의 이동만 나타냅니다.

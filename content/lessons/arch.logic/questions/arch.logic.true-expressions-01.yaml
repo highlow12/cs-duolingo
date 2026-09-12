@@ -26,7 +26,7 @@ correctOptionIds:
   - and-true
   - or-true
   - not-false
-shuffleOptions: false
+shuffleOptions: true
 explanation:
   - type: text
     text: AND는 두 입력이 모두 1일 때, OR는 하나 이상이 1일 때 1입니다. NOT 0의 출력은 1입니다.

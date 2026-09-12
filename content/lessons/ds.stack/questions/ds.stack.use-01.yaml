@@ -19,7 +19,7 @@ options:
   - type: text
     text: 임의 위치의 값을 항상 같은 비용으로 읽기
 correctOptionId: undo
-shuffleOptions: false
+shuffleOptions: true
 explanation:
 - type: text
   text: 실행 취소는 가장 최근 상태를 먼저 되돌리므로 LIFO 스택과 잘 맞습니다.

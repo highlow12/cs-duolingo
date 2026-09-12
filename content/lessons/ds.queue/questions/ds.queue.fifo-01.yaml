@@ -19,7 +19,7 @@ options:
   - type: text
     text: 원소가 무작위 순서로 나온다
 correctOptionId: first
-shuffleOptions: false
+shuffleOptions: true
 explanation:
 - type: text
   text: FIFO는 First In, First Out의 약자로 먼저 들어온 값이 먼저 나옵니다.

@@ -26,7 +26,7 @@ options:
       - type: text
         text: score가 문자열이기 때문이다.
 correctOptionId: enough-score
-shuffleOptions: false
+shuffleOptions: true
 explanation:
   - type: text
     text: 75는 60보다 크므로 score >= 60의 결과는 True입니다.

@@ -19,7 +19,7 @@ options:
   - type: text
     text: 실행되지 않는 설명 문장만 모아 둔 영역
 correctOptionId: reuse
-shuffleOptions: false
+shuffleOptions: true
 explanation:
 - type: text
   text: 함수는 동작을 묶어 이름을 붙이고 필요할 때 호출하게 합니다.

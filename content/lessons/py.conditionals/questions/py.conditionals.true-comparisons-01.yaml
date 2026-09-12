@@ -30,7 +30,7 @@ options:
         language: python
         code: score != 80
 correctOptionIds: [at-least-sixty, exactly-eighty]
-shuffleOptions: false
+shuffleOptions: true
 explanation:
   - type: text
     text: 80은 60 이상이고 80과 같으므로 두 식의 결과가 True입니다.

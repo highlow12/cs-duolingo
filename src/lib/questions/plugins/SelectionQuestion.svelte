@@ -32,6 +32,7 @@
   let selectedKeys = $state<string[]>([]);
   let displayedChoices = $state<DisplayChoice[]>([]);
   let previousRichOrder = $state<ChoiceOption[] | null>(null);
+  let previousTextOrder = $state<string[] | null>(null);
   let renderedKey = $state("");
   let renderedIdentity = $state("");
 
@@ -40,7 +41,10 @@
     if (renderedKey === key) return;
 
     const identity = `${question.id}:${question.revision}`;
-    if (renderedIdentity !== identity) previousRichOrder = null;
+    if (renderedIdentity !== identity) {
+      previousRichOrder = null;
+      previousTextOrder = null;
+    }
     renderedIdentity = identity;
     renderedKey = key;
 
@@ -49,13 +53,16 @@
         ? shuffleDistinct(question.options, random, previousRichOrder)
         : [...question.options];
       previousRichOrder = [...options];
+      previousTextOrder = null;
       displayedChoices = options.map((option) => ({
         key: option.id,
         content: option.content,
       }));
     } else {
       previousRichOrder = null;
-      displayedChoices = question.choices.map((choice) => ({
+      const choices = shuffleDistinct(question.choices, random, previousTextOrder);
+      previousTextOrder = [...choices];
+      displayedChoices = choices.map((choice) => ({
         key: choice,
         text: choice,
       }));

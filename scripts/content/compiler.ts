@@ -79,7 +79,7 @@ function transformQuestion(
   const result = structuredClone(question);
   result.lessonId = lessonId;
   if (result.type === "single-choice" || result.type === "multi-select")
-    result.shuffleOptions ??= false;
+    result.shuffleOptions ??= true;
   for (const field of ["prompt", "explanation"] as const) {
     if (Array.isArray(result[field]))
       result[field] = transformBlocks(

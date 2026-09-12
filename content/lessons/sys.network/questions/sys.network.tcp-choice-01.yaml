@@ -19,7 +19,7 @@ options:
   - type: text
     text: 전송 순서를 항상 무작위로 섞는다
 correctOptionId: reliable
-shuffleOptions: false
+shuffleOptions: true
 explanation:
 - type: text
   text: TCP는 확인과 재전송 등을 통해 순서가 있는 신뢰성 있는 전달을 지원합니다.

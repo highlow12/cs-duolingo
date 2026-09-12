@@ -34,7 +34,7 @@ options:
 correctOptionIds:
   - number-comparison
   - string-comparison
-shuffleOptions: false
+shuffleOptions: true
 explanation:
   - type: text
     text: 비교 연산식은 두 값을 비교한 결과로 True 또는 False를 만들므로 bool입니다. 산술식은 숫자를, 문자열 연산식은 문자열을 만듭니다.

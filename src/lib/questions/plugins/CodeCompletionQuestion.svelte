@@ -1,6 +1,7 @@
 <script lang="ts">
   import ContentBlockRenderer from "$lib/components/ContentBlockRenderer.svelte";
   import type { QuestionRendererProps } from "$lib/questions/renderer-contract";
+  import { shuffleDistinct } from "$lib/questions/shuffle";
 
   type Props = QuestionRendererProps<"code-completion">;
   let {
@@ -9,16 +10,32 @@
     attemptKey,
     reveal,
     submittedAnswer = null,
+    random = Math.random,
     onAnswerChange,
   }: Props = $props();
 
   let values = $state<Record<string, string>>({});
+  let displayedChoices = $state<Record<string, string[]>>({});
+  let previousChoices = $state<Record<string, string[]>>({});
   let renderedKey = $state("");
+  let renderedIdentity = $state("");
 
   $effect(() => {
-    const key = `${question.id}:${question.revision}:${attemptKey}`;
+    const identity = `${question.id}:${question.revision}`;
+    const key = `${identity}:${attemptKey}`;
     if (renderedKey === key) return;
+    if (renderedIdentity !== identity) previousChoices = {};
+    renderedIdentity = identity;
     renderedKey = key;
+    displayedChoices = Object.fromEntries(
+      question.blanks.map((blank) => [
+        blank.id,
+        shuffleDistinct(blank.choices, random, previousChoices[blank.id]),
+      ]),
+    );
+    previousChoices = Object.fromEntries(
+      Object.entries(displayedChoices).map(([id, choices]) => [id, [...choices]]),
+    );
     values = Object.fromEntries(question.blanks.map((blank) => [blank.id, ""]));
     onAnswerChange(null);
   });
@@ -78,7 +95,7 @@
       <section class="blank-section" aria-labelledby={labelId}>
         <h3 id={labelId} class="blank-label">빈칸 {index + 1}</h3>
         <div class="blank-choice-grid" role="group" aria-label={`빈칸 ${index + 1}의 선택지`}>
-          {#each blank.choices as choice}
+          {#each displayedChoices[blank.id] ?? [] as choice}
             {@const selected = values[blank.id] === choice}
             {@const submitted = isSubmitted(blank.id, choice)}
             {@const canonical = isCanonical(blank.id, choice)}

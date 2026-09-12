@@ -53,7 +53,7 @@ describe("content pipeline", () => {
     expect(lesson.flow[0]).not.toHaveProperty("ref");
     expect(question).toMatchObject({
       lessonId: "py.variables",
-      shuffleOptions: false,
+      shuffleOptions: true,
     });
     expect(compiled.manifest.questions).toEqual(
       [...compiled.questions.keys()].sort(),
@@ -64,6 +64,18 @@ describe("content pipeline", () => {
         "py.variables.what-is-01",
       ]),
     );
+  });
+
+  it("shuffles every authored single-choice and multi-select card set", async () => {
+    const bundle = await loadSourceContent(process.cwd());
+    const compiled = compileContent(bundle);
+    const questions = [...compiled.questions.values()] as Array<Record<string, unknown>>;
+    const selectionQuestions = questions.filter(
+      (question) => question.type === "single-choice" || question.type === "multi-select",
+    );
+
+    expect(selectionQuestions.length).toBeGreaterThan(0);
+    expect(selectionQuestions.every((question) => question.shuffleOptions)).toBe(true);
   });
 
   it("requires normalized answer choices and keeps accepted values inside them", async () => {

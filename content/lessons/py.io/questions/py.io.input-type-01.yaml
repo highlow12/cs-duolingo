@@ -27,7 +27,7 @@ options:
         language: python
         code: float
 correctOptionId: string
-shuffleOptions: false
+shuffleOptions: true
 explanation:
   - type: text
     text: input()은 입력한 글자를 항상 str로 돌려줍니다. 숫자 계산이 필요하면 int(input(...))처럼 변환해야 합니다.

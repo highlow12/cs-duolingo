@@ -19,7 +19,7 @@ options:
   - type: text
     text: '4'
 correctOptionId: five
-shuffleOptions: false
+shuffleOptions: true
 explanation:
 - type: text
   text: 101은 1×4 + 0×2 + 1×1이므로 5입니다.

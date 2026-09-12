@@ -23,7 +23,7 @@ options:
       - type: text
         text: 42를 반복한 결과
 correctOptionId: value-type
-shuffleOptions: false
+shuffleOptions: true
 explanation:
   - type: text
     text: type(value)는 값의 자료형을 알려 줍니다. type(42)의 결과에는 정수를 뜻하는 int가 들어 있습니다.

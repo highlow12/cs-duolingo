@@ -19,7 +19,7 @@ options:
       - type: text
         text: 네트워크 연결만 관리하는 객체다.
 correctOptionId: a
-shuffleOptions: false
+shuffleOptions: true
 explanation:
   - type: text
     text: 변수는 값을 가리키는 이름으로 사용할 수 있다.
