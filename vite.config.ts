@@ -5,6 +5,7 @@ import { defineConfig } from "vite";
 const base = (process.env.BASE_PATH ?? "") as "" | `/${string}`;
 
 export default defineConfig({
+  envPrefix: ["VITE_", "PUBLIC_"],
   plugins: [
     sveltekit({
       compilerOptions: {
