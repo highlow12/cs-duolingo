@@ -1,0 +1,20 @@
+schemaVersion: 1
+id: math.propositions.implication-01
+revision: 1
+type: fill-blank
+prompt:
+  - type: text
+    text: P가 참이고 Q가 거짓일 때 명제 P → Q의 진리값은 무엇인가요?
+choices:
+  - 참
+  - 거짓
+acceptedAnswers:
+  - 거짓
+explanation:
+  - type: text
+    text: 함의 P → Q는 P가 참인데 Q가 거짓인 경우에만 거짓입니다.
+tags:
+  - discrete-math
+  - implication
+  - logic
+difficulty: 2
